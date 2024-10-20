@@ -22,7 +22,7 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Sync repository
+    - name: Sync repository1
       run: |
         if [ ! -e "$SUBFOLDER" ];then
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -34,7 +34,7 @@ jobs:
         REPO_ADDR: https://github.com/217heidai/NestingDNS.git
         TARGET_BRANCH: main
 
-    - name: Sync repository
+    - name: Sync repository2
       run: |
         if [ ! -e "$SUBFOLDER" ];then
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -46,7 +46,7 @@ jobs:
         REPO_ADDR: https://github.com/cmj2002/warp-docker.git
         TARGET_BRANCH: main
 
-    - name: Sync repository
+    - name: Sync repository3
       run: |
         if [ ! -e "$SUBFOLDER" ];then
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -58,7 +58,7 @@ jobs:
         REPO_ADDR: https://github.com/gshang2017/docker.git
         TARGET_BRANCH: master
 
-    - name: Sync repository
+    - name: Sync repository4
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -70,7 +70,7 @@ jobs:
         REPO_ADDR: https://github.com/hjm2007/pac.git
         TARGET_BRANCH: main
 
-    - name: Sync repository
+    - name: Sync repository5
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -82,11 +82,9 @@ jobs:
         REPO_ADDR: https://github.com/smith-stack/sing-box.git
         TARGET_BRANCH: main
 
-    - name: push changes
-      run: |
-        git push
 
-    - name: Sync Cloudflare Workers
+
+    - name: Sync Cloudflare Workers1
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -98,7 +96,7 @@ jobs:
         REPO_ADDR: https://github.com/cmliu/CF-Workers-docker.io.git
         TARGET_BRANCH: main
 
-    - name: Sync Cloudflare Workers
+    - name: Sync Cloudflare Workers2
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
