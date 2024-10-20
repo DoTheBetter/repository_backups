@@ -82,9 +82,19 @@ jobs:
         REPO_ADDR: https://github.com/smith-stack/sing-box.git
         TARGET_BRANCH: main
 
-
-
     - name: Sync Cloudflare Workers1
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then	
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
+        else        
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
+        fi
+      env:
+        SUBFOLDER: Cloudflare_Workers/hunshcn_gh-proxy
+        REPO_ADDR: https://github.com/hunshcn/gh-proxy.git
+        TARGET_BRANCH: master
+
+    - name: Sync Cloudflare Workers2
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -96,7 +106,7 @@ jobs:
         REPO_ADDR: https://github.com/cmliu/CF-Workers-docker.io.git
         TARGET_BRANCH: main
 
-    - name: Sync Cloudflare Workers2
+    - name: Sync Cloudflare Workers3
       run: |
         if [ ! -e "$SUBFOLDER" ];then	
             git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
@@ -116,4 +126,4 @@ jobs:
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 1
-        keep_minimum_runs: 2
+        keep_minimum_runs: 1
