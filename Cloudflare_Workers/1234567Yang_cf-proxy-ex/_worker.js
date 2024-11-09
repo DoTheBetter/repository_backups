@@ -60,7 +60,12 @@ var mainOnly = path.substring(0, path.indexOf("://")) + "://" + original_host + 
 
 //---***========================================***---通用func---***========================================***---
 function changeURL(relativePath){
-  if(relativePath.startsWith("data:") || relativePath.startsWith("mailto:") || relativePath.startsWith("javascript:") || relativePath.startsWith("chrome") || relativePath.startsWith("edge")) return relativePath;
+  if(relativePath == null) return null;
+  try{
+    if(relativePath.startsWith("data:") || relativePath.startsWith("mailto:") || relativePath.startsWith("javascript:") || relativePath.startsWith("chrome") || relativePath.startsWith("edge")) return relativePath;
+  }catch{
+    // duckduckgo mysterious BUG that will trigger sometimes, just ignore ...
+  }
   try{
     if(relativePath && relativePath.startsWith(nowlink)) relativePath = relativePath.substring(nowlink.length);
     if(relativePath && relativePath.startsWith(base + "/")) relativePath = relativePath.substring(base.length + 1);
@@ -88,7 +93,7 @@ function changeURL(relativePath){
     absolutePath = nowlink + absolutePath;
     return absolutePath;
   } catch (e) {
-    console.log(path + "   " + relativePath);
+    console.log("Exception occured: " + e.message + path + "   " + relativePath);
     return "";
   }
 }
@@ -170,6 +175,24 @@ function appendChildInject(){
 };
 console.log("APPEND CHILD INJECTED");
 }
+
+
+
+
+//---***========================================***---注入元素的src和href---***========================================***---
+function elementPropertyInject(){
+const originalSetAttribute = HTMLElement.prototype.setAttribute;
+HTMLElement.prototype.setAttribute = function (name, value) {
+    if (name == "src" || name == "href") {
+      value = changeURL(value);
+      //console.log("~~~~~~" + value);
+    }
+    originalSetAttribute.call(this, name, value);
+};
+  console.log("ELEMENT PROPERTY (new Proxy) INJECTED");
+}
+
+
 
 
 //---***========================================***---注入location---***========================================***---
@@ -333,17 +356,27 @@ function historyInject(){
   const originalReplaceState = History.prototype.replaceState;
 
   History.prototype.pushState = function (state, title, url) {
-    var u = new URL(url, now.href).href;
+    var u = changeURL(url);
     return originalPushState.apply(this, [state, title, u]);
   };
+
   History.prototype.replaceState = function (state, title, url) {
-    console.log(nowlink);
-    console.log(url);
-    console.log(now.href);
-    var u = new URL(url, now.href).href;
-    console.log(u);
+    var u = changeURL(url);
     return originalReplaceState.apply(this, [state, title, u]);
   };
+
+  History.prototype.back = function () {
+    return originalBack.apply(this);
+  };
+
+  History.prototype.forward = function () {
+    return originalForward.apply(this);
+  };
+
+  History.prototype.go = function (delta) {
+    return originalGo.apply(this, [delta]);
+  };
+
   console.log("HISTORY INJECTED");
 }
 
@@ -394,10 +427,9 @@ function covToAbs(element) {
     if (!relativePath.includes("*")) {
         try {
           var absolutePath = changeURL(relativePath);
-          console.log(absolutePath);
           element.setAttribute(setAttr, absolutePath);
         } catch (e) {
-          console.log(path + "   " + relativePath);
+          console.log("Exception occured: " + e.message + path + "   " + relativePath);
         }
     }
   }
@@ -454,11 +486,11 @@ function covScript(){ //由于observer经过测试不会hook添加的script标�
 //---***========================================***---操作---***========================================***---
 networkInject();
 windowOpenInject();
-appendChildInject();
+elementPropertyInject();
+//appendChildInject(); 经过测试如果放上去将导致maps.google.com无法使用
 documentLocationInject();
 windowLocationInject();
-// historyInject();
-// 这里实在无能为力不想改，可以pr一个
+historyInject();
 
 
 
