@@ -82,6 +82,17 @@ jobs:
         REPO_ADDR: https://github.com/smith-stack/sing-box.git
         TARGET_BRANCH: main
 
+    - name: Sync repository6
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then	
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
+        else        
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash
+        fi
+      env:
+        SUBFOLDER: System/leitbogioro_Tools
+        REPO_ADDR: https://github.com/leitbogioro/Tools.git
+        TARGET_BRANCH: master
 
     - name: Sync Cloudflare Workers1
       run: |
