@@ -839,8 +839,10 @@ Allow: /$
 
     modifiedResponse = new Response(bd, response);
   } else {
-    var blob = await response.blob();
-    modifiedResponse = new Response(blob, response);
+    //var blob = await response.blob();
+    //modifiedResponse = new Response(blob, response);
+    //会导致大文件无法代理memory out
+    modifiedResponse = new Response(response.body, response);
   }
 
 
