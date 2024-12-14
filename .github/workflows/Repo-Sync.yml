@@ -1,0 +1,170 @@
+# File: .github/workflows/repo-sync-with-subtree.yml
+
+name: Sync Repository
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每天执行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+#System
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: System/217heidai_NestingDNS
+        REPO_ADDR: https://github.com/217heidai/NestingDNS
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: System/leitbogioro_Tools
+        REPO_ADDR: https://github.com/leitbogioro/Tools
+        TARGET_BRANCH: master
+
+#Docker
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: Docker/cmj2002_warp-docker
+        REPO_ADDR: https://github.com/cmj2002/warp-docker
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: Docker/gshang2017_docker
+        REPO_ADDR: https://github.com/gshang2017/docker
+        TARGET_BRANCH: master
+
+#Proxy
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: Proxy/hjm2007_pac
+        REPO_ADDR: https://github.com/hjm2007/pac
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: Proxy/smith-stack_sing-box
+        REPO_ADDR: https://github.com/smith-stack/sing-box
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: Proxy/fscarmen_sing-box
+        REPO_ADDR: https://github.com/fscarmen/sing-box
+        TARGET_BRANCH: main
+
+#CFworkers
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: CFworkers/hunshcn_gh-proxy
+        REPO_ADDR: https://github.com/hunshcn/gh-proxy
+        TARGET_BRANCH: master
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: CFworkers/cmliu_CF-Workers-docker.io
+        REPO_ADDR: https://github.com/cmliu/CF-Workers-docker.io
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: CFworkers/1234567Yang_cf-proxy-ex
+        REPO_ADDR: https://github.com/1234567Yang/cf-proxy-ex
+        TARGET_BRANCH: main
+
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: CFworkers/jonssonyan_cf-workers-proxy
+        REPO_ADDR: https://github.com/jonssonyan/cf-workers-proxy
+        TARGET_BRANCH: main
+
+
+    - name: push changes
+      run: |
+        git push
+
+    - name: Cleanup Workflow
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 1
