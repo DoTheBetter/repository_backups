@@ -47,6 +47,18 @@ jobs:
         REPO_ADDR: https://github.com/leitbogioro/Tools
         TARGET_BRANCH: master
 
+    - name: Sync repository
+      run: |
+        if [ ! -e "$SUBFOLDER" ];then
+            git subtree add --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "First : $REPO_ADDR"
+        else
+            git subtree pull --prefix=$SUBFOLDER $REPO_ADDR $TARGET_BRANCH --squash -m "Update : $REPO_ADDR"
+        fi
+      env:
+        SUBFOLDER: System/217heidai_OpenWrt-Builder
+        REPO_ADDR: https://github.com/217heidai/OpenWrt-Builder
+        TARGET_BRANCH: main
+
 #Docker
     - name: Sync repository
       run: |
