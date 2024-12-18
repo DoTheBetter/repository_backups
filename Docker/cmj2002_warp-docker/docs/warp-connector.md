@@ -17,8 +17,9 @@ services:
     image: caomingjun/warp
     container_name: warp
     restart: always
-    devices:
-      - /dev/net/tun:/dev/net/tun
+    # add removed rule back (https://github.com/opencontainers/runc/pull/3468)
+    device_cgroup_rules:
+      - 'c 10:200 rwm'
     ports:
       - "1080:1080"
     environment:
