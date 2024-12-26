@@ -1,0 +1,113 @@
+# File: .github/workflows/repo-sync-with-subtree.yml
+
+name: Sync Repository
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每天执行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 签出存储库
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 初始化环境
+      run: |
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: 定义函数脚本文件
+      run: |
+        cat > sync_repo.sh << \EOF
+        #!/bin/bash
+        
+        sync_repo() {
+            local repo_url=$1
+            local branch=$2
+            local target_dir=$3
+            reponame=$(basename "$repo_url")
+
+            echo "+++++++++++++++++++++++++++++++"
+            echo "开始同步 $repo_url $branch分支 到 $target_dir"
+            if [ -d "$target_dir" ]; then
+                echo "清理目标目录: $target_dir"
+                rm -rf "$target_dir"
+            fi
+            mkdir -p "$target_dir"
+            git clone --depth=1 --branch "$branch" "$repo_url" "$target_dir"
+            rm -rf "$target_dir/.git"
+            git add $target_dir
+            git commit -m "$(date +"%Y.%m.%d")：$repo_url" || echo "没有需要提交的更改"
+        }
+
+        sync_wiki() {
+            local repo_url=$1
+            local target_dir=$2
+            reponame=$(basename "$repo_url")
+
+            echo "+++++++++++++++++++++++++++++++"
+            echo "开始同步 ${repo_url}.wiki.git 到 $target_dir"
+            if [ -d "$target_dir" ]; then
+                echo "清理目标目录: $target_dir"
+                rm -rf "$target_dir"
+            fi
+            mkdir -p "$target_dir"
+            git clone --depth=1 "$repo_url".wiki.git "$target_dir"
+            rm -rf "$target_dir/.git"
+            git add $target_dir
+            git commit -m "$(date +"%Y.%m.%d")：${repo_url} wiki" || echo "没有需要提交的更改"
+        }
+
+        EOF
+        chmod +x sync_repo.sh
+
+    - name: 同步System文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "https://github.com/217heidai/NestingDNS" "main" "System/217heidai_NestingDNS"
+        sync_repo "https://github.com/leitbogioro/Tools" "master" "System/leitbogioro_Tools"
+
+    - name: 同步OpenWrt文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "https://github.com/217heidai/OpenWrt-Builder" "main" "OpenWrt/217heidai_OpenWrt-Builder_main"
+        sync_repo "https://github.com/217heidai/OpenWrt-Builder" "openwrt-23.05" "OpenWrt/217heidai_OpenWrt-Builder_openwrt-23.05"
+
+    - name: 同步Docker文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "https://github.com/cmj2002/warp-docker" "main" "Docker/cmj2002_warp-docker"
+        sync_repo "https://github.com/gshang2017/docker" "master" "Docker/gshang2017_docker"
+
+    - name: 同步Proxy文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "https://github.com/hjm2007/pac" "main" "Proxy/hjm2007_pac"
+        sync_repo "https://github.com/smith-stack/sing-box" "main" "Proxy/smith-stack_sing-box"
+        sync_repo "https://github.com/fscarmen/sing-box" "main" "Proxy/fscarmen_sing-box"
+        sync_wiki "https://github.com/Aethersailor/Custom_OpenClash_Rules" "Proxy/Aethersailor-Custom_OpenClash_Rules_wiki"
+        sync_repo "https://github.com/Aethersailor/Custom_OpenClash_Rules" "main" "Proxy/Aethersailor-Custom_OpenClash_Rules"
+
+    - name: 同步CFworkers文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "https://github.com/hunshcn/gh-proxy" "master" "CFworkers/hunshcn_gh-proxy"
+        sync_repo "https://github.com/cmliu/CF-Workers-docker.io" "main" "CFworkers/cmliu_CF-Workers-docker.io"
+        sync_repo "https://github.com/jonssonyan/cf-workers-proxy" "main" "CFworkers/jonssonyan_cf-workers-proxy"
+
+    - name: 推送更改
+      run: |
+        git push
+
+    - name: 清理工作流程
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+        retain_days: 1
+        keep_minimum_runs: 1
