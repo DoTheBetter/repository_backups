@@ -37,7 +37,7 @@ install() {
   # 下载 sing-box
   echo "正在下载 sing-box ..."
   local ONLINE=$(check_latest_sing-box)
-  local ONLINE=${ONLINE:-'1.11.0-beta.11'}
+  local ONLINE=${ONLINE:-'1.11.0-beta.15'}
   wget https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -O- | tar xz -C ${WORK_DIR} sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box && mv ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ${WORK_DIR}/sing-box && rm -rf ${WORK_DIR}/sing-box-$ONLINE-linux-$SING_BOX_ARCH
 
   # 下载 jq
@@ -54,10 +54,8 @@ install() {
 
   # 生成 sing-box 配置文件
   if [[ "$SERVER_IP" =~ : ]]; then
-    local WARP_ENDPOINT=2606:4700:d0::a29f:c101
     local DOMAIN_STRATEG=prefer_ipv6
   else
-    local WARP_ENDPOINT=162.159.193.10
     local DOMAIN_STRATEG=prefer_ipv4
   fi
 
@@ -126,7 +124,7 @@ EOF
             "private_key":"YFYOAdbw1bKTHlNNi+aEjBM3BO7unuFC5rOkMRAz9XY=",
             "peers": [
               {
-                "address": "${WARP_ENDPOINT}",
+                "address": "engage.cloudflareclient.com",
                 "port":2408,
                 "public_key":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
                 "allowed_ips": [

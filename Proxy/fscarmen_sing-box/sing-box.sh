@@ -543,7 +543,7 @@ check_install() {
     {
     local VERSION_LATEST=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- ${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v-]' '/tag_name/{print $5}' | sort -Vr | sed -n '1p')
     local ONLINE=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- ${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v]' -v var="tag_name.*$VERSION_LATEST" '$0 ~ var {print $5; exit}')
-    ONLINE=${ONLINE:-'1.11.0-beta.11'}
+    ONLINE=${ONLINE:-'1.11.0-beta.15'}
     wget --no-check-certificate --continue ${GH_PROXY}https://github.com/SagerNet/sing-box/releases/download/v$ONLINE/sing-box-$ONLINE-linux-$SING_BOX_ARCH.tar.gz -qO- | tar xz -C $TEMP_DIR sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box >/dev/null 2>&1
     [ -s $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box ] && mv $TEMP_DIR/sing-box-$ONLINE-linux-$SING_BOX_ARCH/sing-box $TEMP_DIR
     wget --no-check-certificate --continue -qO $TEMP_DIR/jq ${GH_PROXY}https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-$JQ_ARCH >/dev/null 2>&1 && chmod +x $TEMP_DIR/jq >/dev/null 2>&1
@@ -855,10 +855,8 @@ sing-box_variables() {
 
   # 根据服务 IP，使用不同的 warp 配置
   if [[ "$SERVER_IP" =~ : ]]; then
-    WARP_ENDPOINT=2606:4700:d0::a29f:c101
     DOMAIN_STRATEG=prefer_ipv6
   else
-    WARP_ENDPOINT=162.159.193.10
     DOMAIN_STRATEG=prefer_ipv4
   fi
 
@@ -1207,7 +1205,7 @@ EOF
             "private_key":"YFYOAdbw1bKTHlNNi+aEjBM3BO7unuFC5rOkMRAz9XY=",
             "peers": [
               {
-                "address": "${WARP_ENDPOINT}",
+                "address": "engage.cloudflareclient.com",
                 "port":2408,
                 "public_key":"bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
                 "allowed_ips": [
@@ -2886,7 +2884,7 @@ uninstall() {
 version() {
   local VERSION_LATEST=$(wget --no-check-certificate -qO- ${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v-]' '/tag_name/{print $5}' | sort -Vr | sed -n '1p')
   local ONLINE=$(wget --no-check-certificate -qO- ${GH_PROXY}https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v]' -v var="tag_name.*$VERSION_LATEST" '$0 ~ var {print $5; exit}')
-  local ONLINE='1.11.0-beta.11'
+  local ONLINE='1.11.0-beta.15'
   local LOCAL=$(${WORK_DIR}/sing-box version | awk '/version/{print $NF}')
   info "\n $(text 40) "
   [[ -n "$ONLINE" && "$ONLINE" != "$LOCAL" ]] && reading "\n $(text 9) " UPDATE || info " $(text 41) "
