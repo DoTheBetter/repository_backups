@@ -77,6 +77,7 @@ jobs:
     - name: 同步OpenWrt文件夹
       run: |
         source ./sync_repo.sh
+        sync_repo "https://github.com/P3TERX/Actions-OpenWrt" "main" "OpenWrt/P3TERX_Actions-OpenWrt"
         sync_repo "https://github.com/217heidai/OpenWrt-Builder" "main" "OpenWrt/217heidai_OpenWrt-Builder_main"
         sync_repo "https://github.com/217heidai/OpenWrt-Builder" "openwrt-23.05" "OpenWrt/217heidai_OpenWrt-Builder_openwrt-23.05"
 
@@ -106,8 +107,13 @@ jobs:
       run: |
         git push
 
-    - name: 清理工作流程
-      uses: Mattraks/delete-workflow-runs@v2
-      with:
-        retain_days: 1
-        keep_minimum_runs: 1
+
+  Delete_Workflow:
+    needs: [ sync ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 清理工作流程
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 1
