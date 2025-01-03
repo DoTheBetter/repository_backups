@@ -50,7 +50,7 @@ Telegram 讨论群组：https://t.me/custom_openclash_rules_group
 * **自动更新，长期无人值守。**  设置完成后即可长期无人值守，每日定时自动更新上游规则 GEO 数据库和大陆白名单等具有时效性要求的数据，无需自己动手。    
 * **海外下载流量优化。**  尽力避免海外下载流量走节点，节约节点流量。（尚不完善）。  
 * **支持广告屏蔽功能和 hosts 加速。**  依靠 OpenClash 配合系统自带 Dnsmasq 实现广告过滤和 hosts 加速功能，并实现每日自动更新，支持添加多个规则。（可选）
-* **增加更多的节点区域分组。**  增加包括英国、加拿大等国家的节点分组。
+* **增加更多的节点区域分组。**  增加包括英国、加拿大等国家的节点分组，参考本项目推荐机场的节点地区设定。
 * **增加若干冷门域名规则。**  增加了一些小众网站的直连规则，可以自己 PR 提交域名参与完善规则。  
 
 # 使用方法  
@@ -64,8 +64,9 @@ Telegram 讨论群组：https://t.me/custom_openclash_rules_group
 由于本项目为自用目的，且个人时间有限，只能随缘更新，因此不提供个性化修改服务。  
 具体个性化实现方式，请参考 Wiki 中的对应章节：[个性化需求](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E#%E5%85%B3%E4%BA%8E%E4%B8%AA%E6%80%A7%E5%8C%96%E9%9C%80%E6%B1%82)
 
-## 关于冷门国内域名收录问题
-如果遇到缺失的冷门国内域名，参考 Wiki 对应章节：[关于国内冷门域名的收录](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E#%E5%85%B3%E4%BA%8E%E5%86%B7%E9%97%A8%E5%9B%BD%E5%86%85%E5%9F%9F%E5%90%8D%E7%9A%84%E6%94%B6%E5%BD%95)
+## 关于冷门国内域名收录问题  
+若需要添加少量需要直连的国内冷门域名，建议使用 OpenClash 的自定义规则功能，插入相关的规则条目。  
+如果希望本项目收录你认为需要直连的国内冷门域名，请参考 Wiki 对应章节：[关于国内冷门域名的收录](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E#%E5%85%B3%E4%BA%8E%E5%86%B7%E9%97%A8%E5%9B%BD%E5%86%85%E5%9F%9F%E5%90%8D%E7%9A%84%E6%94%B6%E5%BD%95)
 
 ## 关于广告过滤  
 本项目借助 OpenClash 的“开发者选项”功能，实现不依赖第三方插件的广告过滤功能。  
@@ -149,6 +150,7 @@ Traffic、GB、Expire
 # 许可		
 [![](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](https://creativecommons.org/licenses/by-sa/4.0/deed.zh)
 * CC-BY-SA-4.0  
+* 强烈鄙视所有不遵循 LICENSE 的行为。  
 
 # 星标记录
 
