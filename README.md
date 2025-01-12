@@ -23,7 +23,7 @@
 ## Docker
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/gshang2017/docker | master | 2025.01.11 | Docker集合 |
+| https://github.com/gshang2017/docker | master | 2025.01.13 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2025.01.09 | Warp Docker镜像 |
 
 ## Proxy
