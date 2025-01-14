@@ -107,6 +107,7 @@ jobs:
         sync_repo "Proxy" "https://github.com/fscarmen/sing-box" "main" "Proxy/fscarmen_sing-box" "Sing-box代理工具"
         sync_wiki "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "Proxy/Aethersailor-Custom_OpenClash_Rules_wiki" "OpenClash自定义Wiki"
         sync_repo "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "main" "Proxy/Aethersailor-Custom_OpenClash_Rules" "OpenClash自定义"
+        sync_repo "Proxy" "https://github.com/DustinWin/dustinwin.github.io" "main" "Proxy/DustinWin-github.io" "mihomo和sing-box教程合集"
 
     - name: 同步CFworkers文件夹
       run: |
