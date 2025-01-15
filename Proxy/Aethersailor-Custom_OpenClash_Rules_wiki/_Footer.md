@@ -1,4 +1,3 @@
-# 欢迎访问本项目的 Wiki ！
 * # [OpenClash 设置方案](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenClash-%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)  
 
 讲解本项目相关的 OpenClash 设置方法。  

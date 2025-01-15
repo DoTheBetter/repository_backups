@@ -1,1 +1,1 @@
-Welcome to the Custom_OpenClash_Rules wiki!
+# 欢迎访问本项目的 Wiki ！
