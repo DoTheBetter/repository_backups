@@ -1,43 +1,64 @@
 # 前言  
+
 让你优雅的使用 OpenWrt 的 IPv6 功能。  
+
 本方案设置以 OpenWrt 主路由拨号环境设置。  
+
 ## 关于旁路由和二级路由  
+
 * **不提供旁路由的任何设置方案**  
+
 * **强烈建议使用主路由环境，抛弃旁路由。旁路由出问题自己想办法，不要提问。**  
+
 具体原因见：[为什么不推荐设置旁路由](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8%E6%97%81%E8%B7%AF%E7%94%B1)   
 
 至于二级路由，网上教程很多，我自己没有这样的使用环境，所以也不提供任何设置方案，请自行百度。  
 
 ## 关于 DNS  
+
 强烈建议使用三大运行商通告的 DNS，不论是解析速度还是结果的科学性，都不是第三方 DNS 可以比拟的。  
+
 且运行商 DNS 只用于解析中国大陆域名，不存在污染问题，没必要折腾 DNS 插件去搞所谓的优选。   
+
 ## 关于 IPv6  
+
 现在三大运行商的家宽基本都提供 IPv6 地址，首先确定你的宽带能够获得 IPv6-PD 地址才能适用本方案。如果不能的话，暂时请寻求其他的解决方案。日后我会更新无 PD 地址的设置方案。  
 
 # IPv6 设置方案  
+
 由于 OpenWrt 和 Lean's Lede 的设置界面不同，两种固件都提供了相应的截图，请根据你的设置界面在下方方案中找对应的设置。  
   
 ## OpenWrt  
+
 本人使用的是 ImmortalWrt 的 SNAPSHOT 版本，OpenWrt 设置同理  
 
 ### 1. Dnsmasq 设置  
+
 * 关闭 Dnsmasq 的“过滤 IPv6 AAAA 记录”功能。  
+
 如果不关闭此项，Dnsmasq 解析的地址中不会返回 IPv6 地址，也就无法访问 IPv6 网站。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/v6-7.png)  
 
 
 ### 2. WAN 口设置 IPv6 地址  
+
 **WAN 口方法分为，自动创建和手动创建，请二选一即可。**  
 
 * **自动创建**  
 
 没什么特别的要求用自动创建就行。  
+
 1. 不需要新建 WAN6，已有的 WAN6 接口要删除。  
+
 2. 在 WAN 口的高级设置中，开启 IPv6 的选项，并勾选使用运行商通告的 DNS。  
+
 3. IPv6 分配长度设为禁用。
-4. 委托 IPv6 前缀勾选(不勾的话 lan 是没有 IPv6 地址的)。
-5. IPv6 首选项不要填，填了会获取不到地址的。 
+
+4. 委托 IPv6 前缀勾选(不勾的话 lan 是没有 IPv6 地址的)。  
+
+5. IPv6 首选项不要填，填了会获取不到地址的。   
+
 6. 按图设置。 
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/v6-1.png)  
@@ -49,6 +70,7 @@
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/v6-3.png)  
 
 * 保存并应用设置后，你的接口界面中应该会出现一个虚拟的 wan_6接口。注意此接口是无法编辑设置的。  
+
 * 确认红框中的 IPv6-PD 地址，获取到了这个地址才能进行下一步操作。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/wan.png)   
@@ -58,12 +80,17 @@
 * **手动创建**  
 
 禁用以下选项：  
+
 WAN > 高级设置 > 获取 IPv6 地址  
+
 WAN > 高级设置 > IPv6 源路由
+
 WAN > 高级设置 > 委托 IPv6 前缀  
+
 WAN > 高级设置 > IPv6 分配长度  
 
 在 OpenWrt > 网络 > 接口界面，新建一个接口，并命名为 WAN6  
+
 按照图中内容对 WAN6 接口进行配置  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/wan6-1.png)  
@@ -75,6 +102,7 @@ WAN > 高级设置 > IPv6 分配长度
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/wan2.png)  
 
 如果你没有 PD 地址，说明你的 PD 地址被上一级路由占用了，或者干脆你的运行商没给。  
+
 如果是前者，不适用本方案。如果是后者，直接打你光猫上的电话联系运维师傅（不要打 10000 号等电话，浪费时间），和运维师傅确认宽带是否能提供 IPv6-PD 地址，以及你的光猫桥接设置中是否选择了 IPv4&IPv6（有些师傅会只设置 IPv4）。   
 
 ### 3. LAN 口设置下发 IPv6 地址  
