@@ -1,6 +1,6 @@
 ---
 title: 生成带有自定义策略组和规则的 mihomo 配置文件直链-geodata 方案
-description: 此方案适用于 mihomo，采用 `GEOSITE` 和 `GEOIP` 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
+description: 此教程搭载 mihomo 内核，采用 `GEOSITE` 和 `GEOIP` 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
 date: 2024-08-21 07:12:24 +0800
 categories: [直链配置, mihomo 直链]
 tags: [Clash, mihomo, 直链, 订阅, geodata, geosite, 基础]
@@ -10,11 +10,11 @@ tags: [Clash, mihomo, 直链, 订阅, geodata, geosite, 基础]
 {: .prompt-tip }
 1. 本教程可以生成扩展名为 .yaml 配置文件直链，可以**一键导入使用了 [mihomo](https://github.com/MetaCubeX/mihomo) 内核的客户端**  
 如：[ShellCrash](https://github.com/juewuy/ShellCrash)、[OpenClash](https://github.com/vernesong/OpenClash) 和 [Clash Verge](https://github.com/clash-verge-rev/clash-verge-rev) 等，详见[支持 mihomo 的工具](https://wiki.metacubex.one/startup/client)
-2. 生成的订阅链接地址不会改变，支持更新订阅，**支持国内访问，支持同步机场节点**
-3. 生成的订阅链接**自带规则集**，规则集来源 [DustinWin/ruleset_geodata/geodata](https://github.com/DustinWin/ruleset_geodata?tab=readme-ov-file#%E4%B8%80-geodata-%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E)
-4. 请先**确定自己机场的订阅链接是否为 Clash 订阅链接**，若不是，需前往[肥羊在线订阅转换工具](https://suburl.v1.mk)进行转换，“生成类型”选择“Clash”，其它参数保持默认即可，转换后的订阅链接需要在末尾添加 `&flag=clash`，然后添加到 .yaml 文件代理集合 `proxy-providers` 的 `url` 中
-5. 推荐使用 [Visual Studio Code](https://code.visualstudio.com/Download) 等专业编辑器来修改配置文件
-6. ShellCrash 支持本地导入配置文件，可以直接将下方的 .yaml 直链文件内容复制到 `$CRASHDIR/yamls/config.yaml`{: .filepath} 文件中，可代替通过 ShellCrash 配置脚本 → 6 → 2 导入配置文件的方式
+1. 生成的订阅链接地址不会改变，支持更新订阅，**支持国内访问，支持同步机场节点**
+2. 生成的订阅链接**自带规则集**，规则集来源 [DustinWin/ruleset_geodata/geodata](https://github.com/DustinWin/ruleset_geodata?tab=readme-ov-file#%E4%B8%80-geodata-%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E)
+3. 请先**确定自己机场的订阅链接是否为 Clash 订阅链接**，若不是，需前往[肥羊在线订阅转换工具](https://suburl.v1.mk)进行转换，“生成类型”选择“Clash”，其它参数保持默认即可，转换后的订阅链接需要在末尾添加 `&flag=clash`，然后添加到 .yaml 文件代理集合 `proxy-providers` 的 `url` 中
+4. 推荐使用 [Visual Studio Code](https://code.visualstudio.com/Download) 等专业编辑器来修改配置文件
+5. ShellCrash 支持本地导入配置文件，可以直接将下方的 .yaml 直链文件内容复制到 `$CRASHDIR/yamls/config.yaml`{: .filepath} 文件中，可代替通过 ShellCrash 配置脚本 → 6 → 2 导入配置文件的方式
 
 ## 一、 准备编辑 .yaml 直链文件
 ### 1. 注册 [Gist](https://gist.github.com)
@@ -33,14 +33,14 @@ tags: [Clash, mihomo, 直链, 订阅, geodata, geosite, 基础]
 ```yaml
 ## 代理集合（获取机场订阅链接内的所有节点）
 proxy-providers:
-  🛫 我的机场 1:
+  🛫 机场订阅 1:
     type: http
     ## 机场订阅链接，使用 Clash 链接
     url: "https://example.com/xxx/xxx&flag=clash"
     path: ./proxies/airport1.yaml
     interval: 86400
     ## 初步筛选需要的节点，可有效减轻路由器压力，支持正则表达式，不筛选可删除此配置项
-    filter: "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states"
+    filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)"
     ## 初步排除不需要的节点，支持正则表达式，若不排除可删除此配置项
     exclude-filter: "高倍|直连|×10"
     health-check:
@@ -48,27 +48,27 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 600
     override:
-      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 我的机场 1-香港节点”；推荐有多个机场时使用
-      additional-prefix: "🛫 我的机场 1-"
-      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 我的机场 1”；推荐有多个机场时使用
-      additional-suffix: "-🛫 我的机场 1"
+      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 机场订阅 1-香港节点”；推荐有多个机场时使用
+      additional-prefix: "🛫 机场订阅 1-"
+      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 机场订阅 1”；推荐有多个机场时使用
+      additional-suffix: "-🛫 机场订阅 1"
 
-  🛫 我的机场 2:
+  🛫 机场订阅 2:
     type: http
     url: "https://example.com/xxx/xxx&flag=clash"
     path: ./proxies/airport2.yaml
     interval: 86400
-    filter: "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states"
+    filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)"
     exclude-filter: "高倍|直连|×10"
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 600
     override:
-      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 我的机场 2-香港节点”；推荐有多个机场时使用
-      additional-prefix: "🛫 我的机场 2-"
-      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 我的机场 2”；推荐有多个机场时使用
-      additional-suffix: "-🛫 我的机场 2"
+      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 机场订阅 2-香港节点”；推荐有多个机场时使用
+      additional-prefix: "🛫 机场订阅 2-"
+      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 机场订阅 2”；推荐有多个机场时使用
+      additional-suffix: "-🛫 机场订阅 2"
 
 ## 单个出站代理节点（以 vless 为例）
 proxies:
@@ -110,13 +110,13 @@ proxy-groups:
 
   ## ----------------国家或地区策略组---------------------
   ## 自动选择节点，即按照 url 测试结果使用延迟最低的节点；测试后容差大于 50ms 才会切换到延迟低的那个节点；筛选出“香港”节点，支持正则表达式
-  - {name: 🇭🇰 香港节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)港|hk|hongkong|hong kong"}
+  - {name: 🇭🇰 香港节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong)"}
   ## 节点负载均衡，即将请求均匀分配到多个节点上，优点是更稳定，速度可能有提升；将相同顶级域名的请求分配给策略组内的同一个代理节点；推荐在节点复用比较多的情况下使用
-  - {name: 🇹🇼 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)台|tw|taiwan"}
-  ## 可使用 `include-all-providers: true` 代替 `use: [🛫 我的机场 1, 🛫 我的机场 2, ...]`，意思为引入所有代理集合
-  - {name: 🇯🇵 日本节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)日本|jp|japan"}
-  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)新|sg|singapore"}
-  - {name: 🇺🇸 美国节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)美|us|unitedstates|united states"}
+  - {name: 🇹🇼 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇹🇼|台|tw|taiwan|tai wan)"}
+  ## 可使用 `include-all-providers: true` 代替 `use: [🛫 机场订阅 1, 🛫 机场订阅 2, ...]`，意思为引入所有代理集合
+  - {name: 🇯🇵 日本节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)(🇯🇵|日|jp|japan)"}
+  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇸🇬|新|sg|singapore)"}
+  - {name: 🇺🇸 美国节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇺🇸|美|us|unitedstates|united states)"}
 
 ## 规则
 rules:
@@ -148,14 +148,14 @@ rules:
 ```yaml
 ## 代理集合（获取机场订阅链接内的所有节点）
 proxy-providers:
-  🛫 我的机场 1:
+  🛫 机场订阅 1:
     type: http
     ## 机场订阅链接，使用 Clash 链接
     url: "https://example.com/xxx/xxx=1&flag=clash"
     path: ./proxies/airport1.yaml
     interval: 86400
     ## 初步筛选需要的节点，可有效减轻路由器压力，支持正则表达式，不筛选可删除此配置项
-    filter: "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states"
+    filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)"
     ## 初步排除不需要的节点，支持正则表达式，若不排除可删除此配置项
     exclude-filter: "高倍|直连|×10"
     health-check:
@@ -163,27 +163,27 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 600
     override:
-      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 我的机场 1-香港节点”；推荐有多个机场时使用
-      additional-prefix: "🛫 我的机场 1-"
-      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 我的机场 1”；推荐有多个机场时使用
-      additional-suffix: "-🛫 我的机场 1"
+      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 机场订阅 1-香港节点”；推荐有多个机场时使用
+      additional-prefix: "🛫 机场订阅 1-"
+      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 机场订阅 1”；推荐有多个机场时使用
+      additional-suffix: "-🛫 机场订阅 1"
 
-  🛫 我的机场 2:
+  🛫 机场订阅 2:
     type: http
     url: "https://example.com/xxx/xxx=2&flag=clash"
     path: ./proxies/airport2.yaml
     interval: 86400
-    filter: "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states"
+    filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)"
     exclude-filter: "高倍|直连|×10"
     health-check:
       enable: true
       url: https://www.gstatic.com/generate_204
       interval: 600
     override:
-      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 我的机场 2-香港节点”；推荐有多个机场时使用
-      additional-prefix: "🛫 我的机场 2-"
-      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 我的机场 2”；推荐有多个机场时使用
-      additional-suffix: "-🛫 我的机场 2"
+      ## 为节点名称添加固定前缀，如节点名称原为“香港节点”会变成“🛫 机场订阅 2-香港节点”；推荐有多个机场时使用
+      additional-prefix: "🛫 机场订阅 2-"
+      ## 为节点名称添加固定后缀，如节点名称原为“香港节点”会变成“香港节点-🛫 机场订阅 2”；推荐有多个机场时使用
+      additional-suffix: "-🛫 机场订阅 2"
 
 ## 单个出站代理节点（以 vless 为例）
 proxies:
@@ -218,13 +218,13 @@ proxy-groups:
 
   ## ----------------国家或地区策略组---------------------
   ## 自动选择节点，即按照 url 测试结果使用延迟最低的节点；容差大于 50ms 就会切换到延迟低的那个节点；筛选出“香港”节点，支持正则表达式
-  - {name: 🇭🇰 香港节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)港|hk|hongkong|hong kong"}
+  - {name: 🇭🇰 香港节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong)"}
   ## 节点负载均衡，即将请求均匀分配到多个节点上，优点是更稳定，速度可能有提升；将相同顶级域名的请求分配给策略组内的同一个代理节点；推荐在节点复用比较多的情况下使用
-  - {name: 🇹🇼 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)台|tw|taiwan"}
-  ## 可使用 `include-all-providers: true` 代替 `use: [🛫 我的机场 1, 🛫 我的机场 2, ...]`，意思为引入所有代理集合
-  - {name: 🇯🇵 日本节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)日本|jp|japan"}
-  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)新|sg|singapore"}
-  - {name: 🇺🇸 美国节点, type: url-test, tolerance: 50, use: [🛫 我的机场 1, 🛫 我的机场 2], filter: "(?i)美|us|unitedstates|united states"}
+  - {name: 🇹🇼 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇹🇼|台|tw|taiwan|tai wan)"}
+  ## 可使用 `include-all-providers: true` 代替 `use: [🛫 机场订阅 1, 🛫 机场订阅 2, ...]`，意思为引入所有代理集合
+  - {name: 🇯🇵 日本节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)(🇯🇵|日|jp|japan)"}
+  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇸🇬|新|sg|singapore)"}
+  - {name: 🇺🇸 美国节点, type: url-test, tolerance: 50, use: [🛫 机场订阅 1, 🛫 机场订阅 2], filter: "(?i)(🇺🇸|美|us|unitedstates|united states)"}
 
 ## 规则
 rules:
@@ -264,9 +264,9 @@ proxy-groups:
   ## 默认选择日本节点，也可切换到直连
   - {name: 📺 哔哩哔哩, type: select, proxies: [🇯🇵 日本节点, 🎯 全球直连]}
   ## 自动选择延迟最低的新加坡节点；容差大于 50ms 才会切换到延迟低的那个节点
-  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)(新|sg|singapore)"}
+  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, include-all-providers: true, filter: "(?i)(🇸🇬|新|sg|singapore)"}
   ## 手动选择日本任一节点
-  - {name: 🇯🇵 日本节点, type: select, include-all-providers: true, filter: "(?i)日本|jp|japan"}
+  - {name: 🇯🇵 日本节点, type: select, include-all-providers: true, filter: "(?i)(🇯🇵|日|jp|japan)"}
   - {name: 🎯 全球直连, type: select, proxies: [DIRECT]}
 
 ## 规则

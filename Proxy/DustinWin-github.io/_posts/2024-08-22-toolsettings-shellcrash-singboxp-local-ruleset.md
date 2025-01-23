@@ -1,6 +1,6 @@
 ---
 title: ShellCrash 搭载 sing-boxp 内核本地配置自定义出站和规则-ruleset 方案
-description: 此方案适用于 sing-box，搭载 sing-boxp 内核，采用 `rule_set` 规则搭配 .srs 和 .json 规则集文件
+description: 此教程搭载 sing-boxp 内核，可通过修改本地配置文件的方式来自定义出站和规则 `rule_set`
 date: 2024-08-22 18:10:32 +0800
 categories: [工具配置, ShellCrash 配置]
 tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Router]
@@ -37,7 +37,7 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
     // 出站提供者（获取机场订阅链接内的所有节点）
     "outbound_providers": [
       {
-        "tag": "🛫 我的机场 1",
+        "tag": "🛫 机场订阅 1",
         "type": "remote",
         // 机场订阅链接，使用 Clash 链接
         "download_url": "https://example.com/xxx/xxx&flag=clash",
@@ -45,35 +45,35 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
         "download_interval": "24h",
         "download_ua": "clash.meta",
         // 初步筛选需要的节点，可有效减轻路由器压力，支持正则表达式，若不筛选可删除此配置项
-        "includes": [ "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states" ],
+        "includes": [ "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)" ],
         // 初步排除不需要的节点，支持正则表达式，若不排除可删除此配置项
         "excludes": "高倍|直连|×10",
         "healthcheck_url": "https://www.gstatic.com/generate_204",
         "healthcheck_interval": "10m",
         "outbound_override": {
-          // 设置出站标签的前缀，如出站标签原为“香港节点”会变成“🛫 我的机场 1-香港节点”；推荐有多个机场时使用
-          "tag_prefix": "🛫 我的机场 1-",
-          // 设置出站标签的后缀，如出站标签原为“香港节点”会变成“香港节点-🛫 我的机场 1”；推荐有多个机场时使用
-          "tag_suffix": "-🛫 我的机场 1"
+          // 设置出站标签的前缀，如出站标签原为“香港节点”会变成“🛫 机场订阅 1-香港节点”；推荐有多个机场时使用
+          "tag_prefix": "🛫 机场订阅 1-",
+          // 设置出站标签的后缀，如出站标签原为“香港节点”会变成“香港节点-🛫 机场订阅 1”；推荐有多个机场时使用
+          "tag_suffix": "-🛫 机场订阅 1"
         }
       },
       {
-        "tag": "🛫 我的机场 2",
+        "tag": "🛫 机场订阅 2",
         "type": "remote",
         // 机场订阅链接，使用 sing-box 链接
         "download_url": "https://example.com/xxx/xxx",
         "path": "./providers/airport2.json",
         "download_interval": "24h",
         "download_ua": "sing-box",
-        "includes": [ "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states" ],
+        "includes": [ "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)" ],
         "excludes": "高倍|直连|×10",
         "healthcheck_url": "https://www.gstatic.com/generate_204",
         "healthcheck_interval": "10m",
         "outbound_override": {
-          // 设置出站标签的前缀，如出站标签原为“香港节点”会变成“🛫 我的机场 2-香港节点”；推荐有多个机场时使用
-          "tag_prefix": "🛫 我的机场 2-",
-          // 设置出站标签的后缀，如出站标签原为“香港节点”会变成“香港节点-🛫 我的机场 2”；推荐有多个机场时使用
-          "tag_suffix": "-🛫 我的机场 2"
+          // 设置出站标签的前缀，如出站标签原为“香港节点”会变成“🛫 机场订阅 2-香港节点”；推荐有多个机场时使用
+          "tag_prefix": "🛫 机场订阅 2-",
+          // 设置出站标签的后缀，如出站标签原为“香港节点”会变成“香港节点-🛫 机场订阅 2”；推荐有多个机场时使用
+          "tag_suffix": "-🛫 机场订阅 2"
         }
       }
     ]
@@ -119,11 +119,11 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
 
     // -------------------- 国家或地区出站 --------------------
     // 自动选择节点，即按照 url 测试结果使用延迟最低的节点；测试后容差大于 50ms 才会切换到延迟低的那个节点；筛选出“香港”节点，支持正则表达式
-    { "tag": "🇭🇰 香港节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)港|hk|hongkong|hong kong" ] },
-    { "tag": "🇹🇼 台湾节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)台|tw|taiwan" ] },
-    { "tag": "🇯🇵 日本节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)日本|jp|japan" ] },
-    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)新|sg|singapore" ] },
-    { "tag": "🇺🇸 美国节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)美|us|unitedstates|united states" ] }
+    { "tag": "🇭🇰 香港节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇭🇰|港|hk|hongkong|hong kong)" ] },
+    { "tag": "🇹🇼 台湾节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇹🇼|台|tw|taiwan|tai wan)" ] },
+    { "tag": "🇯🇵 日本节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇯🇵|日|jp|japan)" ] },
+    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇸🇬|新|sg|singapore)" ] },
+    { "tag": "🇺🇸 美国节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇺🇸|美|us|unitedstates|united states)" ] }
   ]
 }
 ```
@@ -278,9 +278,9 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
     // 默认选择日本节点，也可切换到直连
     { "tag": "📺 哔哩哔哩", "type": "selector", "outbounds": [ "🇯🇵 日本节点", "🎯 全球直连" ] },
     // 自动选择延迟最低的新加坡节点；容差大于 50ms 才会切换到延迟低的那个节点
-    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(新|sg|singapore)" ] },
+    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "use_all_providers": true, "includes": [ "(?i)(🇸🇬|新|sg|singapore)" ] },
     // 手动选择日本任一节点
-    { "tag": "🇯🇵 日本节点", "type": "selector", "use_all_providers": true, "includes": [ "(?i)日本|jp|japan" ] }
+    { "tag": "🇯🇵 日本节点", "type": "selector", "use_all_providers": true, "includes": [ "(?i)(🇯🇵|日|jp|japan)" ] }
   ]
 }
 ```

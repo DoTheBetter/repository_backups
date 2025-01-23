@@ -1,6 +1,6 @@
 ---
 title: 分享 ShellCrash 搭载 sing-boxp 内核搭配 AdGuard Home 采用 ruleset 方案的一套配置
-description: 此方案适用于 sing-box，搭载 sing-boxp 内核，采用 `rule_set` 规则搭配 .srs 和 .json 规则集文件
+description: 此配置搭载 sing-boxp 内核，采用 `rule_set` 规则搭配 .srs 和 .json 规则集文件
 date: 2024-08-22 19:51:07 +0800
 categories: [分享配置, Router]
 tags: [sing-box, sing-boxp, ShellCrash, AdGuard Home, ruleset, rule_set, 分享, Router]
@@ -21,14 +21,14 @@ tags: [sing-box, sing-boxp, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
 {
   "outbound_providers": [
     {
-      "tag": "🛫 我的机场",
+      "tag": "🛫 机场订阅",
       "type": "remote",
       // 修改为你的 Clash 订阅链接
       "download_url": "https://example.com/xxx/xxx&flag=clash",
       "path": "./providers/airport.yaml",
       "download_interval": "24h",
       "download_ua": "clash.meta",
-      "includes": [ "(?i)港|hk|hongkong|hong kong|台|tw|taiwan|日本|jp|japan|新|sg|singapore|美|us|unitedstates|united states" ],
+      "includes": [ "(?i)(🇭🇰|港|hk|hongkong|hong kong|🇹🇼|台|tw|taiwan|tai wan|🇯🇵|日|jp|japan|🇸🇬|新|sg|singapore|🇺🇸|美|us|unitedstates|united states)" ],
       "healthcheck_url": "https://www.gstatic.com/generate_204",
       "healthcheck_interval": "10m"
     },
@@ -73,11 +73,11 @@ tags: [sing-box, sing-boxp, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
       "tls": { "enabled": true, "server_name": "example.com", "insecure": false },
       "transport": { "type": "ws", "path": "/?ed=2048", "headers": { "Host": "example.com" } }
     },
-    { "tag": "🇭🇰 香港节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 我的机场" ], "includes": [ "(?i)港|hk|hongkong|hong kong" ] },
-    { "tag": "🇹🇼 台湾节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 我的机场" ], "includes": [ "(?i)台|tw|taiwan" ] },
-    { "tag": "🇯🇵 日本节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 我的机场" ], "includes": [ "(?i)日|jp|japan" ] },
-    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 我的机场" ], "includes": [ "(?i)(新|sg|singapore)" ] },
-    { "tag": "🇺🇸 美国节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 我的机场" ], "includes": [ "(?i)美|us|unitedstates|united states" ] },
+    { "tag": "🇭🇰 香港节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 机场订阅" ], "includes": [ "(?i)(🇭🇰|港|hk|hongkong|hong kong)" ] },
+    { "tag": "🇹🇼 台湾节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 机场订阅" ], "includes": [ "(?i)(🇹🇼|台|tw|taiwan|tai wan)" ] },
+    { "tag": "🇯🇵 日本节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 机场订阅" ], "includes": [ "(?i)(🇯🇵|日|jp|japan)" ] },
+    { "tag": "🇸🇬 新加坡节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 机场订阅" ], "includes": [ "(?i)(🇸🇬|新|sg|singapore)" ] },
+    { "tag": "🇺🇸 美国节点", "type": "urltest", "tolerance": 50, "providers": [ "🛫 机场订阅" ], "includes": [ "(?i)(🇺🇸|美|us|unitedstates|united states)" ] },
     { "tag": "🆓 免费节点", "type": "urltest", "tolerance": 100, "providers": [ "🆓 免费订阅" ] }
   ],
   "route": {
