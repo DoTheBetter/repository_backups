@@ -10,7 +10,7 @@
 
 * **强烈建议使用主路由环境，抛弃旁路由。旁路由出问题自己想办法，不要提问。**  
 
-具体原因见：[为什么不推荐设置旁路由](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8%E6%97%81%E8%B7%AF%E7%94%B1)   
+具体原因见：[关于旁路由的一些吐槽](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B3%E4%BA%8E%E6%97%81%E8%B7%AF%E7%94%B1%E7%9A%84%E4%B8%80%E4%BA%9B%E5%90%90%E6%A7%BD)  
 
 至于二级路由，网上教程很多，我自己没有这样的使用环境，所以也不提供任何设置方案，请自行百度。  
 
