@@ -413,17 +413,7 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 * ### 开发者选项  
 
-此项设置来自恩山论坛相关教程贴，具体什么作用我忘记了。  
-
-按照图中内容，找到 Hash Demo 下的对应代码，取消注释并修改 true 为 false  
-
-```
-ruby_edit "$CONFIG_FILE" "['experimental']" "{'sniff-tls-sni'=>false}"
-```    
-
-新版本中似乎没有这一行选项，忽略本条即可。  
-
-![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/9.png)  
+此页面不做任何修改  
 
 
 ***
