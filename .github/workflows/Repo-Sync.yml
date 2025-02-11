@@ -98,6 +98,8 @@ jobs:
         source ./sync_repo.sh
         sync_repo "Docker" "https://github.com/cmj2002/warp-docker" "main" "Docker/cmj2002_warp-docker" "Warp Docker镜像"
         sync_repo "Docker" "https://github.com/gshang2017/docker" "master" "Docker/gshang2017_docker" "Docker集合"
+        sync_repo "Docker" "https://github.com/abcfy2/aria2-static-build" "main" "Docker/abcfy2_aria2-static-build" "aria2-static-build"
+        sync_repo "Docker" "https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu" "main" "Docker/abcfy2_docker-musl-cross-toolchain-ubuntu" "toolchain based on Ubuntu docker image"
 
     - name: 同步Proxy文件夹
       run: |
