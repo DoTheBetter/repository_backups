@@ -3,7 +3,7 @@
 
 由 Wiki 的编辑历史可以检索到 Wiki 第一个版本是2024年5月6日编写，前后修订几十个版本进行了完善。  
 [Wiki 编辑历史](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/_history?page=6)  
-鄙视所有转载不注明出处（包括但不限于转载本项目以及 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR/tree/master)、[blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) 等上游项目）的行为！  
+鄙视所有转载不注明出处（包括但不限于转载本项目以及转载 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR/tree/master)、[blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) 等上游项目）的行为！  
 
 请尊重开源社区的基本守则！  
 
@@ -67,7 +67,7 @@
 
 我个人始终坚持认为如果一个主路由可以满足使用需求的情况下，用旁路由纯粹就是脱裤子放屁。  
 
-个人观点：[关于旁路由的一些吐槽](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B3%E4%BA%8E%E6%97%81%E8%B7%AF%E7%94%B1%E7%9A%84%E4%B8%80%E4%BA%9B%E5%90%90%E6%A7%BD)  
+个人观点：[关于旁路由的一些吐槽](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B3%E4%BA%8E%E2%80%9C%E6%97%81%E8%B7%AF%E7%94%B1%E2%80%9D%E7%9A%84%E4%B8%80%E4%BA%9B%E5%90%90%E6%A7%BD)  
 
 所以下文的设置内容虽然都是根据主路由环境而设置的，但是亦在旁路由涉及的设置差异方面进行了对应的说明，请旁路由用户根据自身理解自行修改对应的设置。未说明的部分无需改变。    
   
