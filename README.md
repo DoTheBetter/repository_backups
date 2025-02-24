@@ -24,7 +24,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu | main | 2025.02.11 | toolchain based on Ubuntu docker image |
-| https://github.com/abcfy2/aria2-static-build | main | 2025.02.11 | aria2-static-build |
+| https://github.com/abcfy2/aria2-static-build | main | 2025.02.25 | aria2-static-build |
 | https://github.com/gshang2017/docker | master | 2025.02.19 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2025.02.22 | Warp Docker镜像 |
 
