@@ -1,9 +1,9 @@
 ---
-title: 分享 Clash.Meta for Android 采用 ruleset 方案的一套配置
+title: 分享 FlClash for Android 采用 ruleset 方案的一套配置
 description: 此配置搭载 mihomo 内核，采用 `RULE-SET` 规则搭配 .list 和 .mrs 规则集合文件
 date: 2024-08-21 18:08:13 +0800
 categories: [分享配置, Android]
-tags: [Clash, Clash.Meta, mihomo, Android, ruleset, rule-set, 分享]
+tags: [Clash, FlClash, mihomo, Android, ruleset, rule-set, 分享]
 ---
 
 > 声明
@@ -102,32 +102,32 @@ proxies:
         host: example.com
 
 proxy-groups:
-  - {name: 🚀 节点选择, type: select, proxies: [🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🆓 免费节点, 🆚 vless 节点]}
+  - {name: 节点选择, type: select, proxies: [香港节点, 台湾节点, 日本节点, 新加坡节点, 美国节点, 免费节点, 🆚 vless 节点], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Proxy.png"}
   ## 若机场的 UDP 质量不是很好，导致某游戏无法登录或进入房间，可以添加 `disable-udp: true` 配置项解决
-  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
-  - {name: 📈 网络测试, type: select, proxies: [🎯 全球直连, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🆓 免费节点, 🆚 vless 节点]}
-  - {name: 🤖 人工智能, type: select, proxies: [🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点 🇸🇬 新加坡节点, 🇺🇸 美国节点]}
-  - {name: 🎮 游戏服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🪟 微软服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🇬 谷歌服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🍎 苹果服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🛡️ 直连域名, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🀄️ 直连 IP, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
-  - {name: 🧱 代理域名, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
-  - {name: 📲 电报消息, type: select, proxies: [🚀 节点选择]}
-  - {name: 🖥️ 直连软件, type: select, proxies: [🎯 全球直连]}
-  - {name: 🔒 私有网络, type: select, proxies: [🎯 全球直连]}
-  - {name: 🛑 广告域名, type: select, proxies: [🔴 全球拦截, 🟢 全球绕过]}
-  - {name: 🔴 全球拦截, type: select, proxies: [REJECT]}
-  - {name: 🟢 全球绕过, type: select, proxies: [PASS]}
-  - {name: 🎯 全球直连, type: select, proxies: [DIRECT]}
+  - {name: 漏网之鱼, type: select, proxies: [节点选择, 全球直连], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Final.png"}
+  - {name: 网络测试, type: select, proxies: [全球直连, 香港节点, 台湾节点, 日本节点, 新加坡节点, 美国节点, 免费节点, 🆚 vless 节点], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Speedtest.png"}
+  - {name: 人工智能, type: select, proxies: [香港节点, 台湾节点, 日本节点, 新加坡节点, 美国节点], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Bot.png"}
+  - {name: 游戏服务, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Game.png"}
+  - {name: 微软服务, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Microsoft.png"}
+  - {name: 谷歌服务, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Google_Search.png"}
+  - {name: 苹果服务, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Apple_2.png"}
+  - {name: 直连域名, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/China_Map.png"}
+  - {name: 直连 IP, type: select, proxies: [全球直连, 节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/CN.png"}
+  - {name: 代理域名, type: select, proxies: [节点选择, 全球直连], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Global.png"}
+  - {name: 电报消息, type: select, proxies: [节点选择], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Telegram.png"}
+  - {name: 直连软件, type: select, proxies: [全球直连], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Download.png"}
+  - {name: 私有网络, type: select, proxies: [全球直连], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/color/personal.png"}
+  - {name: 广告域名, type: select, proxies: [全球拦截, 全球绕过], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Advertising.png"}
+  - {name: 全球拦截, type: select, proxies: [REJECT], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Reject.png"}
+  - {name: 全球绕过, type: select, proxies: [PASS], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Bypass.png"}
+  - {name: 全球直连, type: select, proxies: [DIRECT], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Direct.png"}
 
-  - {name: 🇭🇰 香港节点, type: url-test, tolerance: 50, use: [🛫 机场订阅], filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong)"}
-  - {name: 🇹🇼 台湾节点, type: url-test, tolerance: 50, use: [🛫 机场订阅], filter: "(?i)(🇹🇼|台|tw|taiwan|tai wan)"}
-  - {name: 🇯🇵 日本节点, type: url-test, tolerance: 50, use: [🛫 机场订阅], filter: "(?i)(🇯🇵|日|jp|japan)"}
-  - {name: 🇸🇬 新加坡节点, type: url-test, tolerance: 50, use: [🛫 机场订阅], filter: "(?i)(🇸🇬|新|sg|singapore)"}
-  - {name: 🇺🇸 美国节点, type: url-test, tolerance: 50, use: [🛫 机场订阅], filter: "(?i)(🇺🇸|美|us|unitedstates|united states)"}
-  - {name: 🆓 免费节点, type: url-test, tolerance: 50, use: [🆓 免费订阅]}
+  - {name: 香港节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong)", icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Hong_Kong.png"}
+  - {name: 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇹🇼|台|tw|taiwan|tai wan)", icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Taiwan.png"}
+  - {name: 日本节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇯🇵|日|jp|japan)", icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Japan.png"}
+  - {name: 新加坡节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇸🇬|新|sg|singapore)", icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/Singapore.png"}
+  - {name: 美国节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇺🇸|美|us|unitedstates|united states)", icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/qure/color/United_States.png"}
+  - {name: 免费节点, type: url-test, tolerance: 50, use: [🆓 免费订阅], icon: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/icon/color/vpn.png"}
 
 rule-providers:
   fakeip-filter:
@@ -259,24 +259,30 @@ rule-providers:
     interval: 86400
 
 rules:
-  - RULE-SET,applications,🖥️ 直连软件
-  - RULE-SET,private,🔒 私有网络
-  - RULE-SET,ads,🛑 广告域名
-  - RULE-SET,microsoft-cn,🪟 微软服务
-  - RULE-SET,apple-cn,🍎 苹果服务
-  - RULE-SET,google-cn,🇬 谷歌服务
-  - RULE-SET,games-cn,🎮 游戏服务
-  - RULE-SET,ai,🤖 人工智能
-  - RULE-SET,networktest,📈 网络测试
-  - RULE-SET,proxy,🧱 代理域名
-  - RULE-SET,tld-cn,🛡️ 直连域名
-  - RULE-SET,cn,🛡️ 直连域名
-  - RULE-SET,telegramip,📲 电报消息,no-resolve
-  - RULE-SET,privateip,🔒 私有网络,no-resolve
-  - RULE-SET,cnip,🀄️ 直连 IP
-  - MATCH,🐟 漏网之鱼
+  - RULE-SET,applications,直连软件
+  - RULE-SET,private,私有网络
+  - RULE-SET,ads,广告域名
+  - RULE-SET,microsoft-cn,微软服务
+  - RULE-SET,apple-cn,苹果服务
+  - RULE-SET,google-cn,谷歌服务
+  - RULE-SET,games-cn,游戏服务
+  - RULE-SET,ai,人工智能
+  - RULE-SET,networktest,网络测试
+  - RULE-SET,proxy,代理域名
+  - RULE-SET,tld-cn,直连域名
+  - RULE-SET,cn,直连域名
+  - RULE-SET,telegramip,电报消息,no-resolve
+  - RULE-SET,privateip,私有网络,no-resolve
+  - RULE-SET,cnip,直连 IP
+  - MATCH,漏网之鱼
 ```
 
 ## 二、 导入配置文件并启动
-1. 进入 [Clash.Meta for Android](https://github.com/MetaCubeX/ClashMetaForAndroid) → 配置 → 创建配置 → 从 URL 导入，“URL”输入《[一](https://proxy-tutorials.dustinwin.top/posts/share-android-mihomo-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-yaml-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .yaml 直链，“自动更新”填写 `1440`，最后点击右上角的“保存图标”
-2. 返回到主界面，点击“点此启用”即可启动
+1. 进入 [FlClash for Android](https://github.com/chen08209/FlClash) → 配置 → 添加配置 → URL，“URL”输入《[一](https://proxy-tutorials.dustinwin.top/posts/share-android-mihomo-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-yaml-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .yaml 直链，点击“提交”
+2. 待配置下载完成后返回到主界面，点击“▶”即可启动
+
+## 三、 在线 Dashboard 面板
+推荐使用在线 Dashboard 面板 [zashboard](https://github.com/Zephyruso/zashboard)，访问地址：<https://board.zash.run.place>
+1. 进入 FlClash for Android → 工具 → 设置 → 覆写 → 基础，启用“外部控制器”
+2. 首次进入 <https://board.zash.run.place> 需要添加“后端地址”，直接点击“提交”即可访问 Dashboard 面板  
+<img src="/assets/img/share/127-9090-phone-dashboard.jpg" alt="在线 Dashboard 面板" width="60%" />
