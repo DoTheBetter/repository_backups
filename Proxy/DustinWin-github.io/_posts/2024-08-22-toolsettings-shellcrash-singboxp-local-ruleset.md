@@ -94,6 +94,7 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
     // 选择`🎯 全球直连`为测试本地网络（运营商网络速度和 IPv6 支持情况），可选择其它节点用于测试机场节点速度和 IPv6 支持情况
     { "tag": "📈 网络测试", "type": "selector", "outbounds": [ "🎯 全球直连", "🇭🇰 香港节点", "🇹🇼 台湾节点", "🇯🇵 日本节点", "🇸🇬 新加坡节点", "🇺🇸 美国节点", "🆓 免费节点" ] },
     { "tag": "🤖 人工智能", "type": "selector", "outbounds": [ "🇭🇰 香港节点", "🇹🇼 台湾节点", "🇯🇵 日本节点", "🇰🇷 韩国节点", "🇸🇬 新加坡节点", "🇺🇸 美国节点" ] },
+    { "tag": "📥 Trackerslist", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🎮 游戏服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🪟 微软服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🇬 谷歌服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
@@ -102,7 +103,6 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
     { "tag": "🀄️ 直连 IP", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🧱 代理域名", "type": "selector", "outbounds": [ "🈯 节点指定", "🎯 全球直连" ] },
     { "tag": "📲 电报消息", "type": "selector", "outbounds": [ "🈯 节点指定" ] },
-    { "tag": "🔒 私有网络", "type": "selector", "outbounds": [ "🎯 全球直连" ] },
     { "tag": "🛑 广告域名", "type": "selector", "outbounds": [ "🔴 全球拦截", "🎯 全球直连" ] },
     { "tag": "🔴 全球拦截", "type": "selector", "outbounds": [ "REJECT" ] },
 
@@ -144,8 +144,9 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
       // 规则
       "rules": [
         // 自定义规则优先放前面
-        { "rule_set": [ "private" ], "outbound": "🔒 私有网络" },
+        { "rule_set": [ "private" ], "outbound": "🎯 全球直连" },
         { "rule_set": [ "ads" ], "outbound": "🛑 广告域名" },
+        { "rule_set": [ "trackerslist" ], "outbound": "📥 Trackerslist" },
         { "rule_set": [ "microsoft-cn" ], "outbound": "🪟 微软服务" },
         { "rule_set": [ "apple-cn" ], "outbound": "🍎 苹果服务" },
         { "rule_set": [ "google-cn" ], "outbound": "🇬 谷歌服务" },
@@ -155,9 +156,9 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
         { "rule_set": [ "proxy" ], "outbound": "🧱 代理域名" },
         { "rule_set": [ "tld-cn" ], "outbound": "🛡️ 直连域名" },
         { "rule_set": [ "cn" ], "outbound": "🛡️ 直连域名" },
-        { "rule_set": [ "telegramip" ], "outbound": "📲 电报消息", "skip_resolve": true },
-        { "rule_set": [ "privateip" ],  "outbound": "🔒 私有网络", "skip_resolve": true },
-        { "rule_set": [ "cnip" ], "outbound": "🀄️ 直连 IP" }
+        { "rule_set": [ "privateip" ],  "outbound": "🎯 全球直连", "skip_resolve": true },
+        { "rule_set": [ "cnip" ], "outbound": "🀄️ 直连 IP" },
+        { "rule_set": [ "telegramip" ], "outbound": "📲 电报消息", "skip_resolve": true }
       ],
       // 规则集（binary 文件每天自动更新）
       "rule_set": [
@@ -174,6 +175,13 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
           "format": "binary",
           "path": "./ruleset/ads.srs",
           "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/ads.srs"
+        },
+        {
+          "tag": "trackerslist",
+          "type": "remote",
+          "format": "binary",
+          "path": "./ruleset/trackerslist.srs",
+          "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/trackerslist.srs"
         },
         {
           "tag": "microsoft-cn",
@@ -239,13 +247,6 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
           "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/cn.srs"
         },
         {
-          "tag": "telegramip",
-          "type": "remote",
-          "format": "binary",
-          "path": "./ruleset/telegramip.srs",
-          "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/telegramip.srs"
-        },
-        {
           "tag": "privateip",
           "type": "remote",
           "format": "binary",
@@ -258,6 +259,13 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
           "format": "binary",
           "path": "./ruleset/cnip.srs",
           "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/cnip.srs"
+        },
+        {
+          "tag": "telegramip",
+          "type": "remote",
+          "format": "binary",
+          "path": "./ruleset/telegramip.srs",
+          "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset-compatible/telegramip.srs"
         }
       ],
       "concurrent_dial": true
@@ -266,9 +274,6 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
   ```
 
   按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
-
-**贴一张面板效果图（举个例子：我手动选择 `🇹🇼 台湾节点` 出站，而该出站是将机场内所有台湾节点按照 url 测试结果自动选择延迟最低的台湾节点）：**  
-<img src="/assets/img/tools/show-dashboard.png" alt="面板效果图" width="60%" />
 
 ## 四、 修改出站或规则
 **举例：我的机场包含有 2 个节点，分别是新加坡节点和日本节点，我想让 [Netflix](https://www.netflix.com/) 自动选择延迟最低的新加坡节点，[哔哩哔哩](https://www.bilibili.com)可以手动选择日本任一节点**  

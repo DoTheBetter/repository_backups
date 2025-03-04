@@ -86,6 +86,14 @@ rule-providers:
     url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.mrs"
     interval: 86400
 
+  trackerslist:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./rules/trackerslist.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
+    interval: 86400
+
   microsoft-cn:
     type: http
     behavior: domain
@@ -158,14 +166,6 @@ rule-providers:
     url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"
     interval: 86400
 
-  telegramip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    path: ./rules/telegramip.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/telegramip.mrs"
-    interval: 86400
-
   privateip:
     type: http
     behavior: ipcidr
@@ -180,6 +180,14 @@ rule-providers:
     format: mrs
     path: ./rules/cnip.mrs
     url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs"
+    interval: 86400
+
+  telegramip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    path: ./rules/telegramip.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/telegramip.mrs"
     interval: 86400
 ```
 
@@ -252,6 +260,12 @@ rule-providers:
     - 🇸🇬 新加坡节点
     - 🇺🇸 美国节点
 
+- name: 📥 Trackerslist
+  type: select
+  proxies:
+    - 🎯 全球直连
+    - 🈯 节点指定
+
 - name: 🎮 游戏服务
   type: select
   proxies:
@@ -298,11 +312,6 @@ rule-providers:
   type: select
   proxies:
     - 🚀 节点选择
-
-- name: 🔒 私有网络
-  type: select
-  proxies:
-    - 🎯 全球直连
 
 - name: 🛑 广告域名
   type: select
@@ -365,8 +374,9 @@ rule-providers:
 ## 规则
 
 ## 自定义规则优先放前面
-- RULE-SET,private,🔒 私有网络
+- RULE-SET,private,🎯 全球直连
 - RULE-SET,ads,🛑 广告域名
+- RULE-SET,trackerslist,📥 Trackerslist
 - RULE-SET,microsoft-cn,🪟 微软服务
 - RULE-SET,apple-cn,🍎 苹果服务
 - RULE-SET,google-cn,🇬 谷歌服务
@@ -376,14 +386,12 @@ rule-providers:
 - RULE-SET,proxy,🧱 代理域名
 - RULE-SET,tld-cn,🛡️ 直连域名
 - RULE-SET,cn,🛡️ 直连域名
-- RULE-SET,telegramip,📲 电报消息,no-resolve
-- RULE-SET,privateip,🔒 私有网络,no-resolve
+- RULE-SET,privateip,🎯 全球直连,no-resolve
 - RULE-SET,cnip,🀄️ 直连 IP
+- RULE-SET,telegramip,📲 电报消息,no-resolve
 ```
 
-按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车  
-**贴一张面板效果图（举个例子：我手动选择 `🇹🇼 台湾节点` 策略组，而该策略组是将机场内所有台湾节点按照 url 测试结果自动选择延迟最低的台湾节点）：**  
-<img src="/assets/img/tools/show-dashboard.png" alt="面板效果图" width="60%" />
+按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
 ## 四、 修改策略组或规则
 **举例：我的机场包含有 2 个节点，分别是新加坡节点和日本节点，我想让 [Netflix](https://www.netflix.com/) 自动选择延迟最低的新加坡节点，[哔哩哔哩](https://www.bilibili.com)可以手动选择日本任一节点**  
@@ -485,8 +493,6 @@ rule-providers:
 
 ## 以 googleapis.cn 为后缀（包括 googleapis.cn）的所有域名走代理
 - DOMAIN-SUFFIX,googleapis.cn,🚀 节点选择
-## 与哔哩哔哩相关的所有域名走直连
-- GEOSITE,bilibili,DIRECT
 ## 含有 ipv6 关键字的所有域名走直连
 - DOMAIN-KEYWORD,ipv6,DIRECT
 ```
