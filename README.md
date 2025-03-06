@@ -31,7 +31,7 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2025.03.05 | mihomo和sing-box教程合集 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2025.03.07 | mihomo和sing-box教程合集 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.03.06 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.03.04 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.02.07 | Sing-box代理工具 |
@@ -42,5 +42,5 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/jonssonyan/cf-workers-proxy | main | 2025.02.28 | CF Workers代理工具 |
-| https://github.com/cmliu/CF-Workers-docker.io | main | 2025.02.22 | CF Workers Docker镜像 |
+| https://github.com/cmliu/CF-Workers-docker.io | main | 2025.03.07 | CF Workers Docker镜像 |
 | https://github.com/hunshcn/gh-proxy | master | 2025.01.09 | GitHub代理工具 |
