@@ -260,7 +260,7 @@ rule-providers:
     - 🇸🇬 新加坡节点
     - 🇺🇸 美国节点
 
-- name: 📥 Trackerslist
+- name: 📋 Trackerslist
   type: select
   proxies:
     - 🎯 全球直连
@@ -376,7 +376,7 @@ rule-providers:
 ## 自定义规则优先放前面
 - RULE-SET,private,🎯 全球直连
 - RULE-SET,ads,🛑 广告域名
-- RULE-SET,trackerslist,📥 Trackerslist
+- RULE-SET,trackerslist,📋 Trackerslist
 - RULE-SET,microsoft-cn,🪟 微软服务
 - RULE-SET,apple-cn,🍎 苹果服务
 - RULE-SET,google-cn,🇬 谷歌服务

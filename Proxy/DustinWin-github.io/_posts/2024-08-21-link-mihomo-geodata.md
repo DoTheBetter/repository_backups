@@ -94,7 +94,7 @@ proxy-groups:
   ## 选择`🎯 全球直连`为测试本地网络（运营商网络速度和 IPv6 支持情况），可选择其它节点用于测试机场节点速度和 IPv6 支持情况
   - {name: 📈 网络测试, type: select, proxies: [🎯 全球直连, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🆓 免费节点]}
   - {name: 🤖 人工智能, type: select, proxies: [🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点]}
-  - {name: 📥 Trackerslist, type: select, proxies: [全球直连, 节点选择]}
+  - {name: 📋 Trackerslist, type: select, proxies: [全球直连, 节点选择]}
   - {name: 🎮 游戏服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
   - {name: 🪟 微软服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
   - {name: 🇬 谷歌服务, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
@@ -125,7 +125,7 @@ rules:
   ## 自定义规则优先放前面
   - GEOSITE,private,🎯 全球直连
   - GEOSITE,ads,🛑 广告域名
-  - GEOSITE,trackerslist,📥 Trackerslist
+  - GEOSITE,trackerslist,📋 Trackerslist
   ## 为了使 P2P 流量（BT 下载）走直连，可添加一条 `DST-PORT` 规则（ShellCrash 会默认开启“只代理常用端口”，可删除此条 `DST-PORT`）
   - DST-PORT,6881-6889,🎯 全球直连
   - GEOSITE,microsoft-cn,🪟 微软服务
@@ -211,7 +211,7 @@ proxy-groups:
   ## 选择`🎯 全球直连`为测试本地网络（运营商网络速度和 IPv6 支持情况），可选择其它节点用于测试机场节点速度和 IPv6 支持情况
   - {name: 📈 网络测试, type: select, proxies: [🎯 全球直连, 🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点, 🆓 免费节点]}
   - {name: 🤖 人工智能, type: select, proxies: [🇭🇰 香港节点, 🇹🇼 台湾节点, 🇯🇵 日本节点, 🇰🇷 韩国节点, 🇸🇬 新加坡节点, 🇺🇸 美国节点]}
-  - {name: 📥 Trackerslist, type: select, proxies: [全球直连, 节点选择]}
+  - {name: 📋 Trackerslist, type: select, proxies: [全球直连, 节点选择]}
   - {name: 🧱 代理域名, type: select, proxies: [🚀 节点选择, 🎯 全球直连]}
   - {name: 📲 电报消息, type: select, proxies: [🚀 节点选择]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🎯 全球直连, 🚀 节点选择]}
@@ -235,7 +235,7 @@ rules:
   ## 自定义规则优先放前面
   - GEOSITE,private,🎯 全球直连
   - GEOSITE,ads,🛑 广告域名
-  - GEOSITE,trackerslist,📥 Trackerslist
+  - GEOSITE,trackerslist,📋 Trackerslist
   - GEOSITE,ai,🤖 人工智能
   - GEOSITE,networktest,📈 网络测试
   - GEOSITE,tld-proxy,🧱 代理域名

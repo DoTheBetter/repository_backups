@@ -94,7 +94,7 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
     // 选择`🎯 全球直连`为测试本地网络（运营商网络速度和 IPv6 支持情况），可选择其它节点用于测试机场节点速度和 IPv6 支持情况
     { "tag": "📈 网络测试", "type": "selector", "outbounds": [ "🎯 全球直连", "🇭🇰 香港节点", "🇹🇼 台湾节点", "🇯🇵 日本节点", "🇸🇬 新加坡节点", "🇺🇸 美国节点", "🆓 免费节点" ] },
     { "tag": "🤖 人工智能", "type": "selector", "outbounds": [ "🇭🇰 香港节点", "🇹🇼 台湾节点", "🇯🇵 日本节点", "🇰🇷 韩国节点", "🇸🇬 新加坡节点", "🇺🇸 美国节点" ] },
-    { "tag": "📥 Trackerslist", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
+    { "tag": "📋 Trackerslist", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🎮 游戏服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🪟 微软服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
     { "tag": "🇬 谷歌服务", "type": "selector", "outbounds": [ "🎯 全球直连", "🈯 节点指定" ] },
@@ -146,7 +146,7 @@ tags: [sing-box, sing-boxp, ShellCrash, ruleset, rule_set, 进阶, 本地, Route
         // 自定义规则优先放前面
         { "rule_set": [ "private" ], "outbound": "🎯 全球直连" },
         { "rule_set": [ "ads" ], "outbound": "🛑 广告域名" },
-        { "rule_set": [ "trackerslist" ], "outbound": "📥 Trackerslist" },
+        { "rule_set": [ "trackerslist" ], "outbound": "📋 Trackerslist" },
         { "rule_set": [ "microsoft-cn" ], "outbound": "🪟 微软服务" },
         { "rule_set": [ "apple-cn" ], "outbound": "🍎 苹果服务" },
         { "rule_set": [ "google-cn" ], "outbound": "🇬 谷歌服务" },

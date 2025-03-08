@@ -139,7 +139,7 @@ proxy-providers:
     - 🇸🇬 新加坡节点
     - 🇺🇸 美国节点
 
-- name: 📥 Trackerslist
+- name: 📋 Trackerslist
   type: select
   proxies:
     - 🎯 全球直连
@@ -255,7 +255,7 @@ proxy-providers:
 ## 自定义规则优先放前面
 - GEOSITE,private,🎯 全球直连
 - GEOSITE,ads,🛑 广告域名
-- GEOSITE,trackerslist,📥 Trackerslist
+- GEOSITE,trackerslist,📋 Trackerslist
 - GEOSITE,microsoft-cn,🪟 微软服务
 - GEOSITE,apple-cn,🍎 苹果服务
 - GEOSITE,google-cn,🇬 谷歌服务
