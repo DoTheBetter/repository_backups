@@ -612,7 +612,7 @@ EOF
 }
 EOF
 
-  # 生成 Anytls 配置
+  # 生成 AnyTLS 配置
   [ "${ANYTLS}" = 'true' ] && ((PORT++)) && PORT_ANYTLS=$PORT && cat > ${WORK_DIR}/conf/21_anytls_inbounds.json << EOF
 {
     "inbounds":[
@@ -1007,7 +1007,7 @@ vless://${UUID}@${SERVER_IP_1}:${PORT_GRPC_REALITY}?encryption=none&security=rea
 
   [ "${ANYTLS}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-# $(info "Anytls 配置文件内容，需要更新 sing_box 内核")
+# $(info "AnyTLS 配置文件内容，需要更新 sing_box 内核")
 
 {
     \"log\":{
@@ -1020,7 +1020,7 @@ vless://${UUID}@${SERVER_IP_1}:${PORT_GRPC_REALITY}?encryption=none&security=rea
             \"listen_port\":${PORT_ANYTLS},
             \"sniff\":true,
             \"sniff_override_destination\":false,
-            \"tag\": \"Anytls\",
+            \"tag\": \"AnyTLS\",
             \"type\":\"mixed\"
         }
     ],
