@@ -3,7 +3,7 @@
 
 由 Wiki 的编辑历史可以检索到 Wiki 第一个版本是2024年5月6日编写，前后修订几十个版本进行了完善。  
 [Wiki 编辑历史](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/_history?page=6)  
-鄙视所有转载不注明出处（包括但不限于转载本项目以及转载 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR/tree/master)、[blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script) 等上游项目）的行为！  
+鄙视所有转载不注明出处的行为！  
 
 请尊重开源社区的基本守则！  
 
