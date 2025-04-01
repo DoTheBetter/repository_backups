@@ -69,13 +69,14 @@ proxy-groups:
   - {name: 直连域名, type: select, proxies: [全球直连, 节点选择], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/cn.png"}
   - {name: 直连 IP, type: select, proxies: [全球直连, 节点选择], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/cnip.png"}
   - {name: 代理域名, type: select, proxies: [节点选择, 全球直连], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/global.png"}
-  - {name: 电报消息, type: select, proxies: [节点选择], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/telegram.png"}
+  - {name: 电报消息, type: select, proxies: [香港节点, 台湾节点, 日本节点, 新加坡节点, 美国节点, 免费节点, 🆚 vless 节点], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/telegram.png"}
+  - {name: 私有网络, type: select, proxies: [全球直连], hidden: true, icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/private.png"}
   ## 若机场的 UDP 质量不是很好，导致某游戏无法登录或进入房间，可以添加 `disable-udp: true` 配置项解决
   - {name: 漏网之鱼, type: select, proxies: [节点选择, 全球直连], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/match.png"}
   - {name: 广告域名, type: select, proxies: [全球拦截, 全球绕过], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/ads.png"}
-  - {name: 全球拦截, type: select, proxies: [REJECT], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/reject.png"}
-  - {name: 全球绕过, type: select, proxies: [PASS], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/pass.png"}
-  - {name: 全球直连, type: select, proxies: [DIRECT], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/direct.png"}
+  - {name: 全球拦截, type: select, proxies: [REJECT], hidden: true, icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/reject.png"}
+  - {name: 全球绕过, type: select, proxies: [PASS], hidden: true, icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/pass.png"}
+  - {name: 全球直连, type: select, proxies: [DIRECT], hidden: true, icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/direct.png"}
 
   - {name: 香港节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇭🇰|港|hk|hongkong|hong kong)", icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/hongkong.png"}
   - {name: 台湾节点, type: load-balance, strategy: consistent-hashing, use: [🛫 机场订阅], filter: "(?i)(🇹🇼|台|tw|taiwan|tai wan)", icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/taiwan.png"}
@@ -85,7 +86,7 @@ proxy-groups:
   - {name: 免费节点, type: url-test, tolerance: 50, use: [🆓 免费订阅], icon: "https://github.com/DustinWin/ruleset_geodata/releases/download/icon/free.png"}
 
 rules:
-  - GEOSITE,private,全球直连
+  - GEOSITE,private,私有网络
   - GEOSITE,ads,广告域名
   - GEOSITE,trackerslist,Trackerslist
   - GEOSITE,microsoft-cn,微软服务
@@ -97,7 +98,7 @@ rules:
   - GEOSITE,proxy,代理域名
   - GEOSITE,tld-cn,直连域名
   - GEOSITE,cn,直连域名
-  - GEOIP,private,全球直连,no-resolve
+  - GEOIP,private,私有网络,no-resolve
   - GEOIP,cn,直连 IP
   - GEOIP,telegram,电报消息,no-resolve
   - MATCH,漏网之鱼
