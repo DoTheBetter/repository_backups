@@ -24,6 +24,24 @@ case "$ARCH" in
     ;;
 esac
 
+# 脚本当天及累计运行次数统计
+SCRIPT=sing-box-docker.sh
+RESPONSE1=$(wget -qO- --timeout=3 "https://us-central1-script-usage-statistics.cloudfunctions.net/updateStats?script=${SCRIPT}" | grep 'todayCount')
+
+if [[ $RESPONSE1 =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]]; then
+  TODAY="${BASH_REMATCH[1]}"
+  TOTAL="${BASH_REMATCH[2]}"
+else
+  local RESPONSE2=$(wget -qO- --timeout=3 "https://hit.forvps.gq/updateStats?script=${SCRIPT}")
+  if [[ $RESPONSE2 =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]]; then
+    TODAY="${BASH_REMATCH[1]}"
+    TOTAL="${BASH_REMATCH[2]}"
+  else
+    TODAY=""
+    TOTAL=""
+  fi
+fi
+
 # 检查 sing-box 最新版本
 check_latest_sing-box() {
   # 检查是否强制指定版本
@@ -1254,7 +1272,7 @@ $(${WORK_DIR}/qrencode https://${ARGO_DOMAIN}/${UUID}/auto)
   cat ${WORK_DIR}/list
 
   # 显示脚本使用情况数据
-  hint "\n*******************************************\n"
+  hint "\n*******************************************\n脚本当天运行次数: ${TODAY}，累计运行次数: ${TOTAL}"
 }
 
 # Sing-box 的最新版本
