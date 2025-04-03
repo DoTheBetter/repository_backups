@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# 脚本更新日期 2025.03.18
+# 脚本更新日期 2025.04.03
 WORK_DIR=/sing-box
 PORT=$START_PORT
 SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/fscarmen/client_template/main"
@@ -23,24 +23,6 @@ case "$ARCH" in
     SING_BOX_ARCH=armv7; JQ_ARCH=armhf; QRENCODE_ARCH=arm; ARGO_ARCH=arm
     ;;
 esac
-
-# 脚本当天及累计运行次数统计
-SCRIPT=sing-box-docker.sh
-RESPONSE1=$(wget -qO- --timeout=3 "https://us-central1-script-usage-statistics.cloudfunctions.net/updateStats?script=${SCRIPT}" | grep 'todayCount')
-
-if [[ $RESPONSE1 =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]]; then
-  TODAY="${BASH_REMATCH[1]}"
-  TOTAL="${BASH_REMATCH[2]}"
-else
-  local RESPONSE2=$(wget -qO- --timeout=3 "https://hit.forvps.gq/updateStats?script=${SCRIPT}")
-  if [[ $RESPONSE2 =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]]; then
-    TODAY="${BASH_REMATCH[1]}"
-    TOTAL="${BASH_REMATCH[2]}"
-  else
-    TODAY=""
-    TOTAL=""
-  fi
-fi
 
 # 检查 sing-box 最新版本
 check_latest_sing-box() {
@@ -1272,7 +1254,10 @@ $(${WORK_DIR}/qrencode https://${ARGO_DOMAIN}/${UUID}/auto)
   cat ${WORK_DIR}/list
 
   # 显示脚本使用情况数据
-  hint "\n*******************************************\n脚本当天运行次数: ${TODAY}，累计运行次数: ${TOTAL}"
+  hint "\n*******************************************\n"
+  local STAT=$(wget -qO- --timeout=3 "https://stat-api.netlify.app/updateStats?script=sing-box-docker.sh")
+  [[ "$STAT" =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]] && local TODAY="${BASH_REMATCH[1]}" && local TOTAL="${BASH_REMATCH[2]}"
+  hint "\n 脚本当天运行次数: $TODAY，累计运行次数: $TOTAL \n"
 }
 
 # Sing-box 的最新版本
