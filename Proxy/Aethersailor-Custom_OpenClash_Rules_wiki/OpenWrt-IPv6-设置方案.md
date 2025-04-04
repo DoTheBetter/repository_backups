@@ -145,7 +145,9 @@ EUI-64 网络地址分配方式的技术解释可以看 ImmortalWrt 仓库的文
 
 ### 4. 测试  
 
-访问 IPv6 测试网站来验证设置是否正确：  
+使用 `Edge`/`Chrome` 或者其他 `Chromium 内核`的浏览器，在`关闭`浏览器`安全 DNS 功能`的情况下，访问 IPv6 测试网站来验证设置是否正确： 
+
+请勿使用 Firefox 访问测试网站！ Firefox 默认 IPv4 优先，有可能无法通过测试。  
 
 [https://testipv6.cn/](https://testipv6.cn/)  
 

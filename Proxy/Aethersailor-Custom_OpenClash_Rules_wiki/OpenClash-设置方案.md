@@ -589,6 +589,10 @@ https://ipleak.net/
 
 * ### 检查 IPv6 分流情况（仅限使用了支持 IPv6 出站的节点）  
 
+**请使用 `Edge/Chrome` 或者其他 `Chromium 内核浏`览器，在`关闭`了浏览器的`安全 DNS 功能`的情况下，进行 IPv6 测试。  
+
+请勿使用 Firefox 进行测试。**  
+
 访问 IPv6 test：https://ipv6-test.com/  
 
 网页中的“Address”项目应当显示当前节点的 IPv4 和 IPv6 地址，证明节点的 IPv4 和 IPv6 出站均正常工作  
