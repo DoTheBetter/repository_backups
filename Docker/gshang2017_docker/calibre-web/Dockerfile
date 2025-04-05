@@ -4,7 +4,7 @@ ARG S6_VER=3.2.0.2
 ARG CALIBRE_WEB_VER=0.6.24
 ARG CALIBRE_VER=8.0.1
 ARG KEPUBIFY_VER=4.0.4
-ARG UNRAR_VERSION=7.0.9
+ARG UNRAR_VERSION=7.1.6
 
 ENV UID=1000
 ENV GID=1000
@@ -55,8 +55,10 @@ RUN apk add --no-cache bash ca-certificates shadow tzdata python3 py3-pip py3-wh
 && tar xf /tmp/unrarsrc-${UNRAR_VERSION}.tar.gz -C /tmp/unrar --strip-components=1 \
 && cd /tmp/unrar \
 && sed -i 's|LDFLAGS=-pthread|LDFLAGS=-pthread -static|' makefile \
+&& sed -i 's|CXXFLAGS=-march=native |CXXFLAGS=|' makefile \
 && make -j $(nproc) \
 && install -v -m755 unrar /usr/bin \
+&& /usr/bin/unrar \
 #install s6-overlay
 && if [ "$(uname -m)" = "x86_64" ];then s6_arch=x86_64;elif [ "$(uname -m)" = "aarch64" ];then s6_arch=aarch64;elif [ "$(uname -m)" = "armv7l" ];then s6_arch=arm; fi \
 && wget -P /tmp https://github.com/just-containers/s6-overlay/releases/download/v${S6_VER}/s6-overlay-noarch.tar.xz \
