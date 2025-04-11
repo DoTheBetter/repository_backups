@@ -11,7 +11,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/leitbogioro/Tools | master | 2025.01.09 | DD重装Linux系统 |
-| https://github.com/217heidai/NestingDNS | main | 2025.04.10 | DNS三合一Docker镜像 |
+| https://github.com/217heidai/NestingDNS | main | 2025.04.12 | DNS三合一Docker镜像 |
 
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
