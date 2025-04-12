@@ -608,6 +608,7 @@ https://ipleak.net/
 
 网页中的“Address”项目应当显示当前节点的 IPv4 和 IPv6 地址，证明节点的 IPv4 和 IPv6 出站均正常工作  
 
+
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/test66.png)  
 
 分别访问 IPv6 测试网站 test-ipv6 的国内镜像站点和国外镜像站点  
@@ -620,6 +621,7 @@ https://ipleak.net/
 
 **注意：近期发现 testipv6 的国内镜像站点改用海外 API 获取 IP，因此下图中国内站点有可能会显示海外 IP 地址，如果显示了海外 IP ，请忽略 IP 地址内容，仅关注是否通过测试即可！**  
 
+2025.4.12 更新： 国内 IPv6 test 镜像站似乎有问题，如果测试无法通过，可以关闭 OpenClash 然后使用海外测试站点替代国内站点进行测试。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/ipv61.png)  
 
@@ -628,7 +630,7 @@ https://ipleak.net/
 
 国外站点：http://test-ipv6.com/  
 
-访问国外镜像站点时，检测页面上应当出现你的机场节点的 IPv4 和 IPv6 地址以及节点服务器的网络运营商名称（比如 Akari Networks 之类的境外网络运营商），并且以10/10的评分通过测试  
+开启 OpenClash 的情况下，访问国外镜像站点时，检测页面上应当出现你的机场节点的 IPv4 和 IPv6 地址以及节点服务器的网络运营商名称（比如 Akari Networks 之类的境外网络运营商），并且以10/10的评分通过测试  
 
 注意，由于上游分流规则的变化，国外镜像站点有可能检测到的仍然是国内的 IPv6 地址，忽略这种情况即可，以“IPv6 test”网站的检测结果为准  
 
