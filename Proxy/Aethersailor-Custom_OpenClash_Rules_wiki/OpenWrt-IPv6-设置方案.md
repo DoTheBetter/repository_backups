@@ -36,6 +36,7 @@
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/openwrt/pics/v6-7.png)  
 
+***
 
 ### 2. WAN 口设置 IPv6 地址  
 
@@ -101,6 +102,8 @@
 
 如果是前者，不适用本方案。如果是后者，直接打你光猫上的电话联系运营商的装维人员（不要打 10000 号等电话，浪费时间），和运维师傅确认宽带是否能提供 IPv6-PD 地址，以及你的光猫桥接设置中是否选择了 IPv4&IPv6（有些装维人员会只设置 IPv4）。   
 
+***
+
 ### 3. LAN 口设置下发 IPv6 地址  
 
 完成 WAN 设置后，接着进行 LAN 设置。
@@ -143,6 +146,8 @@ EUI-64 网络地址分配方式的技术解释可以看 ImmortalWrt 仓库的文
 
 如此设置之后，局域网支持 IPv6 的设备都将获得一个固定且唯一的 IPv6 地址，并且 IPv6 DNS 为空。  
 
+***
+
 ### 4. 测试  
 
 使用 `Edge`/`Chrome` 或者其他 `Chromium 内核`的浏览器，在`关闭`浏览器`安全 DNS 功能`的情况下，访问 IPv6 测试网站来验证设置是否正确： 
@@ -169,6 +174,8 @@ EUI-64 网络地址分配方式的技术解释可以看 ImmortalWrt 仓库的文
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/ipv6/lede/pics/dhcpv6.png)  
 
+***
+
 ## IPv6 如何正确设置“端口转发”  
 
 首先明确一点，你的下游设备取得的都是公网 IPv6 地址，因此此处实际上并不需要“端口转发”功能，只需要设置对应的防火墙规则，即可实现和 IPv4 的端口转发一样的使用效果。  
@@ -182,6 +189,8 @@ EUI-64 网络地址分配方式的技术解释可以看 ImmortalWrt 仓库的文
 具体设置参考：[immortalwrt/user-FAQ/IPV6如何正确配置端口转发？](https://github.com/immortalwrt/user-FAQ/blob/main/immortalwrt%20%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%8C%87%E5%8C%97.md#6-ipv6%E5%A6%82%E4%BD%95%E6%AD%A3%E7%A1%AE%E9%85%8D%E7%BD%AE%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91)  
 
 注意填写地址部分，只需要填写设备的 IPv6 地址的后16位，也就是 MAC 生成的部分，这样防火墙规则会按照地址后缀去匹配设备，无需担心运营商下发的地址前缀变动。而地址后缀是根据 MAC 生成的固定后缀。    
+
+***
 
 ## 关于本地的 IPv6 DNS  
 

@@ -484,7 +484,7 @@ https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/C
 ***
 * Custom_Clash_Mainland.ini  
 ```
-针对国内自建后端用户无法访问 Github 的情况提供的反代订阅模板，由 Custom_Clash.ini 的内容经添加反代地址后自动生成。  
+针对国内自建后端用户无法访问 Github 的情况提供的反代订阅模板，由 Custom_Clash.ini 的内容经添加反代地址后自动生成，仅供本地自建后端用户使用。  
 无DNS泄露，可通过泄露检测网站的测试。  
 ```
 ```
@@ -520,7 +520,7 @@ https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/C
 https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini
 ```
 
-如果你使用的是在国内服务器/自己家路由器等使用大陆网络的设备上搭建的订阅转换后端，无法直连 GitHub 请使用以下反代后的模板链接：  
+如果你使用的是在国内和本地设备上搭建的订阅转换后端，无法直连 GitHub，请使用以下反代后的模板链接：  
 
 ```
 https://gh-proxy.com/https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/refs/heads/main/cfg/Custom_Clash_Mainland.ini
