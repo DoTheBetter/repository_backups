@@ -1,0 +1,167 @@
+name: Sync Repository
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每天执行一次
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 签出存储库
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 初始化环境
+      run: |
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: 定义函数脚本文件
+      run: |
+        cat > sync_repo.sh << \EOF
+        #!/bin/bash
+
+        sync_repo() {
+            local category=$1
+            local repo_url=$2
+            local branch=$3
+            local target_dir=$4
+            local description=$5
+            reponame=$(basename "$repo_url")
+
+            echo "+++++++++++++++++++++++++++++++"
+            echo "开始同步 $repo_url $branch分支 到 $target_dir"
+            if [ -d "$target_dir" ]; then
+                echo "清理目标目录: $target_dir"
+                rm -rf "$target_dir"
+            fi
+            mkdir -p "$target_dir"
+            git clone --depth=1 --branch "$branch" "$repo_url" "$target_dir"
+            rm -rf "$target_dir/.git"
+            git add $target_dir
+            if git commit -m "$(date +"%Y.%m.%d")：$repo_url"; then
+                echo "$category|$repo_url|$branch|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+            else
+                echo "没有需要提交的更改"
+            fi
+            git push
+        }
+
+        sync_wiki() {
+            local category=$1
+            local repo_url=$2
+            local target_dir=$3
+            local description=$4
+            reponame=$(basename "$repo_url")
+
+            echo "+++++++++++++++++++++++++++++++"
+            echo "开始同步 ${repo_url}.wiki.git 到 $target_dir"
+            if [ -d "$target_dir" ]; then
+                echo "清理目标目录: $target_dir"
+                rm -rf "$target_dir"
+            fi
+            mkdir -p "$target_dir"
+            git clone --depth=1 "$repo_url".wiki.git "$target_dir"
+            rm -rf "$target_dir/.git"
+            git add $target_dir
+            if git commit -m "$(date +"%Y.%m.%d")：${repo_url} wiki"; then
+                echo "$category|$repo_url|wiki|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+            else
+                echo "没有需要提交的更改"
+            fi
+            git push
+        }
+
+        EOF
+        chmod +x sync_repo.sh
+
+    - name: 同步System文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "System" "https://github.com/217heidai/NestingDNS" "main" "System/217heidai_NestingDNS" "DNS三合一Docker镜像"
+        sync_repo "System" "https://github.com/leitbogioro/Tools" "master" "System/leitbogioro_Tools" "DD重装Linux系统"
+
+    - name: 同步OpenWrt文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "OpenWrt" "https://github.com/P3TERX/Actions-OpenWrt" "main" "OpenWrt/P3TERX_Actions-OpenWrt" "OpenWrt在线构建工具"
+        sync_repo "OpenWrt" "https://github.com/217heidai/OpenWrt-Builder" "main" "OpenWrt/217heidai_OpenWrt-Builder_main" "OpenWrt在线构建工具"
+        sync_repo "OpenWrt" "https://github.com/217heidai/OpenWrt-Builder" "openwrt-23.05" "OpenWrt/217heidai_OpenWrt-Builder_openwrt-23.05" "OpenWrt在线构建工具"
+
+    - name: 同步Docker文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "Docker" "https://github.com/cmj2002/warp-docker" "main" "Docker/cmj2002_warp-docker" "Warp Docker镜像"
+        sync_repo "Docker" "https://github.com/gshang2017/docker" "master" "Docker/gshang2017_docker" "Docker集合"
+        sync_repo "Docker" "https://github.com/abcfy2/aria2-static-build" "main" "Docker/abcfy2_aria2-static-build" "aria2-static-build"
+        sync_repo "Docker" "https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu" "main" "Docker/abcfy2_docker-musl-cross-toolchain-ubuntu" "toolchain based on Ubuntu docker image"
+
+    - name: 同步Proxy文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "Proxy" "https://github.com/hjm2007/pac" "main" "Proxy/hjm2007_pac" "PAC代理工具"
+        sync_repo "Proxy" "https://github.com/smith-stack/sing-box" "main" "Proxy/smith-stack_sing-box" "Sing-box代理工具"
+        sync_repo "Proxy" "https://github.com/fscarmen/sing-box" "main" "Proxy/fscarmen_sing-box" "Sing-box代理工具"
+        sync_wiki "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "Proxy/Aethersailor-Custom_OpenClash_Rules_wiki" "OpenClash自定义Wiki"
+        sync_repo "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "main" "Proxy/Aethersailor-Custom_OpenClash_Rules" "OpenClash自定义"
+        sync_repo "Proxy" "https://github.com/DustinWin/dustinwin.github.io" "main" "Proxy/DustinWin-github.io" "mihomo和sing-box教程合集"
+
+    - name: 同步CFworkers文件夹
+      run: |
+        source ./sync_repo.sh
+        sync_repo "CFworkers" "https://github.com/hunshcn/gh-proxy" "master" "CFworkers/hunshcn_gh-proxy" "GitHub代理工具"
+        sync_repo "CFworkers" "https://github.com/cmliu/CF-Workers-docker.io" "main" "CFworkers/cmliu_CF-Workers-docker.io" "CF Workers Docker镜像"
+        sync_repo "CFworkers" "https://github.com/jonssonyan/cf-workers-proxy" "main" "CFworkers/jonssonyan_cf-workers-proxy" "CF Workers代理工具"
+
+    - name: 显示 updated_repos.txt 内容
+      run: |
+        if [ -f updated_repos.txt ]; then
+            echo "updated_repos.txt 内容如下："
+            cat updated_repos.txt
+        else
+            echo "updated_repos.txt 文件不存在"
+        fi
+
+    - name: 更新README.md中的表格
+      run: |
+        if [ -f updated_repos.txt ]; then
+            while IFS='|' read -r category repo_url branch sync_time description; do
+                # 检查分类表格是否存在
+                if ! grep -q "## $category" README.md; then
+                    # 如果分类表格不存在，则创建新的分类表格
+                    echo -e "\n## $category\n| 仓库地址 | 分支 | 同步时间 | 描述 |\n| -------- | ---- | -------- | -------- |" >> README.md
+                fi
+
+                # 检查表格内是否有仓库信息
+                if grep -q "| $repo_url | $branch |" README.md; then
+                    # 如果仓库信息已存在，则更新同步时间和描述
+                    sed -i "s@| $repo_url | $branch | [^|]* | [^|]* |@| $repo_url | $branch | $sync_time | $description |@" README.md
+                else
+                    # 如果仓库信息不存在，则添加到分类表格中
+                    sed -i "/## $category/,/| -------- | ---- | -------- | -------- |/ {
+                        /| -------- | ---- | -------- | -------- |/a | $repo_url | $branch | $sync_time | $description |
+                    }" README.md
+                fi
+            done < updated_repos.txt
+
+            git add README.md
+            git commit -m "$(date +"%Y.%m.%d")：更新README.md文件中的同步信息"
+            git push
+        else
+            echo "没有需要更新的仓库"
+        fi
+
+  Delete_Workflow:
+    needs: [ sync ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 清理工作流程
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 1

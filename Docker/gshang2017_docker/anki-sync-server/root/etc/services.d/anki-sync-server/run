@@ -1,0 +1,4 @@
+#! /usr/bin/with-contenv bash
+
+# 启动anki-sync-server
+exec s6-setuidgid ankisync anki-sync-server

@@ -1,0 +1,9 @@
+#! /usr/bin/with-contenv bash
+
+# 启动inotify
+if [ "$ENABLE_AUTOADDBOOKS" == "true" ]; then
+  exec s6-setuidgid calibre bash /usr/local/calibre-server/inotify.sh
+else
+  s6-svc -Od .
+  exit 0
+fi
