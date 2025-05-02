@@ -255,7 +255,7 @@ clientservices.googleapis.com
 
 **如果你所使用的机场的流媒体解锁服务相对比较稳定，或者已经知晓你所使用的机场哪些节点可以解锁你所需要的区域的流媒体服务，则可以跳过此页面的设置，设置完成后在 Clash 的控制面板中自行选择即可。**  
 
-如果你要使用自动选择节点的功能，首先勾选你要使用的流媒体服务，比如 Netflix，然后按照本方案的策略组名称在“策略组筛选”中进行填写，本方案中流媒体相关的策略组包括 Netflix、YouTube、Disney+等等  
+如果你要使用自动选择节点的功能，首先启用你要使用的流媒体服务，比如 Netflix，然后按照本方案的策略组名称在“策略组筛选”中进行填写，本方案中流媒体相关的策略组包括 Netflix、YouTube、Disney+等等  
 
 解锁区域填写你要解锁的流媒体服务区域，比如你要解锁新加坡区就填写SG。解锁节点筛选填写需要测试的节点名称的关键词，比如填写“香港|新加坡”就会在包含以上关键词的节点中进行筛选  
 
@@ -348,30 +348,30 @@ PS：本项目维护者日常使用的是 dev 版本的 OpenClash 和 Meta 内�
 
 * ### DNS 设置  
 
-首先，启用`“自定义上游 DNS 服务器”`，并取消下方的 `Fallback` 和 `Default-NameServer` 下的所有勾选。  
+首先，启用`“自定义上游 DNS 服务器”`，并禁用下方的 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
 然后根据以下三种情况，选择你对应的使用环境进行设置：  
 
 1. `主路由拨号 + 使用运营商 DNS`：  
 
-勾选`“追加上游 DNS”`，并取消下方 `NameServer`、`Fallback` 和 `Default-NameServer` 三个服务器分组的所有勾选。  
+启用`“追加上游 DNS”`，并禁用下方 `NameServer`、`Fallback` 和 `Default-NameServer` 三个服务器分组的所有服务器。  
 
 `“追加上游 DNS”`会将你的 WAN 口取得的 IPv4 DNS、IPv6 DNS 以及 PPPoE 网关均追加为 NameServer，省去了自己手动配置的麻烦。  
 
 2. 使用 `SmartDNS` 之类的 DNS 插件（不区分主路由/旁路由）：  
 
-取消勾选`“追加上游 DNS”`，在 `NameServer` 中保留第一个勾选，并将地址修改为`SmartDNS`的`地址`，以及`端口`（例如 127.0.0.1:6053）。同时，取消 `Fallback` 和 `Default-NameServer` 下的所有勾选。  
+禁用`“追加上游 DNS”`，启用 `NameServer` 中第一个服务器，并将地址修改为`SmartDNS`的`地址`，以及`端口`（例如 127.0.0.1:6053）。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
 SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一服务器组，并且只能添加国内 DNS。  
 
 3. “旁路由”用户：  
   
-取消勾选`“追加上游 DNS”`，在 `NameServer` 中保留第一个勾选，并将地址修改为你的运营商 DNS 地址。同时，取消 `Fallback` 和 `Default-NameServer` 下的所有勾选。  
+禁用`“追加上游 DNS”`，在 `NameServer` 中保留第一个服务器，并将地址修改为你的运营商 DNS 地址。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
 若使用了 SmartDNS，参考上一条 SmartDNS 的设置。  
 
 
-注意`追加上游 DNS` 和下方的 `NameServer` 只需要`二选一`即可。OpenWrt 是主路由的情况下，此处设置按照图中进行勾选。  
+注意`追加上游 DNS` 和下方的 `NameServer` 只需要`二选一`即可。OpenWrt 是主路由的情况下，此处设置按照图中进行设置。  
 
 `追加上游 DNS`的作用：将你的 WAN 口取得的运营商通告的 IPv4 DNS 和 IPv6 DNS 以及 PPPoE 网关自动设置为设置为`NameServer`  
 
@@ -381,7 +381,7 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 注意在本方案中，NameServer 只用做 OpenClash 的规则判断以及所有的直连域名解析，且本方案中 OpenClash 配置了绕过大陆功能，所以此处填入多个服务器并没有任何意义，更不要自作聪明的填写国外 DNS 服务器。  
 
-**再一次强烈建议此处全部取消勾选，配合上面一页设置的“追加上游 DNS”来使用运营商 DNS 从而提高解析速度！（仅限 OpenWrt 是主路由的情况下）**  
+**再一次强烈建议此处全部禁用服务器，配合上面一页设置的“追加上游 DNS”来使用运营商 DNS 从而提高解析速度！（仅限 OpenWrt 是主路由的情况下）**  
 
 为什么要取消 Fallback 服务器？  
 
