@@ -12,8 +12,16 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
   mkdir -p "${CROSS_ROOT}" && \
   apt update && \
   apt install -y wget xz-utils && \
-  wget -cT10 -P /tmp "https://github.com/musl-cross/musl-cross/releases/latest/download/${ARCH}.tar.xz" && \
-  SHA256SUM="$(wget -qO- "https://github.com/musl-cross/musl-cross/releases/latest/download/${ARCH}.tar.xz.sha256")" && \
+  case "${ARCH}" in \
+    *w64-mingw32*) \
+      REPO_URL="https://github.com/cross-tools/mingw-cross" \
+      ;; \
+    *) \
+      REPO_URL="https://github.com/cross-tools/musl-cross" \
+      ;; \
+  esac && \
+  wget -cT10 -P /tmp "${REPO_URL}/releases/latest/download/${ARCH}.tar.xz" && \
+  SHA256SUM="$(wget -qO- "${REPO_URL}/releases/latest/download/${ARCH}.tar.xz.sha256")" && \
   cd /tmp && \
   echo "${SHA256SUM} ${ARCH}.tar.xz" | sha256sum -c && \
   tar -Jxf "/tmp/${ARCH}.tar.xz" --transform='s|^\./||S' --strip-components=1 -C "${CROSS_ROOT}" && \
