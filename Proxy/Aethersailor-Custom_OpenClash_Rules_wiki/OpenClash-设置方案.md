@@ -550,7 +550,7 @@ https://gh-proxy.com/https://raw.githubusercontent.com/Aethersailor/Custom_OpenC
 https://api.asailor.org/sub
 ```   
 
-本项目的订阅转换后端服务支持 vless/hy2 等较新的节点类型  
+本项目的订阅转换后端服务支持 vless/hy2 等较新的节点类型。**用爱发电，且用且珍惜。**  
 
 有隐私需求的可以使用 Cloudflare 搭建后端反代。  
 
