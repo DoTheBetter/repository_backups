@@ -1,4 +1,4 @@
-# 介绍  
+## 介绍  
 本项目创建于2024年4月，保证这是你见过的最详细的 OpenClash 图文设置方案  
 
 由 Wiki 的编辑历史可以检索到 Wiki 第一个版本是2024年5月6日编写，前后修订几十个版本进行了完善。  
@@ -55,13 +55,15 @@
 * **增加若干冷门域名规则。**  
 增加了一些小众网站的直连规则，可以自己 PR 提交域名参与完善规则。  
 
-## 关于推荐固件  
+## 0. 使用前的一些提醒
+
+### 0.1. 关于推荐固件  
 
 推荐使用 ImmortalWrt 官方编译固件，备选 OpenWrt 官方编译固件。  
 
 详细内容：[关于推荐固件](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4#%E6%8E%A8%E8%8D%90%E5%9B%BA%E4%BB%B6)  
 
-## 关于旁路由  
+### 0.2. 关于旁路由  
 
 “旁路由”是一种**错误**的组网方法，**反对**部署所谓的“旁路由”，**强烈建议**使用 OpenWrt 作为唯一主路由。  
 
@@ -75,7 +77,7 @@
 
 项目维护者部署的所有设备都是主路由以做到网路环境尽量从简，所以任何关于旁路由下的设置出现的问题，要么不予解答要么就是凭经验和猜测解答，不对结果负责。  
 
-## 关于 IPv6  
+### 0.3. 关于 IPv6  
 
 在确保你的宽带运营商提供了 IPv6 服务，且节点支持 IPv6 出站的情况下，搭配本项目另一个方案实现 OpenClash 和 IPv6 的完美兼容  
 
@@ -83,7 +85,7 @@ https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenWrt-IPv6-设置�
 
 不清楚自己的节点是否支持 IPv6 的话，可以向机场客服发工单来确定，或者按照方案内容进行设置后测试节点如果不具备 IPv6 出站能力再关闭 OpenClash 的 IPv6 功能  
 
-## 关于 DNS  
+### 0.4. 关于 DNS  
 
 > **强烈建议使用运营商通告的 DNS 进行国内域名的解析**，不论是解析速度还是结果的科学性，都不是第三方 DNS 可以比拟的  
 
@@ -109,7 +111,7 @@ https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenWrt-IPv6-设置�
 
 **如果你非要认为 1ms 的解析时间差距会明显影响上网体验，那我无话可说，一定要使用第三方 DNS 或者 DNS 优化插件的话，方案中对应步骤会提及如何进行设置**  
 
-## 关于广告过滤  
+### 0.5. 关于广告过滤  
 
 按照本项目方案，只使用 OpenClash 一个插件，且中国大陆域名均绕过了 OpenClash 内核，因此无法依靠 OpenClash 的规则来完成广告过滤。  
 
@@ -119,7 +121,7 @@ https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenWrt-IPv6-设置�
 
 [广告拦截设置方法](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%97%A0%E6%8F%92%E4%BB%B6%E5%B9%BF%E5%91%8A%E6%8B%A6%E6%88%AA%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)  
 
-## 为何不提供 uci 一键设置脚本  
+### 0.6. 为何不提供 uci 一键设置脚本  
 
 uci 一键设置脚本可以实现一键应用本方案的设置内容至 OpenClash 中，从技术上来说毫无难度。  
 
@@ -147,9 +149,9 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 > 如果你有个性化需求，先通过本方案搞明白设置，后续 fork 本项目自己修改模板即可  
 
-## 准备工作  
+## 1. 准备工作  
 
-* ### 查看运行商通告的 DNS  
+### 1.1. 查看运行商通告的 DNS  
 
 首选确保你的 WAN 口设置中`启用`了`“自动获取 DNS 服务器”`，这样才能获取到运营商下发的 IPv4 DNS  
 
@@ -159,7 +161,7 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/wan-dns.png)    
 
-* ### 关闭 Dnsmasq 自带的 `DNS 重定向`功能  
+### 1.2. 关闭 DNS 重定向功能  
 
 该功能位于 网络 > DHCP/DNS 页面中，务必关闭  
 
@@ -169,7 +171,7 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/Redirect.png)  
 
-* ### 确保 OpenWrt 可以正常访问 Github  
+### 1.3. 确保 OpenWrt 可以正常访问 Github  
 
 > OpenClash 的各项数据库以及插件和内核的更新，全部需要连接 GitHub 完成  
 
@@ -185,14 +187,14 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 ***
 
-## 设置 OpenClash 常规设置  
+## 2. 设置 OpenClash 常规设置  
 
 以下列出了 OpenClash 的设置内容，每个需要设置的页面均有图文说明，按照方案逐页进行设置即可。  
 
 所有未提及的页面，均不需要设置。  
 
 
-* ### 模式设置  
+### 2.1 模式设置  
 
 > **注意：本方案是适用 `Fake-IP` 模式的，如果你不愿意使用 Fake-IP 模式，可以关闭页面了**  
 
@@ -211,7 +213,7 @@ Fake-IP（增强）模式可以提供最佳的性能，如果出现了 NAT 问�
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/1.png)  
 
-* ### 流量控制  
+### 2.2. 流量控制  
 
 按照图中设置进行设置，务必`启用``绕过大陆`功能来提升访问和下载性能。  
 
@@ -232,7 +234,7 @@ clientservices.googleapis.com
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/blacklist-ipv4.png)  
 
 
-* ### DNS 设置
+### 2.3. DNS 设置
 
 设置使用 Dnsmasq 进行转发，顺手点一下“Fake-IP 持久化缓存清理”按钮，不用管是否提示出错，然后点击页面下方的`“保存配置”`  
 
@@ -249,7 +251,7 @@ clientservices.googleapis.com
 [](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/3.png)  
 
 
-* ### 流媒体增强（可选）  
+### 2.4. 流媒体增强（可选）  
 
 此处设置主要用于使 OpenClash 可在流媒体分流时在众多节点中自动选择解锁对应区域的流媒体服务的节点，此功能主要用于在一些流媒体解锁不稳定且混乱的杂牌机场中自动寻找对应的节点。  
 
@@ -272,7 +274,7 @@ clientservices.googleapis.com
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/stream.png)  
 
 
-* ### IPv6 设置  
+### 2.5. IPv6 设置  
 
 > 如果你打算启用 IPv6 功能，并且你的节点支持 IPv6 出站，则按照本项目的方案中的 IPv6 设置方案完成 OpenWrt 的 IPv6 设置后，再设置此页面即可。  
 
@@ -298,7 +300,7 @@ clientservices.googleapis.com
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/blacklist-ipv6.png)  
 
 
-* ### GEO 数据库订阅  
+### 2.6. GEO 数据库订阅  
 
 一些分流数据库，必须保持更新，否则会对绕过大陆功能以及分流规则产生影响。按照图中设置即可，具体用途不多做解释，可以自行查找相关资料。  
 
@@ -312,7 +314,7 @@ Github 或者你在之前设置的 CDN 比如 testingcf
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/5.png)  
 
 
-* ### 大陆白名单订阅  
+### 2.7. 大陆白名单订阅  
 
 OpenClash 一些兜底的分流名单，必须保持更新。按照图中设置即可，具体用途不多做解释，可以自行查找相关资料。  
 
@@ -323,7 +325,7 @@ OpenClash 一些兜底的分流名单，必须保持更新。按照图中设置�
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/6.png)  
 
 
-* ### 版本更新  
+### 2.8. 版本更新  
 
 此页面用于更新 OpenClash 的内核以及 OpenClash 自身  
 
@@ -344,27 +346,27 @@ PS：本项目维护者日常使用的是 dev 版本的 OpenClash 和 Meta 内�
 
 ***
 
-## 设置 OpenClash 覆写设置  
+## 3. 设置 OpenClash 覆写设置  
 
-* ### DNS 设置  
+### 3.1. DNS 设置  
 
 首先，启用`“自定义上游 DNS 服务器”`，并禁用下方的 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
 然后根据以下三种情况，选择你对应的使用环境进行设置：  
 
-1. `主路由拨号 + 使用运营商 DNS`：  
+* `主路由拨号 + 使用运营商 DNS`  
 
 启用`“追加上游 DNS”`，并禁用下方 `NameServer`、`Fallback` 和 `Default-NameServer` 三个服务器分组的所有服务器。  
 
 `“追加上游 DNS”`会将你的 WAN 口取得的 IPv4 DNS、IPv6 DNS 以及 PPPoE 网关均追加为 NameServer，省去了自己手动配置的麻烦。  
 
-2. 使用 `SmartDNS` 之类的 DNS 插件（不区分主路由/旁路由）：  
+* 使用 `SmartDNS` 之类的 DNS 插件（不区分主路由/旁路由）  
 
 禁用`“追加上游 DNS”`，启用 `NameServer` 中第一个服务器，并将地址修改为`SmartDNS`的`地址`，以及`端口`（例如 127.0.0.1:6053）。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
 SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一服务器组，并且只能添加国内 DNS。  
 
-3. “旁路由”用户：  
+* “旁路由”用户  
   
 禁用`“追加上游 DNS”`，在 `NameServer` 中保留第一个服务器，并将地址修改为你的运营商 DNS 地址。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
 
@@ -396,14 +398,14 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/dns3.png)  
 
 
-* ### Meta 设置  
+### 3.2. Meta 设置  
 
 按照图中内容，对红框中的选项进行设置。  
 注意，务必开启`启用 GeoIP Dat 版数据库`选项。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/8.png)  
 
-* ### 规则设置  
+### 3.3. 规则设置  
 
 按照图中所示进行设置，该功能有一定的副作用，具体见 [vernesong/OpenClash#3942](https://github.com/vernesong/OpenClash/issues/3942)  
 
@@ -425,14 +427,14 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 具体参考：[如何添加自定义规则](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%84%E5%88%99)  
 
 
-* ### 开发者选项  
+### 3.4. 开发者选项  
 
 此页面不做任何修改  
 
 
 ***
 
-* ### 配置订阅  
+## 4. 为 OpenClash 配置订阅信息  
 
 在页面中设置一个更新时间，因为本方案中使用的订阅模板使用了大量的第三方规则，而这些规则中的大部分是每天更新的，因此建议同样设置订阅更新时间为每天更新。  
 
@@ -559,14 +561,16 @@ https://api.asailor.org/sub
 
 ***
 
-## 更新配置并启动  
+## 5. 启动和启动后的动作
 
-点击配置订阅页面中的`“更新配置”`按钮，OpenClash 即可开始更新配置并启动  
+### 5.1. 更新配置并启动  
+
+点击配置订阅页面中的`“更新配置”`按钮，OpenClash 即开始更新配置并启动  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/start.png)  
 
 
-* ### 运行日志  
+### 5.2. 观察运行日志  
 
 在上一步操作中点击`“更新配置”`后，切换到运行日志页面观察 OpenClash 的启动情况  
 
@@ -575,7 +579,7 @@ https://api.asailor.org/sub
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/ok.png)  
 
 
-* ### Dashboard 控制面板  
+### 5.3. 切换策略组 
 
 在 OpenClash 的运行状态页面中，点击 Dashboard 控制面板按钮启动控制面板  
 
@@ -591,18 +595,18 @@ https://api.asailor.org/sub
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/db2.png)  
 
-至此，OpenClash 已经完美设置完毕！日常使用中几乎不需要打理，相关规则会根据你的设置每日自动更新上游规则，理论上只要不遇到bug，永远不用去人为操作。  
+至此，OpenClash 已经完美设置完毕，日常使用中几乎不需要打理，相关规则会根据你的设置每日自动更新上游规则，理论上只要不遇到bug，永远不需要人为操作干预。  
 
 
 ***
 
-## 检验结果  
+## 6. 检验结果  
 
 下面检查以下你按照本方案实现的效果吧！  
 
 注意，Clash 面板中，`“漏网之鱼”`策略组不要选择直连！
 
-* ### 检查 DNS 是否存在泄漏  
+### 6.1. 检查 DNS 是否存在泄漏  
 
 访问 IPLEAK.NET 检查 DNS 是否存在泄漏  
 https://ipleak.net/  
@@ -615,16 +619,16 @@ https://ipleak.net/
 
 某些 DNS 泄漏检测网站（例如 https://www.browserscan.net/zh/dns-leak ） 的检测服务器使用了某些 DDNS 机构的域名，为了确保 DDNS 服务不受影响，DDNS 类域名在本项目的规则中是强制直连的也就是使用国内服务器进行解析，因此无法通过此类检测网站的测试，属于正常现象，忽略即可。  
 
-* ### 检查 IPv6 分流情况（仅限使用了支持 IPv6 出站的节点）  
+### 6.2. 检查 IPv6 分流情况（仅限使用了支持 IPv6 出站的节点）  
 
-**请使用 `Edge/Chrome` 或者其他 `Chromium 内核浏`览器，在`关闭`了浏览器的`安全 DNS 功能`的情况下，进行 IPv6 测试。  
-
-请勿使用 Firefox 进行测试。**  
+```
+请使用 `Edge/Chrome` 或者其他 `Chromium 内核浏`览器，在`关闭`了浏览器的`安全 DNS 功能`的情况下，进行 IPv6 测试。  
+请勿使用 Firefox 进行测试，除非你已经为 Firefox 开启了 IPv6 功能。 
+```
 
 访问 IPv6 test：https://ipv6-test.com/  
 
 网页中的“Address”项目应当显示当前节点的 IPv4 和 IPv6 地址，证明节点的 IPv4 和 IPv6 出站均正常工作  
-
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/test66.png)  
 
@@ -659,7 +663,7 @@ https://ipleak.net/
 
 ***
 
-# 声明 
+## 声明 
 
 本方案编写于2024年4月，由 Wiki 的编辑历史可以检索到 Wiki 第一个版本是2024年5月6日编写，前后修订几十个版本进行了完善。  
 
