@@ -60,7 +60,15 @@ jobs:
           echo "GITHUB_EVENT_NAME = ${GITHUB_EVENT_NAME}"
           PUSH=true
           if [ "${GITHUB_EVENT_NAME}" = "schedule" ]; then
-            UPSTREAM_SHA256SUM="$(curl -sSLf --compressed "https://github.com/musl-cross/musl-cross/releases/latest/download/${ARCH}.tar.xz.sha256")"
+            case "${ARCH}" in \
+              *w64-mingw32*) \
+                REPO_URL="https://github.com/cross-tools/mingw-cross"
+                ;;
+              *) \
+                REPO_URL="https://github.com/cross-tools/musl-cross"
+                ;;
+            esac
+            UPSTREAM_SHA256SUM="$(curl -sSLf --compressed "${REPO_URL}/releases/latest/download/${ARCH}.tar.xz.sha256")"
             DOWNSTREAM_SHA256SUM="$(docker run --pull=always --rm "${GHCR_REPOSITORY}:${ARCH}" cat /SHA256SUM.txt)" || true
             if [ "${UPSTREAM_SHA256SUM}" = "${DOWNSTREAM_SHA256SUM}" ]; then
               PUSH=false
