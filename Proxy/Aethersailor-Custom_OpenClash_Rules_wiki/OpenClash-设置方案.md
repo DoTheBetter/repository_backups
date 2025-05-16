@@ -479,7 +479,7 @@ OpenClash 在更新订阅的过程中会短暂重启，所以建议设置在不�
 ```
 本项目的标准订阅转换模板，适配所有需求，推荐使用。  
 无DNS泄露，可通过泄露检测网站的测试。  
-使用本项目推荐机场请直接使用该模板。  
+使用本项目推荐机场建议直接使用该模板，复刻维护者的使用体验。  
 ```
 ```
 https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini
@@ -490,6 +490,7 @@ https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/C
 针对国内自建后端用户无法访问 Github 的情况提供的反代订阅模板，由 Custom_Clash.ini 的内容经添加反代地址后自动生成，仅供本地自建后端用户使用。  
 无DNS泄露，可通过泄露检测网站的测试。  
 ```
+非自建后端不要使用这个模板！
 ```
 https://gh-proxy.com/https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/refs/heads/main/cfg/Custom_Clash_Mainland.ini
 ```
