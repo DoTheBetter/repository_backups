@@ -411,7 +411,7 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 个人建议：有 BT、PT、P2P 下载的较强需求的开启，没有的则关闭  
 
-2025年3月28日：当前 master 版本 0.46.079 下开启“仅代理命中流量”会导致 GeoIP 的规则无法生效，请关闭该功能，或者升级 dev 版本 0.46.080  
+2025年3月28日：当前 master 版本 0.46.079 下开启“仅代理命中流量”会导致 GeoIP 的规则无法生效，导致 Telegram 无法代理。请关闭该功能，或者升级 dev 版本 0.46.080 以上版本 
 
 如果开启后仍然有相关流量走了代理，可以尝试将`漏网之鱼`策略组指定为直连，但是漏网之鱼策略组指定为直连会导致 DNS 泄露问题（仅仅是不能通过测试网站的测试，并非真正泄露），建议自行取舍。  
 
@@ -487,7 +487,8 @@ https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/C
 ***
 * Custom_Clash_Mainland.ini  
 ```
-针对国内自建后端用户无法访问 Github 的情况提供的反代订阅模板，由 Custom_Clash.ini 的内容经添加反代地址后自动生成，仅供本地自建后端用户使用。  
+针对国内自建后端用户无法访问 Github 的情况提供的反代订阅模板，由 Custom_Clash.ini 的内容经添加反代地址后自动生成
+仅供本地自建后端用户使用，使用第三方后端请勿使用该模板。  
 无DNS泄露，可通过泄露检测网站的测试。  
 ```
 非自建后端不要使用这个模板！
@@ -582,7 +583,7 @@ https://api.asailor.org/sub
 
 ### 5.3. 切换策略组 
 
-在 OpenClash 的运行状态页面中，点击 Dashboard 控制面板按钮启动控制面板  
+在 OpenClash 的运行状态页面中，点击 Dashboard 控制面板按钮启动控制面板，并观察 dashboard 中的策略组是否和截图中的本项目模板大体一致（因为截图未更新，会有一定不同） 
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/db1.png)  
 
@@ -592,11 +593,11 @@ https://api.asailor.org/sub
 
 **注意！考虑到流媒体用户大多需要简体中文资源，因此流媒体服务大多设置了默认为新加坡节点，如果你没有新加坡节点，记得自己手动切换为其他地区。  **  
 
-**如果你是使用单一自建节点的用户，请在dashboard里将所有的策略组选择为你自建的节点！**  
+**如果你是使用单一自建节点的用户，请在 dashboard 里将所有的策略组选择为你自建的节点！**  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/db2.png)  
 
-至此，OpenClash 已经完美设置完毕，日常使用中几乎不需要打理，相关规则会根据你的设置每日自动更新上游规则，理论上只要不遇到bug，永远不需要人为操作干预。  
+至此，OpenClash 已经完美设置完毕，日常使用中几乎不需要打理，且会根据你的设置每日自动更新上游规则，理论上只要不遇到bug，不遇到停电，永远不需要人为操作干预。  
 
 
 ***
