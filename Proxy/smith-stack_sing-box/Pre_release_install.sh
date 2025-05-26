@@ -87,7 +87,7 @@ function check_firewall_configuration() {
 
             echo "Firewall configuration has been updated."
             ;;
-        
+
         iptables | iptables-persistent | iptables-service)
             if ! iptables -C INPUT -p tcp --dport "$listen_port" -j ACCEPT >/dev/null 2>&1; then
                 iptables -A INPUT -p tcp --dport "$listen_port" -j ACCEPT > /dev/null 2>&1
@@ -325,13 +325,13 @@ function enable_bbr() {
 # 选择sing-box的安装方式
 function select_sing_box_install_option() {
     while true; do
-        echo "请选择 sing-box 的安装方式（默认1）："
+        echo "请选择 sing-box 的安装方式（默认2）："
         echo "1). 下载安装 sing-box（Latest 版本）"
         echo "2). 下载安装 sing-box（Beta 版本）"
         echo "3). 编译安装 sing-box（完整功能版本）"
         
         read -p "请选择 [1-3]: " install_option
-        install_option="${install_option:-1}"
+        install_option="${install_option:-2}"
 
         case $install_option in
             1)
@@ -400,15 +400,13 @@ with_quic,\
 with_grpc,\
 with_dhcp,\
 with_wireguard,\
-with_shadowsocksr,\
-with_ech,\
 with_utls,\
-with_reality_server,\
 with_acme,\
 with_clash_api,\
 with_v2ray_api,\
 with_gvisor,\
-with_lwip \
+with_embedded_tor,\
+with_tailscale \
 github.com/sagernet/sing-box/cmd/sing-box@latest"
     
     echo "Compiling and installing sing-box, please wait..."
@@ -1418,11 +1416,11 @@ function generate_warp_info() {
 
     temp_file=$(mktemp)
     curl -sL --tlsv1.3 -X POST 'https://api.cloudflareclient.com/v0a2158/reg' \
-        -H 'CF-Client-Version: a-7.21-0721' \
+        -H 'CF-Client-Version: a-8.3-1190' \
         -H 'Content-Type: application/json' \
         -d '{
             "key":"'${pub_key}'",
-            "tos":"'$(date +"%Y-%m-%dT%H:%M:%S.%3NZ")'"
+            "tos":"'$(date +"%Y-%m-%dT%H:%M:%S.000Z")'"
         }' > "$temp_file"
 
     ser_v4=$(jq -r '.config.peers[0].endpoint.v4' < "$temp_file" | sed 's/:0$//')
@@ -1439,6 +1437,7 @@ function generate_warp_info() {
     }' > "$warp_output_file"
     rm "$temp_file"
 }
+
 
 # 选择加密类型
 function select_encryption_method() {
@@ -1549,30 +1548,6 @@ function update_rule_set() {
                 ;;
             *)
                 echo -e "${RED}无效的选择: $choice${NC}"
-                ;;
-        esac
-    done
-}
-
-# 配置出站网络类型
-function select_outbound() {
-    while true; do
-        read -p "请选择出站网络 (默认1)
-1). warp-IPv4
-2). warp-IPv6
-请选择[1-2]: " outbound_choice
-        
-        case $outbound_choice in
-            1|"")
-                outbound="warp-IPv4-out"
-                break
-                ;;
-            2)
-                outbound="warp-IPv6-out"
-                break
-                ;;
-            *)
-                echo -e "${RED}错误：无效的选项，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -2044,6 +2019,37 @@ function socks_naive_multiple_users() {
     done
 }
 
+# 添加多个用户到 AnyTLS 配置
+function anytls_multiple_users() {
+    while true; do
+        set_user_name
+        set_user_password
+        
+        for ((i=0; i<${#user_names[@]}; i++)); do
+            user_name="${user_names[$i]}"
+            user_password="${user_passwords[$i]}"
+        done
+        
+        while true; do
+            read -p "是否继续添加用户？(Y/N，默认N): " -e add_multiple_users
+            
+            if [[ -z "$add_multiple_users" ]]; then
+                add_multiple_users="N"
+            fi
+            
+            if [[ "$add_multiple_users" == "N" || "$add_multiple_users" == "n" ]]; then
+                users+="\n        {\n          \"name\": \"$user_name\",\n          \"password\": \"$user_password\"\n        }"
+                return
+            elif [[ "$add_multiple_users" == "Y" || "$add_multiple_users" == "y" ]]; then
+                users+="\n        {\n          \"name\": \"$user_name\",\n          \"password\": \"$user_password\"\n        },"
+                break
+            else
+                echo -e "${RED}无效的输入，请重新输入！${NC}"
+            fi
+        done
+    done
+}
+
 # 添加多个用户到 Hysteria 配置
 function hysteria_multiple_users() {
     while true; do
@@ -2377,6 +2383,8 @@ function modify_route_rules() {
         jq '(.route.rules |= [.[] | select(.rule_set != null)] + [.[] | select(.rule_set == null)])' "$config_file" > "$temp_config_file"
         mv "$temp_config_file" "$config_file"
     fi
+
+    jq '.route.rules |= (map(select(.action == "sniff")) + map(select(.action != "sniff")))' "$config_file" > tmp.json && mv tmp.json "$config_file"
 }
 
 # 提取变量并清理临时文件
@@ -2400,23 +2408,23 @@ function log_outbound_config() {
     if ! grep -q '"log": {' "$config_file" || ! grep -q '"route": {' "$config_file" || ! grep -q '"inbounds": \[' "$config_file" || ! grep -q '"outbounds": \[' "$config_file"; then
         echo -e '{\n  "log": {\n  },\n  "route": {\n  },\n  "inbounds": [\n  ],\n  "outbounds": [\n  ]\n}' > "$config_file"
         sed -i '/"log": {/!b;n;c\    "disabled": false,\n    "level": "info",\n    "timestamp": true\n  },' "$config_file"
-        sed -i '/"route": {/!b;n;c\    "rules": [\n    ]\n  },' "$config_file"
+        sed -i '/"route": {/!b;n;c\    "rules": [\n      {\n        "inbound": [\n        ],\n        "action": "sniff",\n        "timeout": "1s"\n      },\n      {\n        "inbound": [\n        ],\n        "action": "route",\n        "outbound": "direct"\n      }\n    ]\n  },' "$config_file"
         sed -i '/"outbounds": \[/!b;n;c\    {\n      "type": "direct",\n      "tag": "direct"\n    }\n  ]' "$config_file"
     fi
 }
 
-# 修改 inbounds 和 outbounds 的格式
-function modify_format_inbounds_and_outbounds() {
+# 修改JSON格式，去掉多余的逗号
+function modify_config_format() {
     file_path="/usr/local/etc/sing-box/config.json"
-    start_line_inbounds=$(grep -n '"inbounds": \[' "$file_path" | cut -d: -f1)
+    start_lines_action=$(grep -n '"action":' "$file_path" | cut -d: -f1)
     start_line_outbounds=$(grep -n '"outbounds": \[' "$file_path" | cut -d: -f1)
     
-    if [ -n "$start_line_inbounds" ]; then
-        line_to_modify_inbounds=$((start_line_inbounds - 3))
-        if [ "$line_to_modify_inbounds" -ge 1 ]; then
-            sed -i "$line_to_modify_inbounds s/,//" "$file_path"
+    for start_line_action in $start_lines_action; do
+        line_to_modify_action=$((start_line_action - 2))
+        if [ "$line_to_modify_action" -ge 1 ]; then
+            sed -i "${line_to_modify_action}s/,[[:space:]]*$//" "$file_path"
         fi
-    fi
+    done
     
     if [ -n "$start_line_outbounds" ]; then
         line_to_modify_outbounds_1=$((start_line_outbounds - 2))
@@ -2440,17 +2448,37 @@ function generate_http_config() {
     socks_naive_multiple_users
     get_local_ip
     generate_tls_config
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v tls_config="$tls_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"http\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"set_system_proxy\": false,"; print "      \"users\": [" users ""; print "      ]" tls_config ""; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"http\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"set_system_proxy\": false,"; print "      \"users\": [" users ""; print "      ]" tls_config ""; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
-    
+
+    mv "$config_file.tmp" "$config_file"
+}
+
+# 生成 AnyTLS 配置
+function generate_anytls_config() {
+    local config_file="/usr/local/etc/sing-box/config.json"
+    local cert_path="$certificate_path"
+    local key_path="$private_key_path"
+    tls_enabled=true
+    local tag_label
+    generate_unique_tag      
+    set_listen_port
+    anytls_multiple_users
+    get_local_ip
+    generate_tls_config
+    local found_inbounds=0
+
+    awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v tls_config="$tls_config" '
+        /"inbounds": \[/{found_inbounds=1}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"anytls\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"users\": [" users ""; print "      ]" tls_config ""; print "    },"; found_inbounds=0}
+    ' "$config_file" > "$config_file.tmp"
+
     mv "$config_file.tmp" "$config_file"
 }
 
@@ -2459,15 +2487,12 @@ function generate_Direct_config() {
     local config_file="/usr/local/etc/sing-box/config.json"
     local tag_label
     generate_unique_tag
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v target_address="$target_address" -v override_port="$override_port" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"sniff_timeout\": \"300ms\","; print "      \"proxy_protocol\": false,"; print "      \"override_address\": \"" target_address "\","; print "      \"override_port\": " override_port; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"proxy_protocol\": false,"; print "      \"override_address\": \"" target_address "\","; print "      \"override_port\": " override_port; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2479,15 +2504,12 @@ function generate_ss_config() {
     local tag_label
     generate_unique_tag
     configure_multiplex
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v ss_method="$ss_method" -v ss_password="$ss_password" -v multiplex_config="$multiplex_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"shadowsocks\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"method\": \"" ss_method "\","; print "      \"password\": \"" ss_password "\"" multiplex_config ""; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"shadowsocks\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"method\": \"" ss_method "\","; print "      \"password\": \"" ss_password "\"" multiplex_config ""; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2512,15 +2534,12 @@ function generate_vmess_config() {
     get_local_ip
     generate_tls_config
     check_firewall_configuration
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v transport_config="$transport_config" -v tls_config="$tls_config" -v multiplex_config="$multiplex_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"vmess\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true," transport_config ""; print "      \"users\": [" users ""; print "      ]" tls_config "" multiplex_config ""; print "    },"; found=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"vmess\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port "," transport_config ""; print "      \"users\": [" users ""; print "      ]" tls_config "" multiplex_config ""; print "    },"; found=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2533,15 +2552,12 @@ function generate_socks_config() {
     generate_unique_tag
     set_listen_port
     socks_naive_multiple_users
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"socks\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"users\": [" users ""; print "      ]"; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"socks\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"users\": [" users ""; print "      ]"; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2559,15 +2575,12 @@ function generate_naive_config() {
     select_certificate_option
     local cert_path="$certificate_path"
     local key_path="$private_key_path"
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v domain="$domain" -v certificate_path="$certificate_path" -v private_key_path="$private_key_path" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"naive\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"users\": [" users ""; print "      ],"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" domain "\","; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\""; print "      }"; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"naive\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"users\": [" users ""; print "      ],"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" domain "\","; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\""; print "      }"; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2586,7 +2599,6 @@ function generate_tuic_config() {
     select_certificate_option
     local cert_path="$certificate_path"
     local key_path="$private_key_path"
-    local found_rules=0
     local found_inbounds=0
     local server_name="$domain"
 
@@ -2595,11 +2607,9 @@ function generate_tuic_config() {
     fi
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v congestion_control="$congestion_control" -v server_name="$server_name" -v certificate_path="$certificate_path" -v private_key_path="$private_key_path" -v ech_server_config="$ech_server_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"tuic\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"users\": [" users ""; print "      ],"; print "      \"congestion_control\": \"" congestion_control "\","; print "      \"auth_timeout\": \"3s\","; print "      \"zero_rtt_handshake\": false,"; print "      \"heartbeat\": \"10s\","; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"tuic\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"users\": [" users ""; print "      ],"; print "      \"congestion_control\": \"" congestion_control "\","; print "      \"auth_timeout\": \"3s\","; print "      \"zero_rtt_handshake\": false,"; print "      \"heartbeat\": \"10s\","; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2620,7 +2630,6 @@ function generate_Hysteria_config() {
     select_certificate_option
     local cert_path="$certificate_path"
     local key_path="$private_key_path"
-    local found_rules=0
     local found_inbounds=0
     local server_name="$domain"
 
@@ -2629,11 +2638,9 @@ function generate_Hysteria_config() {
     fi
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v up_mbps="$up_mbps" -v down_mbps="$down_mbps" -v obfs_config="$obfs_config" -v users="$users" -v server_name="$server_name" -v certificate_path="$certificate_path" -v private_key_path="$private_key_path" -v ech_server_config="$ech_server_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"hysteria\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"up_mbps\": " up_mbps ","; print "      \"down_mbps\": " down_mbps ","obfs_config""; print "      \"users\": [" users ""; print "      ],"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found_inbounds=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"hysteria\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"up_mbps\": " up_mbps ","; print "      \"down_mbps\": " down_mbps ","obfs_config""; print "      \"users\": [" users ""; print "      ],"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found_inbounds=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2653,15 +2660,12 @@ function generate_shadowtls_config() {
     set_ss_password
     set_target_server
     configure_multiplex
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label1="$tag_label1" -v tag_label2="$tag_label2" -v listen_port="$listen_port" -v users="$users" -v target_server="$target_server" -v ss_method="$ss_method" -v ss_password="$ss_password" -v multiplex_config="$multiplex_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label1 "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"shadowtls\","; print "      \"tag\": \"" tag_label1 "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"version\": 3,"; print "      \"users\": [" users ""; print "      ],"; print "      \"handshake\": {"; print "        \"server\": \"" target_server "\","; print "        \"server_port\": 443"; print "      },"; print "      \"strict_mode\": true,"; print "      \"detour\": \"" tag_label2 "\""; print "    },"; print "    {"; print "      \"type\": \"shadowsocks\","; print "      \"tag\": \"" tag_label2 "\","; print "      \"listen\": \"127.0.0.1\","; print "      \"method\": \"" ss_method "\","; print "      \"password\": \"" ss_password "\"" multiplex_config ""; print "    },"; found=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label1 "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"shadowtls\","; print "      \"tag\": \"" tag_label1 "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"version\": 3,"; print "      \"users\": [" users ""; print "      ],"; print "      \"handshake\": {"; print "        \"server\": \"" target_server "\","; print "        \"server_port\": 443"; print "      },"; print "      \"strict_mode\": true,"; print "      \"detour\": \"" tag_label2 "\""; print "    },"; print "    {"; print "      \"type\": \"shadowsocks\","; print "      \"tag\": \"" tag_label2 "\","; print "      \"listen\": \"127.0.0.1\","; print "      \"method\": \"" ss_method "\","; print "      \"password\": \"" ss_password "\"" multiplex_config ""; print "    },"; found=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2697,15 +2701,12 @@ function generate_vless_config() {
         configure_multiplex
     fi
 
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v transport_config="$transport_config" -v reality_config="$reality_config" -v multiplex_config="$multiplex_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"vless\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true," transport_config ""; print "      \"users\": [" users ""; print "      ]"reality_config"" multiplex_config ""; print "    },"; found=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"vless\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port "," transport_config ""; print "      \"users\": [" users ""; print "      ]"reality_config"" multiplex_config ""; print "    },"; found=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2727,7 +2728,6 @@ function generate_Hy2_config() {
     select_certificate_option
     local cert_path="$certificate_path"
     local key_path="$private_key_path"
-    local found_rules=0
     local found_inbounds=0
     local server_name="$domain"
 
@@ -2736,11 +2736,9 @@ function generate_Hy2_config() {
     fi
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v up_mbps="$up_mbps" -v down_mbps="$down_mbps" -v obfs_config="$obfs_config" -v users="$users" -v fake_domain="$fake_domain" -v server_name="$server_name" -v certificate_path="$certificate_path" -v private_key_path="$private_key_path" -v ech_server_config="$ech_server_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"hysteria2\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true,"; print "      \"up_mbps\": " up_mbps ","; print "      \"down_mbps\": " down_mbps ","obfs_config""; print "      \"users\": [" users ""; print "      ],"; print "      \"ignore_client_bandwidth\": false,"; print "      \"masquerade\": \"https://" fake_domain "\","; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"hysteria2\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"up_mbps\": " up_mbps ","; print "      \"down_mbps\": " down_mbps ","obfs_config""; print "      \"users\": [" users ""; print "      ],"; print "      \"ignore_client_bandwidth\": false,"; print "      \"masquerade\": \"https://" fake_domain "\","; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\","; print "        \"alpn\": ["; print "          \"h3\""; print "        ],"; print "        \"certificate_path\": \"" certificate_path "\","; print "        \"key_path\": \"" private_key_path "\"" ech_server_config ""; print "      }"; print "    },"; found=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2765,15 +2763,12 @@ function generate_trojan_config() {
     local cert_path="$certificate_path"
     local key_path="$private_key_path"
     check_firewall_configuration
-    local found_rules=0
     local found_inbounds=0
 
     awk -v tag_label="$tag_label" -v listen_port="$listen_port" -v users="$users" -v transport_config="$transport_config" -v tls_config="$tls_config" -v multiplex_config="$multiplex_config" '
-        /"rules": \[/{found_rules=1}
         /"inbounds": \[/{found_inbounds=1}
-        {print}
-        found_rules && /"rules": \[/{print "      {"; print "        \"inbound\": [\"" tag_label "\"],"; print "        \"outbound\": \"direct\""; print "      },"; found_rules=0}
-        found_inbounds && /"inbounds": \[/{print "    {"; print "      \"type\": \"trojan\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port ","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": true," transport_config ""; print "      \"users\": [" users ""; print "      ]" tls_config "" multiplex_config ""; print "    },"; found=0}
+        { print; if ($0 ~ /^        "inbound": \[/) print "          \"" tag_label "\"," }
+        found_inbounds && /^  "inbounds": \[/{print "    {"; print "      \"type\": \"trojan\","; print "      \"tag\": \"" tag_label "\","; print "      \"listen\": \"::\","; print "      \"listen_port\": " listen_port "," transport_config ""; print "      \"users\": [" users ""; print "      ]" tls_config "" multiplex_config ""; print "    },"; found=0}
     ' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
@@ -2784,6 +2779,7 @@ function update_route_file() {
     local config_file="/usr/local/etc/sing-box/config.json"
     local geosite_list=$(IFS=,; echo "${rule_set[*]}") 
     local geosite_formatted=$(sed 's/,/,\\n          /g' <<< "$geosite_list")
+    local inbound_values=$(jq -r '.route.rules[].inbound // empty' "$config_file" | jq -s add | jq -r 'unique')
 
     echo "正在配置 WireGuard..."
 
@@ -2791,49 +2787,27 @@ function update_route_file() {
 
     for geosite in "${rule_set[@]}"; do
       geosite_clean=$(echo "$geosite" | sed 's/"//g')
-      sed -i '/"rule_set": \[/!b;a\
-      {\
-        "type": "remote",\
-        "tag": "'"$geosite_clean"'",\
-        "format": "binary",\
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/'"$geosite_clean"'.srs",\
-        "download_detour": "direct"\
-      },' "$config_file"
+      sed -i '/"rule_set": \[/!b; a\{"type": "remote", "tag": "'"$geosite_clean"'", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/'"$geosite_clean"'.srs", "download_detour": "direct"},' "$config_file"
     done
 
-    sed -i '/"rules": \[/!b;a\
-      {\
-        "rule_set": [\
-          '"$geosite_formatted"'\
-        ],\
-        "outbound": "'"$1"'"\
-      },' "$config_file"
+    sed -i '/"rules": \[/!b; a\{"rule_set": ['"$geosite_formatted"'], "outbound": "wg-ep"},' "$config_file"
 
     sed -i ':a;N;$!ba;s/},\n\s*]/}\n    ]/' "$config_file"
+
+    jq '.route.rules |= (map(select(.action == "sniff")) + map(select(.action != "sniff")))' "$config_file" > tmp.json && mv tmp.json "$config_file"
+
+    jq --argjson inbound "$inbound_values" '.route.rules |= map(if .outbound == "wg-ep" then {inbound: $inbound} + . else . end)' "$config_file" > tmp.json && mv tmp.json "$config_file"
 }
 
-# 更新出站配置
-function update_outbound_file() {
+# 配置 WireGuard
+function Configure_endpoints() {
     local config_file="/usr/local/etc/sing-box/config.json"
 
-    awk -v server="$server" -v server_port="$server_port" -v local_address_ipv4="$local_address_ipv4" -v local_address_ipv6="$local_address_ipv6" -v private_key="$private_key" -v peer_public_key="$peer_public_key" -v reserved="$reserved" -v mtu="$mtu" '
-        {
-            if ($0 ~ /"outbounds": \[/) {
-                print $0
-                for (i=1; i<=4; i++) {
-                    getline
-                    if (i == 4) {
-                        print "" $0 ","
-                    } else {
-                        print $0
-                    }
-                }
-                print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"warp-IPv4-out\","; print "      \"detour\": \"wireguard-out\","; print "      \"domain_strategy\": \"ipv4_only\""; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"warp-IPv6-out\","; print "      \"detour\": \"wireguard-out\","; print "      \"domain_strategy\": \"ipv6_only\""; print "    },"; print "    {"; print "      \"type\": \"wireguard\","; print "      \"tag\": \"wireguard-out\","; print "      \"server\": \"" server "\","; print "      \"server_port\": " server_port ","; print "      \"system_interface\": false,"; print "      \"interface_name\": \"wg0\","; print "      \"local_address\": ["; print "        \"" local_address_ipv4 "\","; print "        \"" local_address_ipv6 "\"" ; print "      ],"; print "      \"private_key\": \"" private_key "\","; print "      \"peer_public_key\": \"" peer_public_key "\","; print "      \"reserved\": " reserved ","; print "      \"mtu\": " mtu; print "    }"
-            } else {
-                print $0
-            }
+    awk -v server="$server" -v server_port="$server_port" -v local_address_ipv4="$local_address_ipv4" -v local_address_ipv6="$local_address_ipv6" -v private_key="$private_key" -v peer_public_key="$peer_public_key" -v reserved="$reserved" -v mtu="$mtu" '{
+        if ($0 ~ /^  "inbounds": \[/) { print "  \"endpoints\": ["; print "    {"; print "      \"type\": \"wireguard\","; print "      \"tag\": \"wg-ep\","; print "      \"mtu\": " mtu ","; print "      \"address\": ["; print "        \"" local_address_ipv4 "\","; print "        \"" local_address_ipv6 "\""; print "      ],"; print "      \"private_key\": \"" private_key "\","; print "      \"peers\": ["; print "        {"; print "          \"address\": \"" server "\","; print "          \"port\": " server_port ","; print "          \"public_key\": \"" peer_public_key "\","; print "          \"allowed_ips\": ["; print "            \"0.0.0.0/0\","; print "            \"::/0\""; print "          ],"; print "          \"reserved\": " reserved; print "        }"; print "      ]"; print "    }"; print "  ],"
         }
-    ' "$config_file" > "$config_file.tmp"
+        print $0
+    }' "$config_file" > "$config_file.tmp"
 
     mv "$config_file.tmp" "$config_file"
 
@@ -2846,7 +2820,7 @@ function write_phone_client_file() {
     local phone_client="${dir}/phone_client.json"
 
     if [ ! -s "${phone_client}" ]; then
-        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"address\": \"https://1.1.1.1/dns-query\","; print "        \"address_resolver\": \"dns_local\","; print "        \"detour\": \"select\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"address\": \"https://dns.alidns.com/dns-query\","; print "        \"address_resolver\": \"dns_local\","; print "        \"detour\": \"direct-out\""; print "      },"; print "      {"; print "        \"tag\": \"dns_local\","; print "        \"address\": \"223.5.5.5\","; print "        \"detour\": \"direct-out\""; print "      },"; print "      {"; print "        \"tag\": \"dns_block\","; print "        \"address\": \"rcode://success\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"outbound\": \"any\","; print "        \"server\": \"dns_local\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"server\": \"dns_block\","; print "        \"disable_cache\": true"; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"server\": \"dns_proxy\","; print "        \"client_subnet\": \"114.114.114.114/24\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"select\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"outbound\": \"dns-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"port\": 853"; print "          },"; print "          {"; print "            \"network\": \"udp\","; print "            \"port\": 443"; print "          },"; print "          {"; print "            \"protocol\": \"stun\""; print "          }"; print "        ],"; print "        \"outbound\": \"block-out\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"outbound\": \"block-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"select\""; print "      },"; print "      {"; print "        \"rule_set\": ["; print "          \"geoip-cn\","; print "          \"geosite-geolocation-cn\""; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"ip_is_private\": true,"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"outbound\": \"select\""; print "      }"; print "    ],"; print "    \"final\": \"select\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"tun\","; print "      \"tag\": \"tun-in\","; print "      \"address\": ["; print "        \"172.18.0.1/30\","; print "        \"fdfe:dcba:9876::1/126\""; print "      ],"; print "      \"mtu\": 9000,"; print "      \"auto_route\": true,"; print "      \"strict_route\": true,"; print "      \"stack\": \"gvisor\","; print "      \"sniff\": true,"; print "      \"sniff_override_destination\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"select\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    },"; print "    {"; print "      \"type\": \"block\","; print "      \"tag\": \"block-out\""; print "    },"; print "    {"; print "      \"type\": \"dns\","; print "      \"tag\": \"dns-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": false"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"select\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${phone_client}"
+        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"predefined\","; print "        \"rcode\": \"NOERROR\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true,"; print "    \"cache_capacity\": 4096"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"ipv4_only\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\","; print "        \"method\": \"drop\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"tun\","; print "      \"tag\": \"tun-in\","; print "      \"address\": ["; print "        \"172.18.0.1/30\","; print "        \"fdfe:dcba:9876::1/126\""; print "      ],"; print "      \"mtu\": 1400,"; print "      \"auto_route\": true,"; print "      \"strict_route\": true,"; print "      \"stack\": \"gvisor\""; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": false"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"select\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${phone_client}"
     fi
 }
 
@@ -2856,7 +2830,7 @@ function write_win_client_file() {
     local win_client="${dir}/win_client.json"
 
     if [ ! -s "${win_client}" ]; then
-        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"address\": \"https://1.1.1.1/dns-query\","; print "        \"address_resolver\": \"dns_local\","; print "        \"detour\": \"select\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"address\": \"https://dns.alidns.com/dns-query\","; print "        \"address_resolver\": \"dns_local\","; print "        \"detour\": \"direct-out\""; print "      },"; print "      {"; print "        \"tag\": \"dns_local\","; print "        \"address\": \"223.5.5.5\","; print "        \"detour\": \"direct-out\""; print "      },"; print "      {"; print "        \"tag\": \"dns_block\","; print "        \"address\": \"rcode://success\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"outbound\": \"any\","; print "        \"server\": \"dns_local\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"server\": \"dns_block\","; print "        \"disable_cache\": true"; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"server\": \"dns_proxy\","; print "        \"client_subnet\": \"114.114.114.114/24\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"select\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"select\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"outbound\": \"dns-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"port\": 853"; print "          },"; print "          {"; print "            \"network\": \"udp\","; print "            \"port\": 443"; print "          },"; print "          {"; print "            \"protocol\": \"stun\""; print "          }"; print "        ],"; print "        \"outbound\": \"block-out\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"outbound\": \"block-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"select\""; print "      },"; print "      {"; print "        \"rule_set\": ["; print "          \"geoip-cn\","; print "          \"geosite-geolocation-cn\""; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"ip_is_private\": true,"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"outbound\": \"select\""; print "      }"; print "    ],"; print "    \"final\": \"select\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"mixed\","; print "      \"tag\": \"mixed-in\","; print "      \"listen\": \"::\","; print "      \"listen_port\": 1080,"; print "      \"sniff\": true,"; print "      \"set_system_proxy\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"select\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    },"; print "    {"; print "      \"type\": \"block\","; print "      \"tag\": \"block-out\""; print "    },"; print "    {"; print "      \"type\": \"dns\","; print "      \"tag\": \"dns-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": false"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"select\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${win_client}"
+        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"predefined\","; print "        \"rcode\": \"NOERROR\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true,"; print "    \"cache_capacity\": 4096"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"ipv4_only\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\","; print "        \"method\": \"drop\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-!cn\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"mixed\","; print "      \"tag\": \"mixed-in\","; print "      \"listen\": \"::\","; print "      \"listen_port\": 1080,"; print "      \"set_system_proxy\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": false"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"select\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${win_client}"
     fi
 }
 
@@ -2877,7 +2851,7 @@ function write_clash_yaml() {
     local clash_yaml="${dir}/clash.yaml"
 
     if [ ! -s "${clash_yaml}" ]; then
-        awk 'BEGIN { print "mixed-port: 7890"; print "allow-lan: true"; print "bind-address: \"*\""; print "find-process-mode: strict"; print "mode: rule"; print "unified-delay: false"; print "tcp-concurrent: true"; print "log-level: info"; print "ipv6: true"; print "global-client-fingerprint: chrome"; print "external-controller: 127.0.0.1:9090"; print "external-ui: ui"; print "external-ui-url: \"https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip\""; print "tun:"; print "  enable: true"; print "  stack: mixed"; print "  dns-hijack:"; print "    - 0.0.0.0:53"; print "  auto-detect-interface: true"; print "  auto-route: true"; print "  auto-redirect: true"; print "  mtu: 9000"; print "profile:"; print "  store-selected: false"; print "  store-fake-ip: true"; print "sniffer:"; print "  enable: true"; print "  override-destination: false"; print "  sniff:"; print "    TLS:"; print "      ports: [443, 8443]"; print "    HTTP:"; print "      ports: [80, 8080-8880]"; print "      override-destination: true"; print "    QUIC:"; print "      ports: [443, 8443]"; print "  skip-domain:"; print "    - \"+.push.apple.com\""; print "dns:"; print "  enable: true"; print "  prefer-h3: false"; print "  respect-rules: true"; print "  listen: 0.0.0.0:53"; print "  ipv6: true"; print "  default-nameserver:"; print "    - 223.5.5.5"; print "  enhanced-mode: fake-ip"; print "  fake-ip-range: 198.18.0.1/16"; print "  fake-ip-filter-mode: blacklist"; print "  fake-ip-filter:"; print "    - \"*\""; print "    - \"+.lan\""; print "    - \"+.local\""; print "  nameserver-policy:"; print "    \"rule-set:cn_domain,private_domain\":"; print "      - https://120.53.53.53/dns-query"; print "      - https://223.5.5.5/dns-query"; print "    \"rule-set:category-ads-all\": "; print "      - rcode://success"; print "    \"rule-set:geolocation-!cn\": "; print "      - \"https://dns.cloudflare.com/dns-query\""; print "      - \"https://dns.google/dns-query\""; print "  nameserver:"; print "    - https://120.53.53.53/dns-query"; print "    - https://223.5.5.5/dns-query"; print "  proxy-server-nameserver:"; print "    - https://120.53.53.53/dns-query"; print "    - https://223.5.5.5/dns-query"; print "proxies:"; print "proxy-groups:"; print "  - name: Proxy"; print "    type: select"; print "    proxies:"; print "      - auto"; print "  - name: auto"; print "    type: url-test"; print "    proxies:"; print "    url: \"https://cp.cloudflare.com/generate_204\""; print "    interval: 300"; print "rules:"; print "  - RULE-SET,private_ip,DIRECT,no-resolve"; print "  - RULE-SET,category-ads-all,REJECT"; print "  - RULE-SET,cn_domain,DIRECT"; print "  - RULE-SET,geolocation-!cn,Proxy"; print "  - RULE-SET,cn_ip,DIRECT"; print "  - MATCH,Proxy"; print "rule-anchor:"; print "  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}"; print "  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}"; print "rule-providers:"; print "  private_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs\""; print "  cn_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs\""; print "  geolocation-!cn:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs\""; print "  category-ads-all:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads-all.mrs\""; print "  private_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs\""; print "  cn_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs\""; }' > "${clash_yaml}"
+        awk 'BEGIN { print "mixed-port: 7890"; print "allow-lan: true"; print "bind-address: \"*\""; print "find-process-mode: strict"; print "mode: rule"; print "unified-delay: true"; print "tcp-concurrent: true"; print "log-level: info"; print "ipv6: true"; print "global-client-fingerprint: chrome"; print "external-controller: 127.0.0.1:9090"; print "external-ui: ui"; print "external-ui-url: \"https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip\""; print "tun:"; print "  enable: true"; print "  stack: system"; print "  dns-hijack:"; print "    - 0.0.0.0:53"; print "  auto-detect-interface: true"; print "  auto-route: true"; print "  auto-redirect: false"; print "  strict-route: true"; print "  mtu: 1400"; print "profile:"; print "  store-selected: true"; print "  store-fake-ip: true"; print "sniffer:"; print "  enable: true"; print "  sniff:"; print "    TLS:"; print "      ports: [443, 8443]"; print "    HTTP:"; print "      ports: [80, 8080-8880]"; print "      override-destination: true"; print "    QUIC:"; print "      ports: [443, 8443]"; print "  skip-domain:"; print "    - \"+.push.apple.com\""; print "dns:"; print "  enable: true"; print "  cache-algorithm: arc"; print "  prefer-h3: false"; print "  respect-rules: true"; print "  ipv6: true"; print "  default-nameserver:"; print "    - 1.1.1.1"; print "    - 8.8.8.8"; print "    - 223.5.5.5"; print "    - 119.29.29.29"; print "  enhanced-mode: fake-ip"; print "  fake-ip-range: 198.18.0.1/16"; print "  fake-ip-filter:"; print "    - \"*.lan\""; print "    - \"*.local\""; print "    - \"*.localdomain\""; print "    - \"*.example\""; print "    - \"*.invalid\""; print "    - \"*.localhost\""; print "    - \"*.test\""; print "    - \"*.home.arpa\""; print "    - \"*.direct\""; print "  nameserver-policy:"; print "    \"rule-set:category_ads_all\": "; print "      - rcode://success"; print "    \"rule-set:cn_domain,private_domain\":"; print "      - https://dns.alidns.com/dns-query"; print "      - https://doh.pub/dns-query"; print "  nameserver:"; print "    - https://cloudflare-dns.com/dns-query"; print "    - https://dns.google/dns-query"; print "  proxy-server-nameserver:"; print "    - https://dns.alidns.com/dns-query"; print "    - https://doh.pub/dns-query"; print "proxies:"; print "proxy-groups:"; print "  - name: Proxy"; print "    type: select"; print "    proxies:"; print "      - auto"; print "  - name: auto"; print "    type: url-test"; print "    proxies:"; print "    url: \"https://cp.cloudflare.com/generate_204\""; print "    interval: 300"; print "rules:"; print "  - RULE-SET,private_ip,DIRECT,no-resolve"; print "  - RULE-SET,category_ads_all,REJECT"; print "  - RULE-SET,private_domain,DIRECT"; print "  - RULE-SET,google_domain,Proxy"; print "  - RULE-SET,cn_domain,DIRECT"; print "  - RULE-SET,cn_ip,DIRECT"; print "  - MATCH,Proxy"; print "rule-anchor:"; print "  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}"; print "  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}"; print "rule-providers:"; print "  private_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs\""; print "  cn_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs\""; print "  google_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geosite/google.mrs\""; print "  category_ads_all:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads-all.mrs\""; print "  private_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs\""; print "  cn_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs\""; }' > "${clash_yaml}"
     fi
 }
 
@@ -3571,6 +3545,105 @@ function generate_http_yaml() {
     awk -v proxy_name="$proxy_name" -v server_value="$server_value" -v server_name="$server_name" -v listen_port="$listen_port" -v user_name="$user_name" -v user_password="$user_password" -v tls_insecure="$tls_insecure" '/^proxies:$/ {print; print "  - name: " proxy_name; print "    type: http"; print "    server:", server_value; print "    port:", listen_port; print "    username:", user_name; print "    password:", user_password; print "    tls: true"; print "    sni:", server_name; print "    skip-cert-verify:", tls_insecure; print ""; next} /- name: Proxy/ { print; flag_proxy=1; next } flag_proxy && flag_proxy++ == 3 { print "      - " proxy_name } /- name: auto/ { print; flag_auto=1; next } flag_auto && flag_auto++ == 3 { print "      - " proxy_name } 1' "$filename" > temp_file && mv temp_file "$filename"
 }
 
+# 生成 AnyTLS 手机客户端配置
+function generate_anytls_phone_client_config() {
+    local phone_client_file="/usr/local/etc/sing-box/phone_client.json"
+    local server_name="$domain"
+    local proxy_name
+    local server_value
+    local tls_insecure
+
+    if [ -z "$domain" ]; then
+        server_name="$domain_name"
+        server_value="$local_ip"
+        tls_insecure="true"
+    else
+        server_value="$domain"
+        tls_insecure="false"
+    fi
+
+    if [ -n "$ech_config" ]; then
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+    fi
+
+    while true; do
+        proxy_name="anytls-$(head /dev/urandom | tr -dc '0-9' | head -c 4)"
+        if ! grep -q "name: $proxy_name" "$phone_client_file"; then
+            break
+        fi
+    done
+
+    awk -v proxy_name="$proxy_name" -v server_value="$server_value" -v server_name="$server_name" -v listen_port="$listen_port" -v user_password="$user_password" -v tls_insecure="$tls_insecure" -v ech_client_config="$ech_client_config" '
+    /^  "outbounds": \[/ {print; getline; print "    {"; print "      \"type\": \"anytls\","; print "      \"tag\": \"" proxy_name "\","; print "      \"server\": \"" server_value "\", "; print "      \"server_port\": " listen_port ","; print "      \"password\": \"" user_password "\","; print "      \"idle_session_check_interval\": \"30s\","; print "      \"idle_session_timeout\": \"30s\","; print "      \"min_idle_session\": 5,"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"insecure\": " tls_insecure ","; print "        \"server_name\": \"" server_name "\"" ech_client_config ""; print "      }"; print "    },";} 
+   /^      "outbounds": \[/ {print; getline; if ($0 ~ /^      \],$/) {print "        \"" proxy_name "\""} else {print "        \"" proxy_name "\", "} }    
+    {print}' "$phone_client_file" > "$phone_client_file.tmp"
+
+    mv "$phone_client_file.tmp" "$phone_client_file"
+}
+
+# 生成 AnyTLS Windows 客户端配置
+function generate_anytls_win_client_config() {
+    local win_client_file="/usr/local/etc/sing-box/win_client.json"
+    local server_name="$domain"
+    local proxy_name
+    local server_value
+    local tls_insecure
+
+    if [ -z "$domain" ]; then
+        server_name="$domain_name"
+        server_value="$local_ip"
+        tls_insecure="true"
+    else
+        server_value="$domain"
+        tls_insecure="false"
+    fi
+
+    if [ -n "$ech_config" ]; then
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+    fi
+
+    while true; do
+        proxy_name="anytls-$(head /dev/urandom | tr -dc '0-9' | head -c 4)"
+        if ! grep -q "name: $proxy_name" "$win_client_file"; then
+            break
+        fi
+    done
+
+    awk -v proxy_name="$proxy_name" -v server_value="$server_value" -v server_name="$server_name" -v listen_port="$listen_port" -v user_password="$user_password" -v tls_insecure="$tls_insecure" -v ech_client_config="$ech_client_config" '
+    /^  "outbounds": \[/ {print; getline; print "    {"; print "      \"type\": \"anytls\","; print "      \"tag\": \"" proxy_name "\","; print "      \"server\": \"" server_value "\", "; print "      \"server_port\": " listen_port ","; print "      \"password\": \"" user_password "\","; print "      \"idle_session_check_interval\": \"30s\","; print "      \"idle_session_timeout\": \"30s\","; print "      \"min_idle_session\": 5,"; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"insecure\": " tls_insecure ","; print "        \"server_name\": \"" server_name "\"" ech_client_config ""; print "      }"; print "    },";} 
+   /^      "outbounds": \[/ {print; getline; if ($0 ~ /^      \],$/) {print "        \"" proxy_name "\""} else {print "        \"" proxy_name "\", "} }    
+    {print}' "$win_client_file" > "$win_client_file.tmp"
+
+    mv "$win_client_file.tmp" "$win_client_file"
+}
+
+# 生成 AnyTLS Clash 客户端配置
+function generate_anytls_yaml() {
+    local filename="/usr/local/etc/sing-box/clash.yaml"
+    local server_name="$domain"
+    local proxy_name
+    local server_value
+    local tls_insecure
+
+    if [ -z "$domain" ]; then
+        server_name="$domain_name"
+        server_value="$local_ip"
+        tls_insecure="true"
+    else
+        server_value="$domain"
+        tls_insecure="false"
+    fi
+
+    while true; do
+        proxy_name="anytls-$(head /dev/urandom | tr -dc '0-9' | head -c 4)"
+        if ! grep -q "name: $proxy_name" "$filename"; then
+            break
+        fi
+    done
+
+    awk -v proxy_name="$proxy_name" -v server_value="$server_value" -v server_name="$server_name" -v listen_port="$listen_port" -v user_name="$user_name" -v user_password="$user_password" -v tls_insecure="$tls_insecure" '/^proxies:$/ {print; print "  - name: " proxy_name; print "    type: anytls"; print "    server:", server_value; print "    port:", listen_port; print "    password:", user_password; print "    udp: true"; print "    idle-session-check-interval: 30"; print "    idle-session-timeout: 30"; print "    min-idle-session: 5"; print "    sni:", server_name; print "    alpn:"; print "      - h2"; print "      - http/1.1"; print "    skip-cert-verify:", tls_insecure; print ""; next} /- name: Proxy/ { print; flag_proxy=1; next } flag_proxy && flag_proxy++ == 3 { print "      - " proxy_name } /- name: auto/ { print; flag_auto=1; next } flag_auto && flag_auto++ == 3 { print "      - " proxy_name } 1' "$filename" > temp_file && mv temp_file "$filename"
+}
+
 # 生成 Hysteria2 手机客户端配置
 function generate_Hysteria2_phone_client_config() {
     local phone_client_file="/usr/local/etc/sing-box/phone_client.json"
@@ -4099,7 +4172,7 @@ function extract_types_tags() {
 
     tags=($(jq -r '.inbounds[] | select(.tag != null) | .tag' "$config_file"))
     detour_tag=$(jq -r '.inbounds[] | select(.type == "shadowtls") | .detour' "$config_file")
-    wireguard_type=$(jq -r '.outbounds[] | select(.type == "wireguard" and .tag == "wireguard-out") | .type' "$config_file")
+    wireguard_type=$(jq -r '.endpoints[] | select(.type == "wireguard") | .type' "$config_file")
 
     if [ -z "$tags" ] && [ -z "$wireguard_type" ]; then
         echo "未检测到节点配置，请搭建节点后再使用本选项！"
@@ -4129,7 +4202,7 @@ function extract_types_tags() {
 
     if [ ! -z "$wireguard_type" ]; then
         types[$i]=$wireguard_type
-        printf "%d).协议类型: %-20s 出站标签: %s\n" "$((i+1))" "$wireguard_type" "wireguard-out"
+        printf "%d).协议类型: %-20s 入站标签: %s\n" "$((i+1))" "$wireguard_type" "wg-ep"
     fi
 }
 
@@ -4166,9 +4239,9 @@ function delete_choice() {
 
     if [ "$selected_type" == "wireguard" ]; then
         # 删除 Wireguard 相关配置
-        jq '.outbounds |= map(select(.tag != "warp-IPv4-out" and .tag != "warp-IPv6-out" and .tag != "wireguard-out"))' "$config_file" > "$temp_json"
+        jq 'del(.endpoints)' "$config_file" > "$temp_json"
         mv "$temp_json" "$config_file"
-        jq '.route.rules |= map(select(.outbound != "warp-IPv4-out" and .outbound != "warp-IPv6-out"))' "$config_file" > "$temp_json"
+        jq '.route.rules |= map(select(.outbound != "wg-ep"))' "$config_file" > "$temp_json"
         mv "$temp_json" "$config_file"
         jq 'del(.route.rule_set)' "$config_file" > "$temp_json"
         mv "$temp_json" "$config_file"
@@ -4177,7 +4250,7 @@ function delete_choice() {
         detour_tag=$(jq -r --arg selected_tag "$selected_tag" '.inbounds[] | select(.type == "shadowtls" and .tag == $selected_tag) | .detour' "$config_file")
         jq --arg selected_tag "$selected_tag" --arg detour_tag "$detour_tag" '.inbounds |= map(select(.tag != $selected_tag and .tag != $detour_tag))' "$config_file" > "$temp_json"
         mv "$temp_json" "$config_file"
-        jq --arg selected_tag "$selected_tag" '.route.rules |= map(select(.inbound[0] != $selected_tag))' "$config_file" > "$temp_json"
+        jq --arg selected_tag "$selected_tag" '.route.rules |= map(.inbound |= map(select(. != $selected_tag)))' "$config_file" > "$temp_json"
         mv "$temp_json" "$config_file"
     fi
 
@@ -4270,7 +4343,7 @@ function delete_choice() {
 
     # 检查配置文件中的某些字段是否需要处理
     if ! jq -e 'select(.inbounds[] | .listen == "::")' "$config_file" > /dev/null; then
-        sed -i 's/"rules": \[\]/"rules": [\n    ]/' "$config_file"
+        sed -i 's/^        "inbound": \[\],/        "inbound": [\n        ],/' "$config_file"
         sed -i 's/^  "inbounds": \[\],/  "inbounds": [\n  ],/' "$config_file"
         sed -i 's/^      "outbounds": \[\],/      "outbounds": [\n      ],/' "$win_client_file"
         sed -i 's/^      "outbounds": \[\],/      "outbounds": [\n      ],/' "$phone_client_file"
@@ -4450,6 +4523,83 @@ function display_http_config_files() {
             ensure_clash_yaml
             write_clash_yaml
             generate_http_yaml
+        fi
+    done
+
+    if [ "$enable_ech" = true ]; then
+        echo "手机端配置文件已保存至 $phone_client_file，请下载后使用！"
+        echo "电脑端配置文件已保存至 $win_client_file，请下载后使用！"
+    else
+        echo "手机端配置文件已保存至 $phone_client_file，请下载后使用！"
+        echo "电脑端配置文件已保存至 $win_client_file，请下载后使用！"
+        echo "Clash配置文件已保存至 $clash_file，请下载使用！"
+    fi
+}
+
+# 显示 AnyTLS 节点配置信息
+function display_anytls_config_info() {
+    local config_file="/usr/local/etc/sing-box/config.json"
+    local output_file="/usr/local/etc/sing-box/output.txt"
+    local num_users=${#user_names[@]}
+    local server_address
+
+    if [[ -n "$ip_v4" ]]; then
+        local_ip="$ip_v4"
+    elif [[ -n "$ip_v6" ]]; then
+        local_ip="$ip_v6"
+    fi
+
+    if [ -z "$domain" ]; then
+        server_address="$local_ip"
+    else
+        server_address="$domain"
+    fi
+
+    echo -e "${CYAN}AnyTLS 节点配置信息：${NC}" | tee -a "$output_file"     
+    echo -e "${CYAN}==============================================================================${NC}" | tee -a "$output_file"
+    echo "服务器地址: $server_address" | tee -a "$output_file"
+    echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"        
+    echo "监听端口: $listen_port" | tee -a "$output_file"
+    echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
+    echo "用 户 名                                  密  码" | tee -a "$output_file"
+    echo "------------------------------------------------------------------------------" | tee -a "$output_file"
+
+    for ((i=0; i<num_users; i++)); do
+        local user_name="${user_names[i]}"
+        local user_password="${user_passwords[i]}"       
+        printf "%-38s %s\n" "$user_name" "$user_password" | tee -a "$output_file"
+    done      
+
+    echo -e "${CYAN}==============================================================================${NC}" | tee -a "$output_file"
+    echo "" >> "$output_file"
+    echo "配置信息已保存至 $output_file" 
+}
+
+# 生成 AnyTLS 客户端配置文件
+function display_anytls_config_files() {
+    local config_file="/usr/local/etc/sing-box/config.json"
+    local clash_file="/usr/local/etc/sing-box/clash.yaml" 
+    local phone_client_file="/usr/local/etc/sing-box/phone_client.json" 
+    local win_client_file="/usr/local/etc/sing-box/win_client.json" 
+    local num_users=${#user_names[@]}
+
+    for ((i=0; i<num_users; i++)); do
+        local user_name="${user_names[i]}"
+        local user_password="${user_passwords[i]}"  
+
+        if [ "$enable_ech" = true ]; then
+            write_phone_client_file
+            write_win_client_file
+            generate_anytls_win_client_config "$user_password"
+            generate_anytls_phone_client_config "$user_password"
+        else
+            write_phone_client_file
+            write_win_client_file
+            generate_anytls_win_client_config "$user_password"
+            generate_anytls_phone_client_config "$user_password"
+            ensure_clash_yaml
+            write_clash_yaml
+            generate_anytls_yaml
         fi
     done
 
@@ -5310,19 +5460,6 @@ function view_saved_config() {
     fi
 }
 
-# 检查并重启服务
-function check_and_restart_services() {
-    if [ -f "/etc/systemd/system/sing-box.service" ]; then
-        systemctl restart sing-box.service
-        systemctl status --no-pager sing-box.service
-    fi
-
-    if [ -f "/etc/systemd/system/juicity.service" ]; then
-        systemctl restart juicity.service
-        systemctl status --no-pager juicity.service
-    fi
-}
-
 # 卸载 sing-box
 function uninstall_sing_box() {
     echo "开始卸载 sing-box..."
@@ -5391,7 +5528,7 @@ function check_wireguard_config() {
 
 # 更新安装脚本
 function Update_Script() {
-    wget -O /root/singbox.sh https://raw.githubusercontent.com/smith-stack/sing-box/refs/heads/main/Install.sh
+    wget -O /root/singbox.sh https://raw.githubusercontent.com/smith-stack/sing-box/refs/heads/main/Pre_release_install.sh
     chmod +x /root/singbox.sh
 }
 
@@ -5431,7 +5568,7 @@ function Direct_install() {
     set_override_address
     set_override_port
     generate_Direct_config
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     check_firewall_configuration 
     systemctl daemon-reload   
@@ -5451,7 +5588,7 @@ function Shadowsocks_install() {
     select_encryption_method
     set_ss_password
     generate_ss_config
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     check_firewall_configuration 
     systemctl daemon-reload   
@@ -5470,7 +5607,7 @@ function socks_install() {
     enable_bbr
     log_outbound_config    
     generate_socks_config
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     check_firewall_configuration 
     systemctl daemon-reload   
@@ -5490,7 +5627,7 @@ function NaiveProxy_install() {
     log_outbound_config        
     generate_naive_config
     add_cron_job
-    modify_format_inbounds_and_outbounds  
+    modify_config_format
     modify_route_rules  
     systemctl daemon-reload
     systemctl enable sing-box
@@ -5507,7 +5644,7 @@ function http_install() {
     log_outbound_config        
     generate_http_config
     add_cron_job
-    modify_format_inbounds_and_outbounds  
+    modify_config_format
     modify_route_rules  
     systemctl daemon-reload
     systemctl enable sing-box
@@ -5518,6 +5655,24 @@ function http_install() {
     update_client_file
 }
 
+# 安装 AnyTLS 并配置相关服务
+function anytls_install() {
+    install_sing_box
+    enable_bbr
+    log_outbound_config        
+    generate_anytls_config
+    add_cron_job
+    modify_config_format
+    modify_route_rules  
+    systemctl daemon-reload
+    systemctl enable sing-box
+    systemctl start sing-box
+    systemctl restart sing-box
+    display_anytls_config_info
+    display_anytls_config_files
+    update_client_file
+}
+
 # 安装 Tuic 并配置相关服务
 function tuic_install() {
     install_sing_box
@@ -5525,7 +5680,7 @@ function tuic_install() {
     log_outbound_config    
     generate_tuic_config
     add_cron_job
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules  
     systemctl daemon-reload
     systemctl enable sing-box
@@ -5544,7 +5699,7 @@ function Hysteria_install() {
     log_outbound_config    
     generate_Hysteria_config
     add_cron_job
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules 
     systemctl daemon-reload
     systemctl enable sing-box
@@ -5561,7 +5716,7 @@ function shadowtls_install() {
     enable_bbr
     log_outbound_config 
     generate_shadowtls_config
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     check_firewall_configuration      
     systemctl daemon-reload
@@ -5580,7 +5735,7 @@ function reality_install() {
     enable_bbr
     log_outbound_config         
     generate_vless_config 
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     check_firewall_configuration              
     systemctl daemon-reload
@@ -5600,7 +5755,7 @@ function Hysteria2_install() {
     log_outbound_config    
     generate_Hy2_config
     add_cron_job
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     systemctl daemon-reload
     systemctl enable sing-box
@@ -5618,7 +5773,7 @@ function trojan_install() {
     log_outbound_config
     generate_trojan_config
     add_cron_job
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     systemctl daemon-reload      
     systemctl enable sing-box 
@@ -5637,7 +5792,7 @@ function vmess_install() {
     get_local_ip
     generate_vmess_config
     add_cron_job
-    modify_format_inbounds_and_outbounds
+    modify_config_format
     modify_route_rules
     systemctl daemon-reload   
     systemctl enable sing-box
@@ -5655,11 +5810,10 @@ function wireguard_install() {
     select_unlocked_items
     geosite=()
     update_rule_set
-    select_outbound
-    update_route_file "$outbound"
+    update_route_file
     generate_warp_info
     extract_variables_and_cleanup
-    update_outbound_file
+    Configure_endpoints
     systemctl restart sing-box
 }
 
@@ -5683,21 +5837,21 @@ function run_option() {
 # 主菜单
 function main_menu() {
 echo "╔════════════════════════════════════════════════════════════════════════╗"
-echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox                                                 ║"
 echo -e "║ ${CYAN}Telegram反馈群组${NC}： https://t.me/+EQY_InMZ2L5lODNl                      ║"
-echo -e "║ ${CYAN}项目地址${NC}: https://github.com/smith-stack/sing-box      Version：1.5.0  ║"
+echo -e "║ ${CYAN}项目地址${NC}: https://github.com/smith-stack/sing-box                      ║"
+echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox              Version：1.12.0  Prerelease-alpha  ║"
 echo "╠════════════════════════════════════════════════════════════════════════╣"
 echo "║ 请选择要执行的操作：                                                   ║"
 echo -e "║${CYAN} [1]${NC}  SOCKS                             ${CYAN} [2]${NC}   Direct                   ║"
 echo -e "║${CYAN} [3]${NC}  HTTP                              ${CYAN} [4]${NC}   VMess                    ║"
 echo -e "║${CYAN} [5]${NC}  VLESS                             ${CYAN} [6]${NC}   TUIC                     ║"
-echo -e "║${CYAN} [7]${NC}  Juicity                           ${CYAN} [8]${NC}   Trojan                   ║"
-echo -e "║${CYAN} [9]${NC}  Hysteria                          ${CYAN} [10]${NC}  Hysteria2                ║"
-echo -e "║${CYAN} [11]${NC} ShadowTLS                         ${CYAN} [12]${NC}  NaiveProxy               ║"
-echo -e "║${CYAN} [13]${NC} Shadowsocks                       ${CYAN} [14]${NC}  WireGuard                ║"
-echo -e "║${CYAN} [15]${NC} 查看节点信息                      ${CYAN} [16]${NC}  更新内核                 ║"
-echo -e "║${CYAN} [17]${NC} 更新脚本                          ${CYAN} [18]${NC}  更新证书                 ║"
-echo -e "║${CYAN} [19]${NC} 重启服务                          ${CYAN} [20]${NC}  节点管理                 ║"
+echo -e "║${CYAN} [7]${NC}  Juicity                           ${CYAN} [8]${NC}   AnyTLS                   ║"
+echo -e "║${CYAN} [9]${NC}  Trojan                            ${CYAN} [10]${NC}  Hysteria                 ║"
+echo -e "║${CYAN} [11]${NC} Hysteria2                         ${CYAN} [12]${NC}  ShadowTLS                ║"
+echo -e "║${CYAN} [13]${NC} NaiveProxy                        ${CYAN} [14]${NC}  Shadowsocks              ║"
+echo -e "║${CYAN} [15]${NC} WireGuard                         ${CYAN} [16]${NC}  更新证书                 ║"
+echo -e "║${CYAN} [17]${NC} 节点信息                          ${CYAN} [18]${NC}  节点管理                 ║"
+echo -e "║${CYAN} [19]${NC} 更新内核                          ${CYAN} [20]${NC}  更新脚本                 ║"
 echo -e "║${CYAN} [21]${NC} 卸载                              ${CYAN} [0]${NC}   退出                     ║"
 echo "╚════════════════════════════════════════════════════════════════════════╝"
 
@@ -5734,54 +5888,54 @@ echo "╚═══════════════════════�
             exit 0
             ;;
         8)
-            trojan_install
+            anytls_install
             exit 0
             ;;
         9)
-            Hysteria_install
+            trojan_install
             exit 0
             ;;
         10)
-            Hysteria2_install
+            Hysteria_install
             exit 0
             ;;
         11)
-            shadowtls_install
+            Hysteria2_install
             exit 0
             ;;
         12)
-            NaiveProxy_install
+            shadowtls_install
             exit 0
             ;;
         13)
-            Shadowsocks_install
+            NaiveProxy_install
             exit 0
             ;;
         14)
-            wireguard_install
+            Shadowsocks_install
             exit 0
             ;;
         15)
-            view_saved_config
+            wireguard_install
             exit 0
             ;;
         16)
-            update_proxy_tool
-            exit 0
+            Update_certificate
             ;;
         17)
-            Update_Script
+            view_saved_config
             exit 0
             ;;
         18)
-            Update_certificate
+            delete_choice
+            exit 0
             ;;
         19)
-            check_and_restart_services
+            update_proxy_tool
             exit 0
             ;;
         20)
-            delete_choice
+            Update_Script
             exit 0
             ;;
         21)
