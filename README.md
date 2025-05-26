@@ -31,11 +31,11 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2025.05.22 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.05.26 | OpenClash自定义 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2025.05.27 | mihomo和sing-box教程合集 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.05.27 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.05.25 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.05.20 | Sing-box代理工具 |
-| https://github.com/smith-stack/sing-box | main | 2025.05.25 | Sing-box代理工具 |
+| https://github.com/smith-stack/sing-box | main | 2025.05.27 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.01.09 | PAC代理工具 |
 
 ## CFworkers
