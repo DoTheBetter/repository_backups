@@ -258,12 +258,42 @@ dns:
   prefer-h3: true
   ipv6: true
   listen: 0.0.0.0:1053
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 28.0.0.1/8
   enhanced-mode: fake-ip
   fake-ip-filter: ['rule-set:fakeip-filter,trackerslist,private,cn']
   nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
+```
+
+---
+
+>`dns` 私货
+{: .prompt-tip }
+
+注：
+- 1. 本 `dns` 配置中，未知域名由国外 dns 解析（有效解决了“心理 dns 泄露问题”），且配置 `ecs` 提高了兼容性
+- 2. 推荐将 `ecs` 设置为当前网络所属运营商在当地省会城市的 IP 段，可在 <https://bgpview.io> 中查询（如湖北移动，可以搜索“cmnet-hubei”）
+
+```yaml
+dns:
+  enable: true
+  ipv6: true
+  listen: 0.0.0.0:1053
+  fake-ip-range: 28.0.0.1/8
+  enhanced-mode: fake-ip
+  fake-ip-filter: ['rule-set:fakeip-filter,trackerslist,private,cn']
+  respect-rules: true
+  nameserver:
+    ## 推荐将 `ecs` 设置为当前网络所属运营商在当地省会城市的 IP 段
+    - 'https://dns.google/dns-query#ecs=211.137.64.0/20'
+    - 'https://dns11.quad9.net/dns-query#ecs=211.137.64.0/20'
+  proxy-server-nameserver:
+    - 'https://dns.alidns.com/dns-query#h3=true'
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - 'https://dns.alidns.com/dns-query#h3=true'
+    - https://doh.pub/dns-query
 ```
 
 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
@@ -315,7 +345,17 @@ ip6tables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 5353
 3. 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
 ## 七、 AdGuard Home 设置
-设置可参考《[全网最详细的解锁 SSH ShellCrash 搭载 mihomo 内核搭配 AdGuard Home 安装和配置教程/AdGuard Home 配置](https://proxy-tutorials.dustinwin.top/posts/pin-shellcrashadguardhome-mihomo/#2-adguard-home-%E9%85%8D%E7%BD%AE)》（可跳过“添加 DNS 重写”的步骤）
+1. 设置可参考《[全网最详细的解锁 SSH ShellCrash 搭载 mihomo 内核搭配 AdGuard Home 安装和配置教程/AdGuard Home 配置](https://proxy-tutorials.dustinwin.top/posts/pin-shellcrashadguardhome-mihomo/#2-adguard-home-%E9%85%8D%E7%BD%AE)》（可跳过“添加 DNS 重写”的步骤），此处只列举配置的不同之处
+2. 进入设置 → DNS 设置，“后备 DNS 服务器”设置为：
+```text
+h3://dns.alidns.com/dns-query
+https://doh.pub/dns-query
+```
+3. “Bootstrap DNS 服务器”设置为：
+```text
+223.5.5.5
+119.29.29.29
+```
 
 ## 八、 访问 Dashboard 面板
 打开 <http://miwifi.com:9090/ui/> 后，“主机”输入 `192.168.31.1`，点击“提交”即可访问 Dashboard 面板  

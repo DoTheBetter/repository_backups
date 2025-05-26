@@ -70,7 +70,7 @@ dns:
   prefer-h3: true
   ipv6: true
   listen: 0.0.0.0:53
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 28.0.0.1/8
   enhanced-mode: fake-ip
   fake-ip-filter: ['rule-set:fakeip-filter,trackerslist,private,cn']
   nameserver:
@@ -269,6 +269,36 @@ rules:
   - RULE-SET,cnip,直连 IP
   - RULE-SET,telegramip,电报消息,no-resolve
   - MATCH,漏网之鱼
+```
+
+------
+
+>`dns` 私货
+{: .prompt-tip }
+
+注：
+- 1. 本 `dns` 配置中，未知域名由国外 dns 解析（有效解决了“心理 dns 泄露问题”），且配置 `ecs` 提高了兼容性
+- 2. 推荐将 `ecs` 设置为当前网络所属运营商在当地省会城市的 IP 段，可在 <https://bgpview.io> 中查询（如湖北移动，可以搜索“cmnet-hubei”）
+
+```yaml
+dns:
+  enable: true
+  ipv6: true
+  listen: 0.0.0.0:53
+  fake-ip-range: 28.0.0.1/8
+  enhanced-mode: fake-ip
+  fake-ip-filter: ['rule-set:fakeip-filter,trackerslist,private,cn']
+  respect-rules: true
+  nameserver:
+    ## 推荐将 `ecs` 设置为当前网络所属运营商在当地省会城市的 IP 段
+    - 'https://dns.google/dns-query#ecs=211.137.64.0/20'
+    - 'https://dns11.quad9.net/dns-query#ecs=211.137.64.0/20'
+  proxy-server-nameserver:
+    - 'https://dns.alidns.com/dns-query#h3=true'
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - 'https://dns.alidns.com/dns-query#h3=true'
+    - https://doh.pub/dns-query
 ```
 
 ## 二、 导入配置文件并启动
