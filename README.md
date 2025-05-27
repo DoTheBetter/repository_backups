@@ -35,7 +35,7 @@
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.05.27 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.05.25 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.05.20 | Sing-box代理工具 |
-| https://github.com/smith-stack/sing-box | main | 2025.05.27 | Sing-box代理工具 |
+| https://github.com/smith-stack/sing-box | main | 2025.05.28 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.01.09 | PAC代理工具 |
 
 ## CFworkers
