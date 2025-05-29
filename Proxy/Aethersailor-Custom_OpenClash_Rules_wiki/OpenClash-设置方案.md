@@ -583,7 +583,7 @@ https://api.asailor.org/sub
 
 ### 5.3. 切换策略组 
 
-在 OpenClash 的运行状态页面中，点击 Dashboard 控制面板按钮启动控制面板，并观察 dashboard 中的策略组是否和截图中的本项目模板大体一致（因为截图未更新，会有一定不同） 
+在 OpenClash 的运行状态页面中，点击 Dashboard 控制面板按钮启动控制面板。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/db1.png)  
 
@@ -594,6 +594,10 @@ https://api.asailor.org/sub
 **注意！考虑到流媒体用户大多需要简体中文资源，因此流媒体服务大多设置了默认为新加坡节点，如果你没有新加坡节点，记得自己手动切换为其他地区。  **  
 
 **如果你是使用单一自建节点的用户，请在 dashboard 里将所有的策略组选择为你自建的节点！**  
+
+请并观察 dashboard 中的策略组是否和截图中的本项目模板大体一致（因为截图未更新，会有一定不同）  
+
+如果区别很大，说明你使用的后端未能正确拉取远程模板。此问题多见于自建后端，请自行解决网络问题确保后端可以访问远程模板。  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/db2.png)  
 
