@@ -350,25 +350,27 @@ PS：本项目维护者日常使用的是 dev 版本的 OpenClash 和 Meta 内�
 
 ### 3.1. DNS 设置  
 
-首先，启用`“自定义上游 DNS 服务器”`，并禁用下方的 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
+首先，启用`“自定义上游 DNS 服务器”`，并禁用下方的 `NameServer` 和 `Fallback` 下的所有服务器。  
 
 然后根据以下三种情况，选择你对应的使用环境进行设置：  
 
 * `主路由拨号 + 使用运营商 DNS`  
 
-启用`“追加上游 DNS”`，并禁用下方 `NameServer`、`Fallback` 和 `Default-NameServer` 三个服务器分组的所有服务器。  
+启用`“追加上游 DNS”`，并禁用下方 `NameServer`、`Fallback` 两个个服务器分组的所有服务器。  
 
 `“追加上游 DNS”`会将你的 WAN 口取得的 IPv4 DNS、IPv6 DNS 以及 PPPoE 网关均追加为 NameServer，省去了自己手动配置的麻烦。  
 
-* 使用 `SmartDNS` 之类的 DNS 插件（不区分主路由/旁路由）  
+* 使用 `SmartDNS` 之类的 DNS 插件或其他公共 DNS 服务器（不区分主路由/旁路由）  
 
-禁用`“追加上游 DNS”`，启用 `NameServer` 中第一个服务器，并将地址修改为`SmartDNS`的`地址`，以及`端口`（例如 127.0.0.1:6053）。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
+禁用`“追加上游 DNS”`，启用 `NameServer` 中第一个服务器，并将地址修改为`SmartDNS`的`地址`，以及`端口`（例如 127.0.0.1:6053）。同时，禁用 `Fallback` 下的所有服务器。  
 
 SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一服务器组，并且只能添加国内 DNS。  
 
+若要使用其他公共 DNS 服务器，在 `NameServer` 中填入对应的服务器信息并启用即可。  
+
 * “旁路由”用户  
   
-禁用`“追加上游 DNS”`，在 `NameServer` 中保留第一个服务器，并将地址修改为你的运营商 DNS 地址。同时，禁用 `Fallback` 和 `Default-NameServer` 下的所有服务器。  
+禁用`“追加上游 DNS”`，在 `NameServer` 中保留第一个服务器，并将地址修改为你的运营商 DNS 地址或其他你要使用的 DNS。同时，禁用 `Fallback` 下的所有服务器。  
 
 若使用了 SmartDNS，参考上一条 SmartDNS 的设置。  
 
@@ -394,9 +396,6 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/dns1.png)  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/dns2.png)  
-
-![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/dns3.png)  
-
 
 ### 3.2. Meta 设置  
 
@@ -646,10 +645,6 @@ https://ipleak.net/
 
 访问国内镜像站点时，检测页面上应当出现你的宽带的 IPv4 和 IPv6 地址以及国内运营商名称（比如 CHINA UNICOM 即为中国联通），并且以10/10的评分通过测试  
 
-**注意：近期发现 testipv6 的国内镜像站点改用海外 API 获取 IP，因此下图中国内站点有可能会显示海外 IP 地址，如果显示了海外 IP ，请忽略 IP 地址内容，仅关注是否通过测试即可！**  
-
-2025.4.12 更新： 国内 IPv6 test 镜像站似乎有问题，如果测试无法通过，可以关闭 OpenClash 然后使用海外测试站点替代国内站点进行测试。  
-
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/ipv61.png)  
 
 
@@ -658,8 +653,6 @@ https://ipleak.net/
 国外站点：http://test-ipv6.com/  
 
 开启 OpenClash 的情况下，访问国外镜像站点时，检测页面上应当出现你的机场节点的 IPv4 和 IPv6 地址以及节点服务器的网络运营商名称（比如 Akari Networks 之类的境外网络运营商），并且以10/10的评分通过测试  
-
-注意，由于上游分流规则的变化，国外镜像站点有可能检测到的仍然是国内的 IPv6 地址，忽略这种情况即可，以“IPv6 test”网站的检测结果为准  
 
 ![](https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/doc/openclash/pics/ipv62.png)  
 
