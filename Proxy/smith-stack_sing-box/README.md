@@ -4,7 +4,7 @@
 - **添加对Hysteria、Hysteria2协议端口跳跃的支持。**
 - **sing-box服务端及客户端配置更新。**
 - **Clash客户端DNS防泄漏配置。**
-- **V 1.12.0 Prerelease-alpha为测试版，稳定版请使用V 1.5.0。**
+- **V 1.12.0 Prerelease-alpha为测试版，稳定版请使用V 1.10.0。**
 
 ## **说明**
 - **脚本使用sing-box、Juicity内核。**
@@ -20,7 +20,7 @@
 - **脚本支持自定义各种配置参数；如果不懂如何配置，直接回车即可，脚本会自动随机生成配置（包括用户名、UUID、用户密码等）。**
 
 ## **问题反馈Telegram群组**
-- **https://t.me/+EQY_InMZ2L5lODNl**
+- **https://t.me/Devmiston**
 
 ## **安装**
 ### **Debian&&Ubuntu使用以下命令安装依赖**
