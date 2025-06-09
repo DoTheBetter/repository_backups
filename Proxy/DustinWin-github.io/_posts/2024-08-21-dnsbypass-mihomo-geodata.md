@@ -28,7 +28,7 @@ geosite.dat 文件须包含 `fakeip-filter` 和 `cn`，推荐导入我定制的[
 ```yaml
 hosts:
   dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
-  dns.pub: [1.12.12.12, 1.12.12.21, 120.53.53.53]
+  doh.pub: [1.12.12.12, 1.12.12.21, 120.53.53.53]
 
 dns:
   enable: true
