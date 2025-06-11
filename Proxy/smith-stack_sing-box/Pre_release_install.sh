@@ -1472,8 +1472,8 @@ function check_iptables_installed() {
 # 设置端口范围
 function get_port_range() {
     while true; do
-        read -p "请输入端口跳跃的起始端口 (默认：20000): " start_port
-        start_port=${start_port:-20000}
+        read -p "请输入端口跳跃的起始端口 (默认：2080): " start_port
+        start_port=${start_port:-2080}
 
         if [[ $start_port =~ ^[1-9][0-9]{0,4}$ && $start_port -le 65535 ]]; then
             break
@@ -1483,8 +1483,8 @@ function get_port_range() {
     done
 
     while true; do
-        read -p "请输入端口跳跃的终止端口 (默认：50000): " end_port
-        end_port=${end_port:-50000}
+        read -p "请输入端口跳跃的终止端口 (默认：3000): " end_port
+        end_port=${end_port:-3000}
 
         if [[ $end_port =~ ^[1-9][0-9]{0,4}$ && $end_port -le 65535 ]]; then
             if [ "$end_port" -le "$start_port" ]; then
@@ -2328,7 +2328,7 @@ function set_ech_config() {
         if [[ "$enable_ech" == "y" || "$enable_ech" == "Y" ]]; then
             get_ech_keys
             enable_ech=true
-            ech_server_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"key\": [\n$ech_key\n          ]\n        }"
+            ech_server_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"key\": [\n$ech_key\n          ]\n        }"
             break
         elif [[ "$enable_ech" == "n" || "$enable_ech" == "N" ]]; then
             enable_ech=false
@@ -2915,7 +2915,7 @@ function write_phone_client_file() {
     local phone_client="${dir}/phone_client.json"
 
     if [ ! -s "${phone_client}" ]; then
-        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      },"; print "      {"; print "        \"tag\": \"dns_fakeip\","; print "        \"type\": \"fakeip\","; print "        \"inet4_range\": \"198.18.0.0/15\","; print "        \"inet6_range\": \"fc00::/18\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"query_type\": ["; print "          \"A\","; print "          \"AAAA\""; print "        ],"; print "        \"server\": \"dns_fakeip\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"prefer_ipv4\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"prefer_ipv4\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"tun\","; print "      \"tag\": \"tun-in\","; print "      \"address\": ["; print "        \"172.18.0.1/30\","; print "        \"fdfe:dcba:9876::1/126\""; print "      ],"; print "      \"mtu\": 1400,"; print "      \"auto_route\": true,"; print "      \"strict_route\": true,"; print "      \"stack\": \"gvisor\""; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": true,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${phone_client}"
+        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      },"; print "      {"; print "        \"tag\": \"dns_fakeip\","; print "        \"type\": \"fakeip\","; print "        \"inet4_range\": \"198.18.0.0/15\","; print "        \"inet6_range\": \"fc00::/18\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"query_type\": ["; print "          \"A\","; print "          \"AAAA\""; print "        ],"; print "        \"server\": \"dns_fakeip\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"ipv4_only\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"tun\","; print "      \"tag\": \"tun-in\","; print "      \"address\": ["; print "        \"172.18.0.1/30\","; print "        \"fdfe:dcba:9876::1/126\""; print "      ],"; print "      \"mtu\": 1400,"; print "      \"auto_route\": true,"; print "      \"strict_route\": true,"; print "      \"stack\": \"gvisor\""; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": true,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${phone_client}"
     fi
 }
 
@@ -2925,7 +2925,7 @@ function write_win_client_file() {
     local win_client="${dir}/win_client.json"
 
     if [ ! -s "${win_client}" ]; then
-        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      },"; print "      {"; print "        \"tag\": \"dns_fakeip\","; print "        \"type\": \"fakeip\","; print "        \"inet4_range\": \"198.18.0.0/15\","; print "        \"inet6_range\": \"fc00::/18\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"query_type\": ["; print "          \"A\","; print "          \"AAAA\""; print "        ],"; print "        \"server\": \"dns_fakeip\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"prefer_ipv4\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"prefer_ipv4\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"mixed\","; print "      \"tag\": \"mixed-in\","; print "      \"listen\": \"::\","; print "      \"listen_port\": 1080,"; print "      \"set_system_proxy\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": true,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${win_client}"
+        awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      },"; print "      {"; print "        \"tag\": \"dns_fakeip\","; print "        \"type\": \"fakeip\","; print "        \"inet4_range\": \"198.18.0.0/15\","; print "        \"inet6_range\": \"fc00::/18\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"query_type\": ["; print "          \"A\","; print "          \"AAAA\""; print "        ],"; print "        \"server\": \"dns_fakeip\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": {"; print "      \"server\": \"dns_direct\","; print "      \"strategy\": \"ipv4_only\","; print "      \"disable_cache\": false"; print "    },"; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"mixed-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"ip_is_private\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"mixed\","; print "      \"tag\": \"mixed-in\","; print "      \"listen\": \"::\","; print "      \"listen_port\": 1080,"; print "      \"set_system_proxy\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": true,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${win_client}"
     fi
 }
 
@@ -3063,7 +3063,7 @@ function generate_tuic_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3099,7 +3099,7 @@ function generate_tuic_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3221,7 +3221,7 @@ function generate_Hysteria_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     if [ -z "$start_port" ] || [ -z "$end_port" ]; then
@@ -3267,7 +3267,7 @@ function generate_Hysteria_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     if [ -z "$start_port" ] || [ -z "$end_port" ]; then
@@ -3578,7 +3578,7 @@ function generate_http_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3614,7 +3614,7 @@ function generate_http_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3677,7 +3677,7 @@ function generate_anytls_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3713,7 +3713,7 @@ function generate_anytls_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -3780,7 +3780,7 @@ function generate_Hysteria2_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     if [ -z "$start_port" ] || [ -z "$end_port" ]; then
@@ -3826,7 +3826,7 @@ function generate_Hysteria2_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     if [ -z "$start_port" ] || [ -z "$end_port" ]; then
@@ -4060,7 +4060,7 @@ function generate_trojan_phone_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -4112,7 +4112,7 @@ function generate_trojan_win_client_config() {
     fi
 
     if [ -n "$ech_config" ]; then
-        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
+        ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
     while true; do
@@ -4343,9 +4343,10 @@ function extract_types_tags() {
 function select_node_choice() {
     valid_choice=false
     while [ "$valid_choice" == false ]; do
-        read -p "请选择要删除的节点配置（输入对应的数字）: " choice
-        echo "你选择了: $choice"
-        if [[ ! $choice =~ ^[0-9]+$ || $choice -lt 1 || $choice -gt ${#types[@]} ]]; then
+        read -p "请选择要删除的节点配置（请输入对应的数字，输入 0 返回主菜单）: " choice
+        if [[ "$choice" == "0" ]]; then
+            return 1
+        elif [[ ! $choice =~ ^[0-9]+$ || $choice -lt 1 || $choice -gt ${#types[@]} ]]; then
             echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
         else
             valid_choice=true
@@ -4519,7 +4520,9 @@ function delete_choice() {
     local temp_yaml="/usr/local/etc/sing-box/temp.yaml"
 
     extract_types_tags
-    select_node_choice
+    if ! select_node_choice; then
+        return 1
+    fi
     process_config_deletion
     process_output_file_deletion
     process_clash_yaml_deletion
@@ -5017,6 +5020,8 @@ function display_Hysteria_config_info() {
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}"  | tee -a "$output_file"
     echo "监听端口: $listen_port"  | tee -a "$output_file"
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}"  | tee -a "$output_file"
+    echo "端口跳跃范围: $start_port:$end_port"  | tee -a "$output_file"
+    echo -e "${CYAN}------------------------------------------------------------------------------${NC}"  | tee -a "$output_file"
     echo "上行速度：${up_mbps}Mbps"  | tee -a "$output_file"
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}"  | tee -a "$output_file"
     echo "下行速度：${down_mbps}Mbps"  | tee -a "$output_file"
@@ -5103,6 +5108,8 @@ function display_Hy2_config_info() {
     echo "服务器地址：$server_address" | tee -a "$output_file"
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
     echo "监听端口: $listen_port" | tee -a "$output_file"
+    echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
+    echo "端口跳跃范围: $start_port:$end_port" | tee -a "$output_file"
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
     echo "上行速度：${up_mbps}Mbps" | tee -a "$output_file"
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
@@ -6107,8 +6114,11 @@ echo "╚═══════════════════════�
             exit 0
             ;;
         18)
-            delete_choice
-            exit 0
+            if delete_choice; then
+                exit 0
+            else
+                main_menu
+            fi
             ;;
         19)
             update_proxy_tool
