@@ -41,15 +41,19 @@ jobs:
                 rm -rf "$target_dir"
             fi
             mkdir -p "$target_dir"
-            git clone --depth=1 --branch "$branch" "$repo_url" "$target_dir"
-            rm -rf "$target_dir/.git"
-            git add $target_dir
-            if git commit -m "$(date +"%Y.%m.%d")：$repo_url"; then
-                echo "$category|$repo_url|$branch|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+            if git clone --depth=1 --branch "$branch" "$repo_url" "$target_dir"; then
+                rm -rf "$target_dir/.git"
+                git add $target_dir
+                if git commit -m "$(date +"%Y.%m.%d")：$repo_url"; then
+                    echo "$category|$repo_url|$branch|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+                else
+                    echo "没有需要提交的更改"
+                fi
+                git push
             else
-                echo "没有需要提交的更改"
+                echo "克隆仓库失败：$repo_url，跳过此仓库"
+                return 0
             fi
-            git push
         }
 
         sync_wiki() {
@@ -66,15 +70,19 @@ jobs:
                 rm -rf "$target_dir"
             fi
             mkdir -p "$target_dir"
-            git clone --depth=1 "$repo_url".wiki.git "$target_dir"
-            rm -rf "$target_dir/.git"
-            git add $target_dir
-            if git commit -m "$(date +"%Y.%m.%d")：${repo_url} wiki"; then
-                echo "$category|$repo_url|wiki|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+            if git clone --depth=1 "$repo_url".wiki.git "$target_dir"; then
+                rm -rf "$target_dir/.git"
+                git add $target_dir
+                if git commit -m "$(date +"%Y.%m.%d")：${repo_url} wiki"; then
+                    echo "$category|$repo_url|wiki|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
+                else
+                    echo "没有需要提交的更改"
+                fi
+                git push
             else
-                echo "没有需要提交的更改"
+                echo "克隆wiki仓库失败：${repo_url}.wiki.git，跳过此仓库"
+                return 0
             fi
-            git push
         }
 
         EOF
