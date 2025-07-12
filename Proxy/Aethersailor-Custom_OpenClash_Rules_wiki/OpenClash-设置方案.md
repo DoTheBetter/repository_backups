@@ -169,31 +169,30 @@ yaml 文件省去的仅仅是设置 OpenClash 覆写设置+订阅转化的步骤
 
 优点：
 * 完全无人值守，上游分流模板更新会随着自动更新下发
-* 便捷的根据实际情况快速修改设置，例如 IPv6
+* 便捷的根据实际情况快速修改设置，例如 IPv6，切换是否使用 Smart 功能等等 
 
 缺点：
-* 无法实现覆写设置+订阅转换后端以外的高级设置，配置文件内容仅在 OpenClash 覆写设置+订阅转换后端支持的范围内
+* 无法实现覆写设置+订阅转换后端以外的高级设置，配置文件内容仅在 OpenClash 覆写设置+订阅转换后端支持的范围内  
+* 公共订阅转换可能会泄露订阅链接的。（可以通过 [搭建 Cloudflare Worker 反代](https://www.youtube.com/watch?v=X7CC5jrgazo) 或者自建订阅转换后端解决  
+
 
 **上传 yaml 文件：**
 
 优点：
-* 完全 100% 的自由度，可以实现更高级的功能，例如链式代理
+* 完全 100% 的自由度，可以实现更高级的功能，例如链式代理等等
 * 不受订阅转换后端服务器影响
 
 缺点：
 * 作者修改一次，你就得下载并重新导入一次  
+* 配置的修改远不如图形界面来的方便
+
 
 
 无论以上哪种方式，都要在 OpenClash 界面中修改某些既有选项。  
 
 所以，如果你不刚需某些高级功能，或者说网上某些 yaml 配置根本就没有额外的功能，那么你告诉我，导入 yaml 文件的意义是什么呢。  
 
-```
-不要被某些视频博主忽悠了，订阅转换是个很方便的功能，绝不是“落后”的功能。
-我不明白这些人非要捧一踩一是什么目的，也许将所有操作集中于一个 ymal 文件，可以更显得高大上？
-或者说用户多个选择，影响他们恰饭了？
-至于用户用不用 IPv6 ，需不需要绕过大陆功能，也许他们根本不当回事？
-```
+> 订阅转换是个很方便的功能，绝不是“落后”的功能
 
 本项目实现的相关特性，均可使用 OpenClash 的 luci 界面的既有选项完成，无需在配置文件中添加任何额外的参数。对于本项目来说，导入 yaml 文件没有任何意义。  
 
@@ -253,7 +252,8 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 > OpenClash 的各项数据库以及插件和内核的更新，全部需要连接 GitHub 或者 jsDeliver CDN 才能完成  
 
-如果你的网络不能正常访问 GitHub （国内网络大概率如此），清提前在 OpenClash 中启用 GitHub 地址修改功能  
+不管你的网络能不能正常访问 GitHub （国内网络大概率不能或者间歇性不饿能），请提前在 OpenClash 中启用 GitHub 地址修改功能  
+
 ```
 1. 进入 OpenClash > 覆写设置 > 常规设置
 2. 在 GitHub 地址修改功能的下拉菜单中选择一个 CDN 节点
@@ -422,7 +422,7 @@ OpenClash 绕过中国大陆功能使用的 IP 分流名单，必须保持更新
 
 2024年12月18日：目前 `master` 版本和 `dev` 版本没有太大区别，追求稳定的话建议使用 `master` 版本。
 
-本项目暂未支持 Smart 内核，将来是否支持取决于订阅转换后端服务器的仓库是否支持 Smart 内核。  
+本项目已完整支持 Smart 内核，如需使用 Smart 内核，此处完成内核的切换和更新后，后续教程对应步骤会提及如何使用。  
 
 ![](doc/openclash/pics/core.png)  
 
@@ -530,20 +530,17 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 ### 3.4. 开发者选项  
 
-这里的原始内容无需修改。  
-
-如果你的机场比较垃圾，可以考虑使用 Smart 内核提供的的智能负载均衡功能。  
-
-因为使用初期会有副作用，所以不建议优质机场（比如推荐机场 SSRDOG）的用户使用。  
-
-[本项目方案如何使用 Smart 内核](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#21-%E6%9C%AC%E9%A1%B9%E7%9B%AE%E6%96%B9%E6%A1%88%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-smart-%E5%86%85%E6%A0%B8) 
-
+此处无需修改。  
 
 ***
 
 ## 4. 为 OpenClash 配置订阅信息  
 
-在页面中设置一个更新时间，因为本方案中使用的订阅模板使用了大量的第三方规则，而这些规则中的大部分是每天更新的，因此建议同样设置订阅更新时间为每天更新。  
+此处会区分 Smart 内核和非 Smart 内核的设置。  
+
+### 4.1 通用设置
+
+在页面中设置一个更新时间，这是本项目模板以及你的节点信息的更新时间，分流策略组和节点分组的修改、节点信息的更新，会随着订阅更新进行下发。
 
 OpenClash 在更新订阅的过程中会短暂重启，所以建议设置在不用网的时间段内更新，比如凌晨。
 
@@ -557,7 +554,7 @@ OpenClash 在更新订阅的过程中会短暂重启，所以建议设置在不�
 
 ![](doc/openclash/pics/11-no.png)  
 
-如果你使用的是 Vless、hy2 等较新的格式的节点，请自行测试哪些后端支持此类节点，或者自行填写其他支持你的节点格式的第三方订阅后端（包括你自己搭建的后端）。  
+如果你使用的是 Vless、hy2 等较新的格式的节点，请自行测试哪些后端支持此类节点，或者自行填写其他支持你的节点格式的第三方订阅后端（包括本项目后端，或者你自己搭建的后端）。  
 
 个人经验：OpenClash 下拉列表里的几个订阅转换服务，偶尔会出现掉链子的情况，请根据自己的实际网络情况进行测试和选择。  
 
@@ -624,12 +621,6 @@ https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/C
 
 还是看不懂该选哪个怎么办？请直接使用标准订阅转换模板 Custom_Clash.ini
 
-订阅转换模板选择“自定义模板”然后在下方填入本项目的自定义模板地址：  
-
-```
-https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash.ini
-```
-
 **注意！必须使用本项目的订阅转换模板才能实现免套娃无 DNS 泄露！**  
 
 如果在你的网络环境下， OpenClash 自带的订阅转换服务全部不可用，你可以使用本项目提供的订阅转换服务  
@@ -642,13 +633,37 @@ https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/C
 https://api.asailor.org/sub
 ```   
 
-本项目的订阅转换后端服务支持 vless/hy2 等较新的节点类型。**用爱发电，且用且珍惜。**  
+本项目的订阅转换后端服务支持 vless/hy2 等较新的节点类型，支持 Smart 内核参数。**用爱发电，且用且珍惜。**  
 
 最后点击下方的`“保存配置”`返回到配置订阅页面，此时整个设置工作已完成  
 
 有隐私需求的用户，可以使用 Cloudflare 搭建后端反代服务。  
 
 使用 ImmortalWrt 固件的用户，可以参考以下教程在 ImmortalWrt 中搭建本地订阅转换服务：[ImmortalWrt 下搭建订阅转换后端服务](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#11-immortalwrt-%E4%B8%8B%E6%90%AD%E5%BB%BA%E8%AE%A2%E9%98%85%E8%BD%AC%E6%8D%A2%E5%90%8E%E7%AB%AF%E6%9C%8D%E5%8A%A1)  
+
+### 4.2 Smart 内核用户设置  
+
+Smart 内核用户，需要额外进行两个操作：  
+```
+1. 切换支持 Smart 内核参数的订阅转换后端
+2. 切换支持 Smart 内核参数的订阅转换模板
+```
+
+本项目后端已实现对 Smart 内核参数的支持（参考上一节的替换方法）。  
+本项目已提供对应的模板，任意普通模板添加 `_Smart` 字样即可实现切换。模板内容同普通模板，仅将各节点分组的测速功能替换为 Smart 功能。    
+
+```
+https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_Smart.ini
+```
+```
+https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_Smart_Lite.ini
+```
+```
+https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_Smart_GFW.ini
+```
+```
+https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_Smart_Full.ini
+```
 
 ***
 
