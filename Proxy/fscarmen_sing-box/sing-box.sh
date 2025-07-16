@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='v1.2.17 (2025.07.12)'
+VERSION='v1.2.17 (2025.07.16)'
 
 # 各变量默认值
 GH_PROXY='gh-proxy.com/'
@@ -989,10 +989,30 @@ sing-box_variables() {
   [ -z "$SERVER_IP" ] && error " $(text 47) "
 
   # 根据服务 IP，使用不同的 warp 配置
-  if [[ "$SERVER_IP" =~ : ]]; then
+  [ -x "$(type -p ping)" ] && for i in {1..3}; do
+    ping -c 1 -W 1 "8.8.8.8" &>/dev/null && local IS_IPV4=is_ipv4 && break
+  done
+
+  if [ -x "$(type -p ping6)" ]; then
+    for i in {1..3}; do
+      ping6 -c 1 -W 1 "2001:4860:4860::8888" &>/dev/null && local IS_IPV6=is_ipv6 && break
+    done
+  elif [ -x "$(type -p ping)" ]; then
+    for i in {1..3}; do
+      ping -6 -c 1 -W 1 "2001:4860:4860::8888" &>/dev/null && local IS_IPV6=is_ipv6 && break
+    done
+  fi
+
+  if [[ "$SERVER_IP" =~ : && -n "$IS_IPV4" ]]; then
     STRATEGY=prefer_ipv6
+  elif [[ "$SERVER_IP" =~ : && -z "$IS_IPV4" ]]; then
+    STRATEGY=ipv6_only
   else
-    STRATEGY=ipv4_only
+    if [[ -n "$IS_IPV6" ]]; then
+      STRATEGY=prefer_ipv4
+    elif [[ -z "$IS_IPV6" ]]; then
+      STRATEGY=ipv4_only
+    fi
   fi
 
   # 检测是否解锁 chatGPT
@@ -1075,8 +1095,9 @@ check_dependencies() {
   fi
 
   # 检测 Linux 系统的依赖，升级库并重新安装依赖
-  local DEPS_CHECK=("wget" "tar" "ip" "bash" "openssl")
-  local DEPS_INSTALL=("wget" "tar" "iproute2" "bash" "openssl")
+  local DEPS_INSTALL=("wget" "tar" "iproute2" "iproute2" "bash" "openssl" "ping")
+  local DEPS_CHECK=("wget" "tar" "ss" "ip" "bash" "openssl" "iputils-ping")
+
   [ "$SYSTEM" != 'Alpine' ] && DEPS_CHECK+=("systemctl") && DEPS_INSTALL+=("systemctl")
   for g in "${!DEPS_CHECK[@]}"; do
     [ ! -x "$(type -p ${DEPS_CHECK[g]})" ] && DEPS+=(${DEPS_INSTALL[g]})
@@ -1092,7 +1113,8 @@ check_dependencies() {
     [ ! -x "$(type -p ip6tables)" ] && DEPS+=(ip6tables)
   fi
 
-  # 如需要安装的依赖大于0，就更新库并安装
+  # 先 DEPS 去重，如需要安装的依赖大于0，就更新库并安装
+  DEPS=($(echo "${DEPS[@]}" | tr ' ' '\n' | awk '!a[$0]++'))
   if [[ "${#DEPS[@]}" > 0 ]]; then
     [[ ! "$SYSTEM" =~ Alpine|CentOS ]] && ${PACKAGE_UPDATE[int]} >/dev/null 2>&1
     ${PACKAGE_INSTALL[int]} ${DEPS[@]} >/dev/null 2>&1
