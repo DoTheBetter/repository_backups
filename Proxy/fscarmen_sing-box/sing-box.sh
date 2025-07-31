@@ -4,7 +4,7 @@
 VERSION='v1.2.17 (2025.07.28)'
 
 # 各变量默认值
-GH_PROXY='gh-proxy.com/'
+# GH_PROXY='gh-proxy.com/'
 TEMP_DIR='/tmp/sing-box'
 WORK_DIR='/etc/sing-box'
 START_PORT_DEFAULT='8881'
