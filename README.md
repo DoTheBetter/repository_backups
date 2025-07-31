@@ -16,7 +16,7 @@
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2025.07.31 | OpenWrt在线构建工具 |
+| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2025.08.01 | OpenWrt在线构建工具 |
 | https://github.com/217heidai/OpenWrt-Builder | main | 2025.03.27 | OpenWrt在线构建工具 |
 | https://github.com/P3TERX/Actions-OpenWrt | main | 2025.01.09 | OpenWrt在线构建工具 |
 
@@ -32,9 +32,9 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2025.07.12 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.07.31 | OpenClash自定义 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.08.01 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.07.31 | OpenClash自定义Wiki |
-| https://github.com/fscarmen/sing-box | main | 2025.07.30 | Sing-box代理工具 |
+| https://github.com/fscarmen/sing-box | main | 2025.08.01 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2025.06.12 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.07.27 | PAC代理工具 |
 
