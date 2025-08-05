@@ -1,10 +1,7 @@
 ## **更新内容**
-- **V 1.12.0 Prerelease-alpha适配sing-box1.12.0版本。**
+- **适配sing-box1.12.0版本。**
 - **添加对AnyTLS协议的支持。**
 - **添加对Hysteria、Hysteria2协议端口跳跃的支持。**
-- **sing-box服务端及客户端配置更新。**
-- **Clash客户端DNS防泄漏配置。**
-- **V 1.12.0 Prerelease-alpha为测试版，稳定版请使用V 1.10.0。**
 
 ## **说明**
 - **脚本使用sing-box、Juicity内核。**
@@ -32,15 +29,8 @@ apt update && apt -y install curl wget tar socat jq git openssl uuid-runtime bui
 yum update && yum -y install curl wget tar socat jq git openssl util-linux gcc-c++ zlib-devel openssl-devel libevent-devel bind-utils vim-common net-tools cronie
 ```
 ### **使用以下命令运行脚本**
-
-- **V1.10.0 请使用以下命令运行脚本**
 ```
 wget -N -O /usr/local/bin/singbox.sh https://raw.githubusercontent.com/Devmiston/sing-box/refs/heads/main/Install.sh && chmod +x /usr/local/bin/singbox.sh && ln -sf /usr/local/bin/singbox.sh /usr/local/bin/singbox && bash /usr/local/bin/singbox.sh
-```
-
-- **V1.12.0 Prerelease-alpha 请使用以下命令运行脚本**
-```
-wget -N -O /usr/local/bin/singbox.sh https://raw.githubusercontent.com/Devmiston/sing-box/refs/heads/main/Pre_release_install.sh && chmod +x /usr/local/bin/singbox.sh && ln -sf /usr/local/bin/singbox.sh /usr/local/bin/singbox && bash /usr/local/bin/singbox.sh
 ```
 
 ## **使用方法**
