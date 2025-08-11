@@ -11,7 +11,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/leitbogioro/Tools | master | 2025.01.09 | DD重装Linux系统 |
-| https://github.com/217heidai/NestingDNS | main | 2025.04.26 | DNS三合一Docker镜像 |
+| https://github.com/217heidai/NestingDNS | main | 2025.08.12 | DNS三合一Docker镜像 |
 
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
@@ -32,7 +32,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2025.08.03 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.08.11 | OpenClash自定义 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.08.12 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.08.06 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.08.02 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2025.08.07 | Sing-box代理工具 |
@@ -41,6 +41,6 @@
 ## CFworkers
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/jonssonyan/cf-workers-proxy | main | 2025.06.07 | CF Workers代理工具 |
+| https://github.com/jonssonyan/cf-workers-proxy | main | 2025.08.12 | CF Workers代理工具 |
 | https://github.com/cmliu/CF-Workers-docker.io | main | 2025.06.27 | CF Workers Docker镜像 |
 | https://github.com/hunshcn/gh-proxy | master | 2025.01.09 | GitHub代理工具 |
