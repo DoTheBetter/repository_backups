@@ -40,19 +40,21 @@ short_ids=()
 # 检查防火墙以及放行端口
 function check_firewall_configuration() {
     local os_name=$(uname -s)
-    local firewall
+    local firewall=""
+    local ports=("$listen_port" "$override_port" 80)
+    local proto_list=("tcp" "udp")
 
     if [[ $os_name == "Linux" ]]; then
         if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
             firewall="ufw"
         elif command -v ip6tables >/dev/null 2>&1 && ip6tables -S | grep -q "INPUT -j DROP"; then
-            firewall="ip6tables"
+            firewall="iptables"
         elif command -v iptables >/dev/null 2>&1 && iptables -S | grep -q "INPUT -j DROP"; then
             firewall="iptables"
         elif systemctl is-active --quiet netfilter-persistent; then
-            firewall="iptables-persistent"
+            firewall="iptables"
         elif systemctl is-active --quiet iptables.service; then
-            firewall="iptables-service"            
+            firewall="iptables"
         elif command -v firewalld >/dev/null 2>&1 && firewall-cmd --state | grep -q "running"; then
             firewall="firewalld"
         fi
@@ -63,150 +65,45 @@ function check_firewall_configuration() {
         return
     fi
 
-    echo "Checking firewall configuration..."
+    echo "Checking firewall configuration for: $firewall..."
 
     case $firewall in
         ufw)
-            if ! ufw status | grep -q "Status: active" 2>/dev/null; then
-                ufw enable > /dev/null 2>&1
-            fi
-
-            if ! ufw status | grep -q " $listen_port" 2>/dev/null; then
-                ufw allow "$listen_port" > /dev/null 2>&1
-            fi
-
-            if ! ufw status | grep -q " $override_port" 2>/dev/null; then
-                ufw allow "$override_port" > /dev/null 2>&1
-            fi
-
-            if ! ufw status | grep -q " $fallback_port" 2>/dev/null; then
-                ufw allow "$fallback_port" > /dev/null 2>&1
-            fi
-            
-            if ! ufw status | grep -q " 80" 2>/dev/null; then
-                ufw allow 80 > /dev/null 2>&1
-            fi
-
-            echo "Firewall configuration has been updated."
+            ufw status | grep -q "Status: active" || ufw enable >/dev/null 2>&1
+            for port in "${ports[@]}"; do
+                for proto in "${proto_list[@]}"; do
+                    ufw status | grep -q " $port/$proto" || ufw allow "$port/$proto" >/dev/null 2>&1
+                done
+            done
             ;;
-
-        iptables | iptables-persistent | iptables-service)
-            if ! iptables -C INPUT -p tcp --dport "$listen_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p tcp --dport "$listen_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p udp --dport "$listen_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p udp --dport "$listen_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p tcp --dport "$override_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p tcp --dport "$override_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p udp --dport "$override_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p udp --dport "$override_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p tcp --dport "$fallback_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p tcp --dport "$fallback_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p udp --dport "$fallback_port" -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p udp --dport "$fallback_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p tcp --dport 80 -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p tcp --dport 80 -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! iptables -C INPUT -p udp --dport 80 -j ACCEPT >/dev/null 2>&1; then
-                iptables -A INPUT -p udp --dport 80 -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p tcp --dport "$listen_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p tcp --dport "$listen_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p udp --dport "$listen_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p udp --dport "$listen_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p tcp --dport "$override_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p tcp --dport "$override_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p udp --dport "$override_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p udp --dport "$override_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p tcp --dport "$fallback_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p tcp --dport "$fallback_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p udp --dport "$fallback_port" -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p udp --dport "$fallback_port" -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p tcp --dport 80 -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p tcp --dport 80 -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if ! ip6tables -C INPUT -p udp --dport 80 -j ACCEPT >/dev/null 2>&1; then
-                ip6tables -A INPUT -p udp --dport 80 -j ACCEPT > /dev/null 2>&1
-            fi
-
-            if [[ -e /etc/iptables/rules.v4 ]]; then
-                iptables-save > /etc/iptables/rules.v4
-            elif [[ -e /etc/sysconfig/iptables ]]; then
-                iptables-save > /etc/sysconfig/iptables
-            fi
-
-            if [[ -e /etc/iptables/rules.v6 ]]; then
-                ip6tables-save > /etc/iptables/rules.v6
-            elif [[ -e /etc/sysconfig/ip6tables ]]; then
-                ip6tables-save > /etc/sysconfig/ip6tables
-            fi
-
-            echo "Firewall configuration has been updated."
+        iptables)
+            for port in "${ports[@]}"; do
+                for proto in "${proto_list[@]}"; do
+                    # IPv4
+                    iptables -C INPUT -p "$proto" --dport "$port" -j ACCEPT 2>/dev/null \
+                        || iptables -A INPUT -p "$proto" --dport "$port" -j ACCEPT >/dev/null 2>&1
+                    # IPv6
+                    ip6tables -C INPUT -p "$proto" --dport "$port" -j ACCEPT 2>/dev/null \
+                        || ip6tables -A INPUT -p "$proto" --dport "$port" -j ACCEPT >/dev/null 2>&1
+                done
+            done
+            [[ -e /etc/iptables/rules.v4 ]] && iptables-save > /etc/iptables/rules.v4
+            [[ -e /etc/iptables/rules.v6 ]] && ip6tables-save > /etc/iptables/rules.v6
+            [[ -e /etc/sysconfig/iptables ]] && iptables-save > /etc/sysconfig/iptables
+            [[ -e /etc/sysconfig/ip6tables ]] && ip6tables-save > /etc/sysconfig/ip6tables
             ;;
-        
         firewalld)
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$listen_port/tcp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$listen_port/tcp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$listen_port/udp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$listen_port/udp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$override_port/tcp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$override_port/tcp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$override_port/udp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$override_port/udp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$fallback_port/tcp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$fallback_port/tcp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "$fallback_port/udp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port="$fallback_port/udp" --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "80/tcp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port=80/tcp --permanent > /dev/null 2>&1
-            fi
-
-            if ! firewall-cmd --zone=public --list-ports | grep -q "80/udp" 2>/dev/null; then
-                firewall-cmd --zone=public --add-port=80/udp --permanent > /dev/null 2>&1
-            fi
-
+            for port in "${ports[@]}"; do
+                for proto in "${proto_list[@]}"; do
+                    firewall-cmd --zone=public --list-ports | grep -q "$port/$proto" \
+                        || firewall-cmd --zone=public --add-port="$port/$proto" --permanent >/dev/null 2>&1
+                done
+            done
             firewall-cmd --reload
-            echo "Firewall configuration has been updated."
             ;;
     esac
+
+    echo "Firewall configuration has been updated."
 }
 
 # 检查sing-box所需的文件夹及配置文件
@@ -216,7 +113,7 @@ function create_sing_box_folders() {
     for folder in "${folders[@]}"; do
         if [[ ! -d "$folder" ]]; then
             mkdir -p "$folder"
-            [ "$folder" = "/usr/local/etc/sing-box" ] && touch "$folder/config.json"
+            [[ "$folder" == "/usr/local/etc/sing-box" ]] && touch "$folder/config.json"
         fi
     done
 }
@@ -228,7 +125,7 @@ function create_juicity_folder() {
     for folder in "${folders[@]}"; do
         if [[ ! -d "$folder" ]]; then
             mkdir -p "$folder"
-            [ "$folder" = "/usr/local/etc/juicity" ] && touch "$folder/config.json"
+            [[ "$folder" == "/usr/local/etc/juicity" ]] && touch "$folder/config.json"
         fi
     done
 }
@@ -237,7 +134,7 @@ function create_juicity_folder() {
 function ensure_clash_yaml() {
     local clash_yaml="/usr/local/etc/sing-box/clash.yaml"
 
-    if [ ! -e "$clash_yaml" ]; then
+    if [[ ! -e "$clash_yaml" ]]; then
         touch "$clash_yaml"
     fi
 }
@@ -246,7 +143,7 @@ function ensure_clash_yaml() {
 function check_config_file_existence() {
     local config_file="/usr/local/etc/sing-box/config.json"
 
-    if [ ! -f "$config_file" ]; then
+    if [[ ! -f "$config_file" ]]; then
         echo -e "${RED}sing-box 配置文件不存在，请先搭建节点！${NC}"
         exit 1
     fi
@@ -261,7 +158,7 @@ function generate_naive_random_filename() {
         random_value=$(cat /dev/urandom | tr -dc 'a-z0-9' | fold -w 5 | head -n 1)
         filename="naive_client_${random_value}.json"
         
-        if [ ! -e "${dir}/${filename}" ]; then
+        if [[ ! -e "${dir}/${filename}" ]]; then
             touch "${dir}/${filename}"
             naive_client_filename="${dir}/${filename}"
             break
@@ -452,7 +349,7 @@ function install_latest_sing_box() {
             ;;
     esac
     
-    if [ -n "$download_url" ]; then
+    if [[ -n "$download_url" ]]; then
         echo "Downloading Sing-Box..."
         wget -qO sing-box.tar.gz "$download_url" 2>&1 >/dev/null
         tar -xzf sing-box.tar.gz -C /usr/local/bin --strip-components=1
@@ -493,7 +390,7 @@ function install_Pre_release_sing_box() {
             ;;
     esac
     
-    if [ -n "$download_url" ]; then
+    if [[ -n "$download_url" ]]; then
         echo "Downloading Sing-Box..."
         wget -qO sing-box.tar.gz "$download_url" 2>&1 >/dev/null
         tar -xzf sing-box.tar.gz -C /usr/local/bin --strip-components=1
@@ -543,7 +440,7 @@ function install_latest_juicity() {
             arch_suffix="x86_32"
             ;;
         "x86_64")
-            if [ -n "$(grep avx2 /proc/cpuinfo)" ]; then
+            if [[ -n "$(grep avx2 /proc/cpuinfo)" ]]; then
                 arch_suffix="x86_64_v3_avx2"
             else
                 arch_suffix="x86_64_v2_sse"
@@ -638,7 +535,7 @@ function set_listen_port() {
 
         if [[ $new_listen_port =~ ^[1-9][0-9]{0,4}$ && $new_listen_port -le 65535 ]]; then
             check_result=$(netstat -tulpn | grep -E "\b${new_listen_port}\b")
-            if [ -z "$check_result" ]; then
+            if [[ -z "$check_result" ]]; then
                 echo "监听端口：$new_listen_port"
                 break
             else
@@ -795,7 +692,7 @@ function set_uuid() {
     while true; do
         read -p "请输入UUID（默认随机生成）: " new_user_uuid
         
-        if [ -z "$new_user_uuid" ]; then
+        if [[ -z "$new_user_uuid" ]]; then
             new_user_uuid=$(sing-box generate uuid 2>/dev/null || openssl rand -hex 16 | awk '{print substr($1,1,8) "-" substr($1,9,4) "-" substr($1,13,4) "-" substr($1,17,4) "-" substr($1,21)}')
         fi
         
@@ -994,9 +891,9 @@ function get_ech_keys() {
         elif [[ "$line" == *"END ECH CONFIGS"* ]]; then
             in_ech_configs_section=false
             ech_config+="            \"$line\""
-        elif [ "$in_ech_keys_section" = true ]; then
+        elif [[ "$in_ech_keys_section" == true ]]; then
             ech_key+="            \"$line\",\n"
-        elif [ "$in_ech_configs_section" = true ]; then
+        elif [[ "$in_ech_configs_section" == true ]]; then
             ech_config+="            \"$line\",\n"
         else
             echo "\"$line\"," >&3
@@ -1055,7 +952,7 @@ function verify_domain() {
         while true; do
             read -p "请输入主域名前缀（若为空则使用主域名申请证书，不需要在 CloudFlare 添加 DNS 解析记录）： " domain_prefix
             
-            if [ -z "$domain_prefix" ]; then
+            if [[ -z "$domain_prefix" ]]; then
                 domain="$new_domain"
                 record_name="$domain_prefix"
                 break
@@ -1243,7 +1140,7 @@ function apply_certificate() {
         fi
     done
 
-    if [ "$return_to_menu" = true ]; then
+    if [[ "$return_to_menu" == true ]]; then
         echo -e "${RED}证书申请失败，请使用其它方法申请证书！${NC}"
         return 1
     fi
@@ -1290,7 +1187,7 @@ function Apply_api_certificate() {
         fi
     done
     
-    if [ "$return_to_menu" = true ]; then
+    if [[ "$return_to_menu" == true ]]; then
         echo -e "${RED}证书申请失败，请使用其它方法申请证书！${NC}"
         return 1
     fi
@@ -1301,7 +1198,7 @@ function Reapply_certificates() {
     local tls_info_file="/usr/local/etc/sing-box/tls_info.json"
     local has_ipv4=false
     
-    if [ -n "$ip_v4" ]; then
+    if [[ -n "$ip_v4" ]]; then
         has_ipv4=true
     fi
     
@@ -1446,28 +1343,51 @@ function check_iptables_installed() {
     export PATH=$PATH:/usr/sbin:/sbin
 
     if [[ "$os_name" == "Linux" ]]; then
-        if [ -f /etc/debian_version ]; then
+        if [[ -f /etc/debian_version ]]; then
             if ! command -v iptables &> /dev/null; then
-                DEBIAN_FRONTEND=noninteractive apt-get install -y iptables netfilter-persistent iptables-persistent &> /dev/null
+                echo "Installing iptables..."
+                DEBIAN_FRONTEND=noninteractive apt-get install -y iptables &> /dev/null
             fi
-            netfilter-persistent save &> /dev/null
 
-        elif [ -f /etc/redhat-release ]; then
-            if ! command -v iptables &> /dev/null; then
-                yum install -y iptables-services &> /dev/null
+            if ! command -v netfilter-persistent &> /dev/null; then
+                echo "Installing netfilter-persistent..."
+                DEBIAN_FRONTEND=noninteractive apt-get install -y netfilter-persistent &> /dev/null
             fi
-            service iptables save &> /dev/null
-            service ip6tables save &> /dev/null
+
+            if [[ ! -f /etc/init.d/iptables-persistent ]]; then
+                echo "Installing iptables-persistent..."
+                DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent &> /dev/null
+            fi
+
+            [[ ! -f /etc/iptables/rules.v4 ]] && touch /etc/iptables/rules.v4
+            [[ ! -f /etc/iptables/rules.v6 ]] && touch /etc/iptables/rules.v6
+            netfilter-persistent save &> /dev/null
+            command -v nft &> /dev/null && echo "System uses nftables backend."
+        elif [[ -f /etc/redhat-release ]]; then
+            if ! command -v iptables &> /dev/null; then
+                echo "Installing iptables-services..."
+                if command -v dnf &> /dev/null; then
+                    dnf install -y iptables-services
+                else
+                    yum install -y iptables-services
+                fi
+            fi
+
+            command -v service &> /dev/null && service iptables save &> /dev/null
+            command -v service &> /dev/null && service ip6tables save &> /dev/null
             systemctl enable iptables &> /dev/null
             systemctl enable ip6tables &> /dev/null
+
+            command -v nft &> /dev/null && echo "System uses nftables backend."
         fi
 
         sed -i '/^net.ipv4.ip_forward/d' /etc/sysctl.conf
         sed -i '/^net.ipv6.conf.all.forwarding/d' /etc/sysctl.conf
-        echo -e "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.forwarding = 1" >> /etc/sysctl.conf
+        echo -e "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.forwarding = 1\nnet.ipv6.conf.default.forwarding = 1" >> /etc/sysctl.conf
         sysctl -p &> /dev/null
     fi
 }
+
 
 # 设置端口范围
 function get_port_range() {
@@ -1487,7 +1407,7 @@ function get_port_range() {
         end_port=${end_port:-3000}
 
         if [[ $end_port =~ ^[1-9][0-9]{0,4}$ && $end_port -le 65535 ]]; then
-            if [ "$end_port" -le "$start_port" ]; then
+            if [[ "$end_port" -le "$start_port" ]]; then
                 echo -e "${RED}错误：终止端口必须大于起始端口！${NC}" >&2
                 return 1
             fi
@@ -1518,19 +1438,42 @@ function ask_enable_port_forwarding() {
 
 # 设置 iptables DNAT 规则
 function set_port_forwarding() {
-    echo "Setting port forwarding from $start_port:$end_port to $listen_port..."
-    iptables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$listen_port &> /dev/null
-    iptables -t nat -A POSTROUTING -p udp --dport $listen_port -j MASQUERADE &> /dev/null
+    local wan_iface
+    wan_iface=$(ip route | grep '^default' | awk '{print $5}')
+    if [[ -z "$wan_iface" ]]; then
+        echo "Error: Could not detect WAN interface."
+        return 1
+    fi
 
-    ip6tables -t nat -A PREROUTING -i eth0 -p udp --dport $start_port:$end_port -j DNAT --to-destination :$listen_port &> /dev/null
-    ip6tables -t nat -A POSTROUTING -p udp --dport $listen_port -j MASQUERADE &> /dev/null
+    echo "Setting port forwarding from $start_port:$end_port to $listen_port on interface $wan_iface..."
 
-    if [ -f /etc/debian_version ]; then
+    if command -v iptables &> /dev/null; then
+        iptables -t nat -A PREROUTING -i "$wan_iface" -p udp --dport "$start_port":"$end_port" -j DNAT --to-destination ":$listen_port" &> /dev/null
+        iptables -t nat -A POSTROUTING -p udp --dport $listen_port -j MASQUERADE &> /dev/null
+    fi
+
+    if command -v ip6tables &> /dev/null; then
+        if ip6tables -t nat -L &> /dev/null; then
+            ip6tables -t nat -A PREROUTING -i "$wan_iface" -p udp --dport "$start_port":"$end_port" -j DNAT --to-destination ":$listen_port" &> /dev/null
+            ip6tables -t nat -A POSTROUTING -p udp --dport $listen_port -j MASQUERADE &> /dev/null
+        else
+            echo "IPv6 NAT not supported, skipping IPv6 port forwarding."
+        fi
+    fi
+
+    if command -v nft &> /dev/null; then
+        nft list table ip nat &> /dev/null || nft add table ip nat
+        nft list table ip6 nat &> /dev/null || nft add table ip6 nat
+    fi
+
+    if command -v netfilter-persistent &> /dev/null; then
         netfilter-persistent save &> /dev/null
-    elif [ -f /etc/redhat-release ]; then
+    elif command -v service &> /dev/null; then
         service iptables save &> /dev/null
         service ip6tables save &> /dev/null
     fi
+
+    echo "Port forwarding setup completed."
 }
 
 # 选择加密类型
@@ -1713,7 +1656,7 @@ function select_certificate_option() {
                 get_domain
                 check_firewall_configuration
                 apply_certificate
-                if [ "$return_to_menu" == true ]; then
+                if [[ "$return_to_menu" == true ]]; then
                     return_to_menu=false
                     continue
                 fi
@@ -1727,11 +1670,11 @@ function select_certificate_option() {
                 verify_domain
                 set_dns_record
                 check_firewall_configuration
-                if [ "$domain_supported" == "false" ]; then
+                if [[ "$domain_supported" == false ]]; then
                     continue
                 else
                     Apply_api_certificate
-                    if [ "$return_to_menu" == true ]; then
+                    if [[ "$return_to_menu" == true ]]; then
                         return_to_menu=false
                         continue
                     fi
@@ -2306,8 +2249,8 @@ function generate_tls_config() {
         select_certificate_option
     fi
 
-    if [ -z "$domain_name" ]; then
-        if [ -n "$domain" ]; then
+    if [[ -z "$domain_name" ]]; then
+        if [[ -n "$domain" ]]; then
             server_name="$domain"
         fi
     else
@@ -2514,15 +2457,15 @@ function modify_config_format() {
     
     for start_line_action in $start_lines_action; do
         line_to_modify_action=$((start_line_action - 2))
-        if [ "$line_to_modify_action" -ge 1 ]; then
+        if [[ "$line_to_modify_action" -ge 1 ]]; then
             sed -i "${line_to_modify_action}s/,[[:space:]]*$//" "$file_path"
         fi
     done
     
-    if [ -n "$start_line_outbounds" ]; then
+    if [[ -n "$start_line_outbounds" ]]; then
         line_to_modify_outbounds_1=$((start_line_outbounds - 2))
         line_to_modify_outbounds_2=$((start_line_outbounds - 1))
-        if [ "$line_to_modify_outbounds_1" -ge 1 ]; then
+        if [[ "$line_to_modify_outbounds_1" -ge 1 ]]; then
             sed -i "$line_to_modify_outbounds_1 s/.*/    }/" "$file_path"
             sed -i "$line_to_modify_outbounds_2 s/.*/  ],/" "$file_path"
         fi
@@ -2620,7 +2563,7 @@ function generate_vmess_config() {
     vmess_multiple_users
     generate_transport_config
 
-    if [ "$transport_grpc" != true ] && [ "$transport_http" != true ]; then
+    if [[ "$transport_grpc" != true ]] && [[ "$transport_http" != true ]]; then
         configure_multiplex
     fi
 
@@ -2695,7 +2638,7 @@ function generate_tuic_config() {
     local found_inbounds=0
     local server_name="$domain"
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
     fi
 
@@ -2727,7 +2670,7 @@ function generate_Hysteria_config() {
     local found_inbounds=0
     local server_name="$domain"
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
     fi
 
@@ -2826,7 +2769,7 @@ function generate_Hy2_config() {
     local found_inbounds=0
     local server_name="$domain"
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
     fi
 
@@ -2849,7 +2792,7 @@ function generate_trojan_config() {
     trojan_multiple_users
     generate_transport_config
 
-    if [ "$transport_grpc" != true ] && [ "$transport_http" != true ]; then
+    if [[ "$transport_grpc" != true ]] && [[ "$transport_http" != true ]]; then
         configure_multiplex
     fi
 
@@ -2914,7 +2857,7 @@ function write_phone_client_file() {
     local dir="/usr/local/etc/sing-box"
     local phone_client="${dir}/phone_client.json"
 
-    if [ ! -s "${phone_client}" ]; then
+    if [[ ! -s "${phone_client}" ]]; then
         awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"server\": \"dns_proxy\","; print "        \"client_subnet\": \"114.114.114.114/24\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": \"dns_direct\","; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"tun-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"ip_is_private\": true,"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"port\": 853"; print "          },"; print "          {"; print "            \"network\": \"udp\","; print "            \"port\": 443"; print "          },"; print "          {"; print "            \"protocol\": \"stun\""; print "          }"; print "        ],"; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"tun\","; print "      \"tag\": \"tun-in\","; print "      \"address\": ["; print "        \"172.18.0.1/30\","; print "        \"fdfe:dcba:9876::1/126\""; print "      ],"; print "      \"mtu\": 1400,"; print "      \"auto_route\": true,"; print "      \"strict_route\": true,"; print "      \"stack\": \"gvisor\""; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${phone_client}"
     fi
 }
@@ -2924,7 +2867,7 @@ function write_win_client_file() {
     local dir="/usr/local/etc/sing-box"
     local win_client="${dir}/win_client.json"
 
-    if [ ! -s "${win_client}" ]; then
+    if [[ ! -s "${win_client}" ]]; then
         awk 'BEGIN { print "{"; print "  \"log\": {"; print "    \"disabled\": false,"; print "    \"level\": \"info\","; print "    \"timestamp\": true"; print "  },"; print "  \"dns\": {"; print "    \"servers\": ["; print "      {"; print "        \"tag\": \"dns_proxy\","; print "        \"type\": \"https\","; print "        \"server\": \"1.1.1.1\","; print "        \"detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"tag\": \"dns_direct\","; print "        \"type\": \"https\","; print "        \"server\": \"223.5.5.5\""; print "      }"; print "    ],"; print "    \"rules\": ["; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"server\": \"dns_proxy\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-category-ads-all\","; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"server\": \"dns_direct\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          },"; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          }"; print "        ],"; print "        \"server\": \"dns_proxy\","; print "        \"client_subnet\": \"114.114.114.114/24\""; print "      }"; print "    ],"; print "    \"final\": \"dns_proxy\","; print "    \"strategy\": \"ipv4_only\","; print "    \"independent_cache\": true"; print "  },"; print "  \"route\": {"; print "    \"rule_set\": ["; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-category-ads-all\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geosite-geolocation-!cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      },"; print "      {"; print "        \"type\": \"remote\","; print "        \"tag\": \"geoip-cn\","; print "        \"format\": \"binary\","; print "        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\","; print "        \"download_detour\": \"Proxy\""; print "      }"; print "    ],"; print "    \"default_domain_resolver\": \"dns_direct\","; print "    \"rules\": ["; print "      {"; print "        \"inbound\": \"mixed-in\","; print "        \"action\": \"sniff\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"protocol\": \"dns\""; print "          },"; print "          {"; print "            \"port\": 53"; print "          }"; print "        ],"; print "        \"action\": \"hijack-dns\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Direct\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"clash_mode\": \"Global\","; print "        \"outbound\": \"Proxy\""; print "      },"; print "      {"; print "        \"ip_is_private\": true,"; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"or\","; print "        \"rules\": ["; print "          {"; print "            \"port\": 853"; print "          },"; print "          {"; print "            \"network\": \"udp\","; print "            \"port\": 443"; print "          },"; print "          {"; print "            \"protocol\": \"stun\""; print "          }"; print "        ],"; print "        \"action\": \"reject\""; print "      },"; print "      {"; print "        \"rule_set\": \"geosite-geolocation-cn\","; print "        \"outbound\": \"direct-out\""; print "      },"; print "      {"; print "        \"type\": \"logical\","; print "        \"mode\": \"and\","; print "        \"rules\": ["; print "          {"; print "            \"rule_set\": \"geoip-cn\""; print "          },"; print "          {"; print "            \"rule_set\": \"geosite-geolocation-!cn\","; print "            \"invert\": true"; print "          }"; print "        ],"; print "        \"outbound\": \"direct-out\""; print "      }"; print "    ],"; print "    \"final\": \"Proxy\","; print "    \"auto_detect_interface\": true"; print "  },"; print "  \"inbounds\": ["; print "    {"; print "      \"type\": \"mixed\","; print "      \"tag\": \"mixed-in\","; print "      \"listen\": \"::\","; print "      \"listen_port\": 1080,"; print "      \"set_system_proxy\": false"; print "    }"; print "  ],"; print "  \"outbounds\": ["; print "    {"; print "      \"type\": \"urltest\","; print "      \"tag\": \"auto\","; print "      \"outbounds\": ["; print "      ],"; print "      \"url\": \"https://www.gstatic.com/generate_204\","; print "      \"interval\": \"1m\","; print "      \"tolerance\": 50,"; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"selector\","; print "      \"tag\": \"Proxy\","; print "      \"outbounds\": ["; print "        \"auto\""; print "      ],"; print "      \"default\": \"\","; print "      \"interrupt_exist_connections\": false"; print "    },"; print "    {"; print "      \"type\": \"direct\","; print "      \"tag\": \"direct-out\""; print "    }"; print "  ],"; print "  \"experimental\": {"; print "    \"cache_file\": {"; print "      \"enabled\": true,"; print "      \"store_fakeip\": false,"; print "      \"store_rdrc\": true"; print "    },"; print "    \"clash_api\": {"; print "      \"external_controller\": \"127.0.0.1:9090\","; print "      \"external_ui\": \"Dashboard\","; print "      \"external_ui_download_url\": \"https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\","; print "      \"external_ui_download_detour\": \"Proxy\","; print "      \"default_mode\": \"Rule\""; print "    }"; print "  }"; print "}" }' > "${win_client}"
     fi
 }
@@ -2945,7 +2888,7 @@ function write_clash_yaml() {
     local dir="/usr/local/etc/sing-box"
     local clash_yaml="${dir}/clash.yaml"
 
-    if [ ! -s "${clash_yaml}" ]; then
+    if [[ ! -s "${clash_yaml}" ]]; then
         awk 'BEGIN { print "mixed-port: 7890"; print "allow-lan: true"; print "bind-address: \"*\""; print "find-process-mode: strict"; print "mode: rule"; print "unified-delay: true"; print "tcp-concurrent: true"; print "log-level: info"; print "ipv6: true"; print "global-client-fingerprint: chrome"; print "external-controller: 127.0.0.1:9090"; print "external-ui: ui"; print "external-ui-url: \"https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip\""; print "tun:"; print "  enable: true"; print "  stack: system"; print "  dns-hijack:"; print "    - 0.0.0.0:53"; print "  auto-detect-interface: true"; print "  auto-route: true"; print "  auto-redirect: false"; print "  strict-route: true"; print "  mtu: 1400"; print "profile:"; print "  store-selected: true"; print "  store-fake-ip: true"; print "sniffer:"; print "  enable: true"; print "  sniff:"; print "    TLS:"; print "      ports: [443, 8443]"; print "    HTTP:"; print "      ports: [80, 8080-8880]"; print "      override-destination: true"; print "    QUIC:"; print "      ports: [443, 8443]"; print "  skip-domain:"; print "    - \"+.push.apple.com\""; print "dns:"; print "  enable: true"; print "  cache-algorithm: arc"; print "  prefer-h3: false"; print "  respect-rules: true"; print "  ipv6: true"; print "  default-nameserver:"; print "    - 1.1.1.1"; print "    - 8.8.8.8"; print "    - 223.5.5.5"; print "    - 119.29.29.29"; print "  enhanced-mode: fake-ip"; print "  fake-ip-range: 198.18.0.1/16"; print "  fake-ip-filter:"; print "    - \"*.lan\""; print "    - \"*.local\""; print "    - \"*.localdomain\""; print "    - \"*.example\""; print "    - \"*.invalid\""; print "    - \"*.localhost\""; print "    - \"*.test\""; print "    - \"*.home.arpa\""; print "    - \"*.direct\""; print "  nameserver-policy:"; print "    \"rule-set:category_ads_all\": "; print "      - rcode://success"; print "    \"rule-set:cn_domain,private_domain\":"; print "      - https://dns.alidns.com/dns-query"; print "      - https://doh.pub/dns-query"; print "  nameserver:"; print "    - https://cloudflare-dns.com/dns-query"; print "    - https://dns.google/dns-query"; print "  proxy-server-nameserver:"; print "    - https://dns.alidns.com/dns-query"; print "    - https://doh.pub/dns-query"; print "proxies:"; print "proxy-groups:"; print "  - name: Proxy"; print "    type: select"; print "    proxies:"; print "      - auto"; print "  - name: auto"; print "    type: url-test"; print "    proxies:"; print "    url: \"https://cp.cloudflare.com/generate_204\""; print "    interval: 300"; print "rules:"; print "  - RULE-SET,private_ip,DIRECT,no-resolve"; print "  - RULE-SET,category_ads_all,REJECT"; print "  - RULE-SET,private_domain,DIRECT"; print "  - RULE-SET,google_domain,Proxy"; print "  - RULE-SET,cn_domain,DIRECT"; print "  - RULE-SET,cn_ip,DIRECT"; print "  - MATCH,Proxy"; print "rule-anchor:"; print "  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}"; print "  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}"; print "rule-providers:"; print "  private_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs\""; print "  cn_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs\""; print "  google_domain:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geosite/google.mrs\""; print "  category_ads_all:"; print "    <<: *domain"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads-all.mrs\""; print "  private_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs\""; print "  cn_ip:"; print "    <<: *ip"; print "    url: \"https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs\""; }' > "${clash_yaml}"
     fi
 }
@@ -2962,9 +2905,9 @@ function generate_shadowsocks_win_client_config() {
     local win_client_file="/usr/local/etc/sing-box/win_client.json"
     local proxy_name
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -2988,9 +2931,9 @@ function generate_shadowsocks_phone_client_config() {
     local phone_client_file="/usr/local/etc/sing-box/phone_client.json"
     local proxy_name
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -3031,7 +2974,7 @@ function generate_juicity_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3053,7 +2996,7 @@ function generate_tuic_phone_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3062,7 +3005,7 @@ function generate_tuic_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3089,7 +3032,7 @@ function generate_tuic_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3098,7 +3041,7 @@ function generate_tuic_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3125,7 +3068,7 @@ function generate_tuic_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3207,7 +3150,7 @@ function generate_Hysteria_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3216,15 +3159,15 @@ function generate_Hysteria_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="\n      \"obfs\": \"$obfs_password\","
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
-    if [ -z "$start_port" ] || [ -z "$end_port" ]; then
+    if [[ -z "$start_port" ]] || [[ -z "$end_port" ]]; then
         server_ports_config="\"server_port\": $listen_port"
     else
         server_ports_config="\"server_ports\": [\n        \"$start_port:$end_port\"\n      ]"
@@ -3253,7 +3196,7 @@ function generate_Hysteria_phone_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3262,15 +3205,15 @@ function generate_Hysteria_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="\n      \"obfs\": \"$obfs_password\","
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
-    if [ -z "$start_port" ] || [ -z "$end_port" ]; then
+    if [[ -z "$start_port" ]] || [[ -z "$end_port" ]]; then
         server_ports_config="\"server_port\": $listen_port"
     else
         server_ports_config="\"server_ports\": [\n        \"$start_port:$end_port\"\n      ]"
@@ -3299,7 +3242,7 @@ function generate_Hysteria_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3308,12 +3251,12 @@ function generate_Hysteria_yaml() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="
     obfs: $obfs_password"
     fi
 
-    if [ -n "$start_port" ] && [ -n "$end_port" ]; then
+    if [[ -n "$start_port" ]] && [[ -n "$end_port" ]]; then
         ports_config="
     ports: $start_port-$end_port"
     else
@@ -3350,13 +3293,13 @@ function generate_vmess_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
       ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3402,13 +3345,13 @@ function generate_vmess_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"pq_signature_schemes_enabled\": true,\n          \"dynamic_record_sizing_disabled\": false,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3457,7 +3400,7 @@ function generate_vmess_tcp_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3499,7 +3442,7 @@ function generate_vmess_ws_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3541,7 +3484,7 @@ function generate_vmess_grpc_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3568,7 +3511,7 @@ function generate_http_phone_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3577,7 +3520,7 @@ function generate_http_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3604,7 +3547,7 @@ function generate_http_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3613,7 +3556,7 @@ function generate_http_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3640,7 +3583,7 @@ function generate_http_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3667,7 +3610,7 @@ function generate_anytls_phone_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3676,7 +3619,7 @@ function generate_anytls_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3703,7 +3646,7 @@ function generate_anytls_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3712,7 +3655,7 @@ function generate_anytls_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -3739,7 +3682,7 @@ function generate_anytls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3766,7 +3709,7 @@ function generate_Hysteria2_phone_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3775,15 +3718,15 @@ function generate_Hysteria2_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="\n      \"obfs\": {\n        \"type\": \"salamander\",\n        \"password\": \"$obfs_password\"\n      },"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
-    if [ -z "$start_port" ] || [ -z "$end_port" ]; then
+    if [[ -z "$start_port" || -z "$end_port" ]]; then
         server_ports_config="\"server_port\": $listen_port"
     else
         server_ports_config="\"server_ports\": [\n        \"$start_port:$end_port\"\n      ]"
@@ -3812,7 +3755,7 @@ function generate_Hysteria2_win_client_config() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3821,15 +3764,15 @@ function generate_Hysteria2_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="\n      \"obfs\": {\n        \"type\": \"salamander\",\n        \"password\": \"$obfs_password\"\n      },"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
-    if [ -z "$start_port" ] || [ -z "$end_port" ]; then
+    if [[ -z "$start_port" || -z "$end_port" ]]; then
         server_ports_config="\"server_port\": $listen_port"
     else
         server_ports_config="\"server_ports\": [\n        \"$start_port:$end_port\"\n      ]"
@@ -3858,7 +3801,7 @@ function generate_Hysteria2_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -3867,13 +3810,13 @@ function generate_Hysteria2_yaml() {
         tls_insecure="false"
     fi
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         obfs_config="
     obfs: salamander
     obfs-password: $obfs_password"
     fi
 
-    if [ -n "$start_port" ] && [ -n "$end_port" ]; then
+    if [[ -n "$start_port" && -n "$end_port" ]]; then
         ports_config="
     ports: $start_port-$end_port"
     else
@@ -3896,9 +3839,9 @@ function generate_vless_win_client_config() {
     local proxy_name
     local server_name_in_config=$(jq -r '.inbounds[0].tls.server_name' "$config_file")
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -3909,7 +3852,7 @@ function generate_vless_win_client_config() {
         fi
     done
 
-    if [ "$server_name_in_config" != "null" ]; then
+    if [[ "$server_name_in_config" != "null" ]]; then
     awk -v proxy_name="$proxy_name" -v local_ip="$local_ip" -v server_name="$server_name" -v listen_port="$listen_port" -v user_uuid="$user_uuid" -v flow_type="$flow_type" -v public_key="$public_key" -v short_id="$short_id" -v transport_config="$transport_config" -v multiplex_client_config="$multiplex_client_config" '
     /^  "outbounds": \[/ {print; getline; print "    {"; print "      \"type\": \"vless\","; print "      \"tag\": \"" proxy_name "\","; print "      \"server\": \"" local_ip "\", "; print "      \"server_port\": " listen_port ","; print "      \"uuid\": \"" user_uuid "\", "; print "      \"flow\": \"" flow_type "\"," transport_config ""; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\", "; print "        \"utls\": {"; print "          \"enabled\": true,"; print "          \"fingerprint\": \"chrome\""; print "        },"; print "        \"reality\": {"; print "          \"enabled\": true,"; print "          \"public_key\": \"" public_key "\","; print "          \"short_id\": \"" short_id "\""; print "        }"; print "      }" multiplex_client_config ""; print "    },";} 
     /^      "outbounds": \[/ {print; getline; if ($0 ~ /^      \],$/) {print "        \"" proxy_name "\""} else {print "        \"" proxy_name "\", "} }    
@@ -3930,9 +3873,9 @@ function generate_vless_phone_client_config() {
     local proxy_name
     local server_name_in_config=$(jq -r '.inbounds[0].tls.server_name' "$config_file")
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -3943,7 +3886,7 @@ function generate_vless_phone_client_config() {
         fi
     done
 
-    if [ "$server_name_in_config" != "null" ]; then
+    if [[ "$server_name_in_config" != "null" ]]; then
     awk -v proxy_name="$proxy_name" -v local_ip="$local_ip" -v server_name="$server_name" -v listen_port="$listen_port" -v user_uuid="$user_uuid" -v flow_type="$flow_type" -v public_key="$public_key" -v short_id="$short_id" -v transport_config="$transport_config" -v multiplex_client_config="$multiplex_client_config" '
     /^  "outbounds": \[/ {print; getline; print "    {"; print "      \"type\": \"vless\","; print "      \"tag\": \"" proxy_name "\","; print "      \"server\": \"" local_ip "\", "; print "      \"server_port\": " listen_port ","; print "      \"uuid\": \"" user_uuid "\", "; print "      \"flow\": \"" flow_type "\"," transport_config ""; print "      \"tls\": {"; print "        \"enabled\": true,"; print "        \"server_name\": \"" server_name "\", "; print "        \"utls\": {"; print "          \"enabled\": true,"; print "          \"fingerprint\": \"chrome\""; print "        },"; print "        \"reality\": {"; print "          \"enabled\": true,"; print "          \"public_key\": \"" public_key "\","; print "          \"short_id\": \"" short_id "\""; print "        }"; print "      }" multiplex_client_config ""; print "    },";} 
     /^      "outbounds": \[/ {print; getline; if ($0 ~ /^      \],$/) {print "        \"" proxy_name "\""} else {print "        \"" proxy_name "\", "} }    
@@ -4053,13 +3996,13 @@ function generate_trojan_phone_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -4105,13 +4048,13 @@ function generate_trojan_win_client_config() {
         tls_insecure="false"
     fi
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
-    if [ -n "$ech_config" ]; then
+    if [[ -n "$ech_config" ]]; then
         ech_client_config=",\n        \"ech\": {\n          \"enabled\": true,\n          \"config\": [\n$ech_config\n          ]\n        }"
     fi
 
@@ -4145,7 +4088,7 @@ function generate_trojan_tcp_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -4172,7 +4115,7 @@ function generate_trojan_ws_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -4199,7 +4142,7 @@ function generate_trojan_grpc_tls_yaml() {
     local server_value
     local tls_insecure
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_name="$domain_name"
         server_value="$local_ip"
         tls_insecure="true"
@@ -4224,9 +4167,9 @@ function generate_shadowtls_win_client_config() {
     local proxy_name
     local shadowtls_out
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -4252,9 +4195,9 @@ function generate_shadowtls_phone_client_config() {
     local proxy_name
     local shadowtls_out
 
-    if [ -n "$multiplex_config" ] && [ -n "$brutal_config" ]; then
+    if [[ -n "$multiplex_config" && -n "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false,\n        \"brutal\": {\n          \"enabled\": true,\n          \"up_mbps\": $down_mbps,\n          \"down_mbps\": $up_mbps\n        }\n      }"
-    elif [ -n "$multiplex_config" ] && [ -z "$brutal_config" ]; then
+    elif [[ -n "$multiplex_config" && -z "$brutal_config" ]]; then
         multiplex_client_config=",\n      \"multiplex\": {\n        \"enabled\": true,\n        \"protocol\": \"h2mux\",\n        \"max_connections\": 1,\n        \"min_streams\": 4,\n        \"padding\": false\n      }"
     fi
 
@@ -4299,52 +4242,54 @@ function generate_naive_win_client_config() {
 
 # 提取节点配置中的协议类型和标签
 function extract_types_tags() {
-    local config_file="/usr/local/etc/sing-box/config.json"
+    local config_files=("$sing_box_config_file" "$juicity_config_file")
+    local detour_tag wireguard_type type tag
+    local i=0 max_length=0
     filtered_tags=()
     types=()
 
-    tags=($(jq -r '.inbounds[] | select(.tag != null) | .tag' "$config_file"))
-    detour_tag=$(jq -r '.inbounds[] | select(.type == "shadowtls") | .detour' "$config_file")
-    wireguard_type=$(jq -r '(.endpoints // []) | map(select(.type == "wireguard") | .type)[]?' "$config_file")
-
-    if [ -z "$tags" ] && [ -z "$wireguard_type" ]; then
+    if [[ ! -f "$sing_box_config_file" && ! -f "$juicity_config_file" ]]; then
         echo "未检测到节点配置，请搭建节点后再使用本选项！"
-        exit 0
+        exit 1
     fi
 
-    filtered_tags=()
-    for tag in "${tags[@]}"; do
-        if [ "$tag" != "$detour_tag" ]; then
-            filtered_tags+=("$tag")
+    for cfg in "${config_files[@]}"; do
+        if [[ -f "$cfg" ]]; then
+            if [[ "$cfg" == "$sing_box_config_file" ]]; then
+                mapfile -t tags < <(jq -r '.inbounds[] | select(.tag != null) | .tag' "$cfg")
+                detour_tag=$(jq -r '.inbounds[] | select(.type == "shadowtls") | .detour' "$cfg")
+                wireguard_type=$(jq -r '(.endpoints // []) | map(select(.type == "wireguard") | .type)[]?' "$cfg")
+                for tag in "${tags[@]}"; do
+                    [[ $tag != "$detour_tag" ]] && filtered_tags+=("$tag")
+                done
+                [[ -n "$wireguard_type" ]] && filtered_tags+=("wg-ep")
+            elif [[ "$cfg" == "$juicity_config_file" ]]; then
+                filtered_tags+=("juicity-in")
+            fi
+
+            for tag in "${filtered_tags[@]:i}"; do
+                if [[ "$cfg" == "$sing_box_config_file" && "$tag" == "wg-ep" ]]; then
+                    type="$wireguard_type"
+                elif [[ "$cfg" == "$sing_box_config_file" ]]; then
+                    type=$(jq -r --arg tag "$tag" '.inbounds[] | select(.tag == $tag) | .type' "$cfg")
+                else
+                    type="juicity"
+                fi
+                types[i]="$type"
+                (( ${#tag} > max_length )) && max_length=${#tag}
+                printf "%d). 协议类型: %-20s 入站标签: %s\n" "$((++i))" "$type" "$tag"
+            done
         fi
     done
-
-    max_length=0
-    for tag in "${filtered_tags[@]}"; do
-        tag_length=${#tag}
-        if ((tag_length > max_length)); then
-            max_length=$tag_length
-        fi
-    done
-
-    for ((i=0; i<${#filtered_tags[@]}; i++)); do
-        type=$(jq -r --arg tag "${filtered_tags[$i]}" '.inbounds[] | select(.tag == $tag) | .type' "$config_file")
-        types[$i]=$type
-        printf "%d).协议类型: %-20s 入站标签: %s\n" "$((i+1))" "$type" "${filtered_tags[$i]}"
-    done
-
-    if [ ! -z "$wireguard_type" ]; then
-        types[$i]=$wireguard_type
-        printf "%d).协议类型: %-20s 入站标签: %s\n" "$((i+1))" "$wireguard_type" "wg-ep"
-    fi
 }
 
 # 选择要删除的节点
 function select_node_choice() {
-    valid_choice=false
-    while [ "$valid_choice" == false ]; do
+    local choice valid_choice=false
+
+    while [[ $valid_choice == false ]]; do
         read -p "请选择要删除的节点配置（请输入对应的数字，输入 0 返回主菜单）: " choice
-        if [[ "$choice" == "0" ]]; then
+        if [[ $choice == 0 ]]; then
             return 1
         elif [[ ! $choice =~ ^[0-9]+$ || $choice -lt 1 || $choice -gt ${#types[@]} ]]; then
             echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
@@ -4352,38 +4297,47 @@ function select_node_choice() {
             valid_choice=true
         fi
     done
-    selected_tag="${filtered_tags[$choice-1]}"
-    selected_type="${types[$choice-1]}"
-    listen_port=$(jq -r --arg selected_tag "$selected_tag" '.inbounds[] | select(.tag == $selected_tag) | .listen_port' "$config_file" | awk '{print int($0)}')
+
+    selected_tag="${filtered_tags[choice-1]}"
+    selected_type="${types[choice-1]}"
+    if [[ "$selected_type" != "juicity" ]]; then
+        listen_port=$(jq -r --arg selected_tag "$selected_tag" '.inbounds[] | select(.tag == $selected_tag) | .listen_port' "$sing_box_config_file" | awk '{print int($0)}')
+    fi
 }
 
-# 删除 sing-box 配置文件中相关配置
+# 删除配置文件中相关配置
 function process_config_deletion() {
-    if [ "$selected_type" == "wireguard" ]; then
-        jq 'del(.endpoints)' "$config_file" > "$temp_json" && mv "$temp_json" "$config_file"
-        jq '.route.rules |= map(select(.outbound != "wg-ep"))' "$config_file" > "$temp_json" && mv "$temp_json" "$config_file"
-        jq 'del(.route.rule_set)' "$config_file" > "$temp_json" && mv "$temp_json" "$config_file"
+    if [[ "$selected_type" == "wireguard" ]]; then
+        jq 'del(.endpoints)' "$sing_box_config_file" > "$temp_json" && mv "$temp_json" "$sing_box_config_file"
+        jq '.route.rules |= map(select(.outbound != "wg-ep"))' "$sing_box_config_file" > "$temp_json" && mv "$temp_json" "$sing_box_config_file"
+        jq 'del(.route.rule_set)' "$sing_box_config_file" > "$temp_json" && mv "$temp_json" "$sing_box_config_file"
+    elif [[ "$selected_type" == "juicity" ]]; then
+        systemctl stop juicity.service
+        systemctl disable juicity.service
+        rm -rf /etc/systemd/system/juicity.service
+        rm -rf /usr/local/etc/juicity
+        rm -rf /usr/local/bin/juicity-server
     else
-        detour_tag=$(jq -r --arg selected_tag "$selected_tag" '.inbounds[] | select(.type == "shadowtls" and .tag == $selected_tag) | .detour' "$config_file")
-        jq --arg selected_tag "$selected_tag" --arg detour_tag "$detour_tag" '.inbounds |= map(select(.tag != $selected_tag and .tag != $detour_tag))' "$config_file" > "$temp_json" && mv "$temp_json" "$config_file"
-        jq --arg selected_tag "$selected_tag" '.route.rules |= map(.inbound |= map(select(. != $selected_tag)))' "$config_file" > "$temp_json" && mv "$temp_json" "$config_file"
+        detour_tag=$(jq -r --arg selected_tag "$selected_tag" '.inbounds[] | select(.type == "shadowtls" and .tag == $selected_tag) | .detour' "$sing_box_config_file")
+        jq --arg selected_tag "$selected_tag" --arg detour_tag "$detour_tag" '.inbounds |= map(select(.tag != $selected_tag and .tag != $detour_tag))' "$sing_box_config_file" > "$temp_json" && mv "$temp_json" "$sing_box_config_file"
+        jq --arg selected_tag "$selected_tag" '.route.rules |= map(.inbound |= map(select(. != $selected_tag)))' "$sing_box_config_file" > "$temp_json" && mv "$temp_json" "$sing_box_config_file"
     fi
 }
 
 # 删除 output 中对应端口的条目
 function process_output_file_deletion() {
-    if [ "$selected_type" != "wireguard" ]; then
-        awk -v port="$listen_port" '$0 ~ "监听端口: " port {print; in_block=1; next} in_block && NF == 0 {in_block=0} !in_block' "$output_file" > "$output_file.tmp1"
-        mv "$output_file.tmp1" "$output_file"
-        awk -v port="$listen_port" '$0 ~ "监听端口: " port {start=NR; next} {lines[NR]=$0} END {for (i=1; i<=NR; i++) if (i < start - 4 || i > start) print lines[i]}' "$output_file" > "$output_file.tmp2"
-        mv "$output_file.tmp2" "$output_file"
-        sed -i '/./,$!d' "$output_file"
+    if [[ "$selected_type" != "wireguard" && "$selected_type" != "juicity" ]]; then
+        awk -v port="$listen_port" '$0 ~ "监听端口: " port {print; in_block=1; next} in_block && NF == 0 {in_block=0} !in_block' "$sing_box_output_file" > "$sing_box_output_file.tmp1"
+        mv "$sing_box_output_file.tmp1" "$sing_box_output_file"
+        awk -v port="$listen_port" '$0 ~ "监听端口: " port {start=NR; next} {lines[NR]=$0} END {for (i=1; i<=NR; i++) if (i < start - 4 || i > start) print lines[i]}' "$sing_box_output_file" > "$sing_box_output_file.tmp2"
+        mv "$sing_box_output_file.tmp2" "$sing_box_output_file"
+        sed -i '/./,$!d' "$sing_box_output_file"
     fi
 }
 
 # 提取 Clash 配置相关标签
 function process_clash_yaml_deletion() {
-    if [ -f "$clash_yaml" ]; then
+    if [[ -f "$clash_yaml" && "$selected_type" != "juicity" ]]; then
         awk '/proxies:/ {in_proxies_block=1} in_proxies_block && /- name:/ {name = $3} in_proxies_block && /port:/ {port = $2; print "Name:", name, "Port:", port}' "$clash_yaml" > "$temp_yaml"
         matching_clash_tag=$(grep "Port: $listen_port" "$temp_yaml" | awk '{print $2}')
     fi
@@ -4412,8 +4366,8 @@ function process_firewall_rules_deletion() {
 
 # 提取客户端要删除的标签
 function process_client_files_deletion() {
-    if [ -f "$phone_client_file" ] && [ -f "$win_client_file" ]; then
-        if [ -n "$listen_port" ]; then
+    if [[ -f "$phone_client_file" && -f "$win_client_file" ]]; then
+        if [[ -n "$listen_port" ]]; then
             if [[ -n "$start_port" && -n "$end_port" ]]; then
                 phone_matching_tags=$(jq -r --arg target "$start_port:$end_port" '.outbounds[] | select((.server_ports // []) | index($target)) | .tag' "$phone_client_file")
                 win_matching_tags=$(jq -r --arg target "$start_port:$end_port" '.outbounds[] | select((.server_ports // []) | index($target)) | .tag' "$win_client_file")
@@ -4422,7 +4376,6 @@ function process_client_files_deletion() {
                 win_matching_tags=$(jq -r --argjson listen_port "$listen_port" '.outbounds[] | select(.server_port == $listen_port) | .tag' "$win_client_file")
             fi
         fi
-
         delete_tags_from_client "$phone_matching_tags" "$phone_client_file"
         delete_tags_from_client "$win_matching_tags" "$win_client_file"
     fi
@@ -4433,12 +4386,12 @@ function delete_tags_from_client() {
     local tags="$1"
     local client_file="$2"
 
-    if [ ! -f "$client_file" ]; then
+    if [[ ! -f "$client_file" ]]; then
         return
     fi
 
     echo "$tags" | while read -r tag; do
-        if [ -n "$tag" ]; then
+        if [[ -n "$tag" ]]; then
             if [[ -n "$start_port" && -n "$end_port" ]]; then
                 target_port_range="$start_port:$end_port"
                 tag_port_range=$(jq -r --arg tag "$tag" '.outbounds[] | select(.tag == $tag) | (.server_ports // [])[0]' "$client_file")
@@ -4465,7 +4418,7 @@ function delete_tags_from_client() {
             awk -v tag="$tag" '!/^      "outbounds": \[$/,/^\s*]/{if (!($0 ~ "^ * \"" tag "\"")) print; else next; }' "$client_file" > "$client_file.tmp"
             mv "$client_file.tmp" "$client_file"
 
-            if [ "$tag" == "$matching_detour" ]; then
+            if [[ "$tag" == "$matching_detour" ]]; then
                 jq --arg detour "$matching_detour" '.outbounds |= map(select(.detour != $detour))' "$client_file" > "$temp_json" && mv "$temp_json" "$client_file"
                 awk -v detour_tag="$matching_detour_tag" '!/^      "outbounds": \[$/,/^\s*]/{if (!($0 ~ "^ * \"" detour_tag "\"")) print; else next; }' "$client_file" > "$client_file.tmp"
                 mv "$client_file.tmp" "$client_file"
@@ -4476,9 +4429,9 @@ function delete_tags_from_client() {
 
 # 整理客户端配置文件格式
 function cleanup_files_and_restart() {
-    if [ -n "$matching_clash_tag" ] && [ "$selected_type" != "wireguard" ]; then
+    if [[ -n "$matching_clash_tag" && "$selected_type" != "wireguard" ]]; then
         echo "$matching_clash_tag" | while read -r tag; do
-            if [ -n "$tag" ]; then
+            if [[ -n "$tag" ]]; then
                 escaped_tag=$(printf '%q' "$tag")
                 sed -i "/^  - name: $escaped_tag$/,/^\s*$/d" "$clash_yaml"
                 sed -i "/proxy-groups:/,/^\s*$/ {/      - $escaped_tag/d}" "$clash_yaml"
@@ -4486,21 +4439,23 @@ function cleanup_files_and_restart() {
         done
     fi
 
-    if [ -f "$phone_client_file" ]; then
+    if [[ -f "$phone_client_file" ]]; then
         awk '{if ($0 ~ /],$/ && p ~ /,$/) sub(/,$/, "", p); if (NR > 1) print p; p = $0;}END{print p;}' "$phone_client_file" > "$phone_client_file.tmp"
         mv "$phone_client_file.tmp" "$phone_client_file"
     fi
 
-    if [ -f "$win_client_file" ]; then
+    if [[ -f "$win_client_file" ]]; then
         awk '{if ($0 ~ /],$/ && p ~ /,$/) sub(/,$/, "", p); if (NR > 1) print p; p = $0;}END{print p;}' "$win_client_file" > "$win_client_file.tmp"
         mv "$win_client_file.tmp" "$win_client_file"
     fi
 
-    [ -f "$temp_yaml" ] && rm "$temp_yaml"
+    if [[ -f "$temp_yaml" ]]; then
+        rm "$temp_yaml"
+    fi
 
-    if ! jq -e 'select(.inbounds[] | .listen == "::")' "$config_file" > /dev/null; then
-        sed -i 's/^        "inbound": \[\],/        "inbound": [\n        ],/' "$config_file"
-        sed -i 's/^  "inbounds": \[\],/  "inbounds": [\n  ],/' "$config_file"
+    if ! jq -e 'select(.inbounds[] | .listen == "::")' "$sing_box_config_file" > /dev/null; then
+        sed -i 's/^        "inbound": \[\],/        "inbound": [\n        ],/' "$sing_box_config_file"
+        sed -i 's/^  "inbounds": \[\],/  "inbounds": [\n  ],/' "$sing_box_config_file"
         sed -i 's/^      "outbounds": \[\],/      "outbounds": [\n      ],/' "$win_client_file"
         sed -i 's/^      "outbounds": \[\],/      "outbounds": [\n      ],/' "$phone_client_file"
     fi
@@ -4511,13 +4466,14 @@ function cleanup_files_and_restart() {
 
 # 删除指定节点的配置信息
 function delete_choice() {
-    local config_file="/usr/local/etc/sing-box/config.json"
+    local sing_box_config_file="/usr/local/etc/sing-box/config.json"
+    local juicity_config_file="/usr/local/etc/juicity/config.json"
     local phone_client_file="/usr/local/etc/sing-box/phone_client.json"
     local win_client_file="/usr/local/etc/sing-box/win_client.json"
+    local sing_box_output_file="/usr/local/etc/sing-box/output.txt"
     local clash_yaml="/usr/local/etc/sing-box/clash.yaml"
-    local output_file="/usr/local/etc/sing-box/output.txt"
-    local temp_json="/usr/local/etc/sing-box/temp.json"
     local temp_yaml="/usr/local/etc/sing-box/temp.yaml"
+    local temp_json="/usr/local/etc/sing-box/temp.json"
 
     extract_types_tags
     if ! select_node_choice; then
@@ -4613,7 +4569,7 @@ function display_juicity_config() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -4651,7 +4607,7 @@ function display_http_config_info() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -4689,7 +4645,7 @@ function display_http_config_files() {
         local user_name="${user_names[i]}"
         local user_password="${user_passwords[i]}"  
 
-        if [ "$enable_ech" = true ]; then
+        if [[ "$enable_ech" == true ]]; then
             write_phone_client_file
             write_win_client_file
             generate_http_win_client_config "$user_password"
@@ -4705,7 +4661,7 @@ function display_http_config_files() {
         fi
     done
 
-    if [ "$enable_ech" = true ]; then
+    if [[ "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至 $phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至 $win_client_file，请下载后使用！"
     else
@@ -4728,7 +4684,7 @@ function display_anytls_config_info() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -4766,7 +4722,7 @@ function display_anytls_config_files() {
         local user_name="${user_names[i]}"
         local user_password="${user_passwords[i]}"  
 
-        if [ "$enable_ech" = true ]; then
+        if [[ "$enable_ech" == true ]]; then
             write_phone_client_file
             write_win_client_file
             generate_anytls_win_client_config "$user_password"
@@ -4782,7 +4738,7 @@ function display_anytls_config_files() {
         fi
     done
 
-    if [ "$enable_ech" = true ]; then
+    if [[ "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至 $phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至 $win_client_file，请下载后使用！"
     else
@@ -4806,7 +4762,7 @@ function display_tuic_config_info() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -4853,7 +4809,7 @@ function display_tuic_config_files() {
         local user_uuid="${user_uuids[i]}"
         local user_password="${user_passwords[i]}"
 
-        if [ "$enable_ech" = true ]; then
+        if [[ "$enable_ech" == true ]]; then
             write_phone_client_file
             write_win_client_file
             generate_tuic_win_client_config "$user_uuid" "$user_password"
@@ -4869,7 +4825,7 @@ function display_tuic_config_files() {
         fi
     done
 
-    if [ "$enable_ech" = true ]; then
+    if [[ "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至 $phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至 $win_client_file，请下载后使用！"
     else
@@ -5008,7 +4964,7 @@ function display_Hysteria_config_info() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -5037,7 +4993,7 @@ function display_Hysteria_config_info() {
         printf "%-35s %s\n" "$user_name" "$user_password" | tee -a "$output_file"
     done
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}"  | tee -a "$output_file"
         echo "obfs混淆密码：$obfs_password"  | tee -a "$output_file"
     fi
@@ -5058,7 +5014,7 @@ function display_Hysteria_config_files() {
     for ((i=0; i<${#user_passwords[@]}; i++)); do
         user_password="${user_passwords[$i]}"
         
-        if [ "$enable_ech" = true ]; then
+        if [[ "$enable_ech" == true ]]; then
             write_phone_client_file
             write_win_client_file
             generate_Hysteria_win_client_config "$user_password"
@@ -5074,7 +5030,7 @@ function display_Hysteria_config_files() {
         fi
     done
 
-    if [ "$enable_ech" = true ]; then
+    if [[ "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至$phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至$win_client_file，请下载后使用！"
     else
@@ -5097,7 +5053,7 @@ function display_Hy2_config_info() {
         local_ip="$ip_v6"
     fi
 
-    if [ -z "$domain" ]; then
+    if [[ -z "$domain" ]]; then
         server_address="$local_ip"
     else
         server_address="$domain"
@@ -5126,7 +5082,7 @@ function display_Hy2_config_info() {
         printf "%-35s %s\n" "$user_name" "$user_password" | tee -a "$output_file"
     done
 
-    if [ -n "$obfs_password" ]; then
+    if [[ -n "$obfs_password" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "QUIC 流量混淆器密码：$obfs_password" | tee -a "$output_file"
     fi
@@ -5147,7 +5103,7 @@ function display_Hy2_config_files() {
     for ((i=0; i<${#user_passwords[@]}; i++)); do
         user_password="${user_passwords[$i]}"
 
-        if [ "$enable_ech" = true ]; then
+        if [[ "$enable_ech" == true ]]; then
             write_phone_client_file
             write_win_client_file
             generate_Hysteria2_win_client_config "$user_password"
@@ -5163,7 +5119,7 @@ function display_Hy2_config_files() {
         fi
     done
 
-    if [ "$enable_ech" = true ]; then
+    if [[ "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至$phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至$win_client_file，请下载后使用！"
     else
@@ -5207,35 +5163,35 @@ function display_reality_config_info() {
         echo "$user_uuid" | tee -a "$output_file"
     done
 
-    if [ -n "$flow_type" ]; then
+    if [[ -n "$flow_type" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "流控类型: $flow_type" | tee -a "$output_file"
     fi
 
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
 
-    if [ "$transport_type" != "null" ]; then
+    if [[ "$transport_type" != "null" ]]; then
         echo "传输协议: $transport_type" | tee -a "$output_file"
-        if [ "$transport_type" == "ws" ] || [ "$transport_type" == "httpupgrade" ]; then
+        if [[ "$transport_type" == "ws" || "$transport_type" == "httpupgrade" ]]; then
             echo "路径: $transport_path" | tee -a "$output_file"
-        elif [ "$transport_type" == "grpc" ]; then
+        elif [[ "$transport_type" == "grpc" ]]; then
             echo "grpc-service-name: $transport_service_name" | tee -a "$output_file"
         fi
     else
         echo "传输协议: tcp" | tee -a "$output_file"
     fi
 
-    if [ -n "$server_name" ] && [ "$server_name" != "null" ]; then
+    if [[ -n "$server_name" && "$server_name" != "null" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "ServerName: $server_name" | tee -a "$output_file"
     fi
 
-    if [ -n "$target_server" ] && [ "$target_server" != "null" ]; then
+    if [[ -n "$target_server" && "$target_server" != "null" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "目标网站地址: $target_server" | tee -a "$output_file"
     fi
 
-    if [ -n "$short_id" ]; then
+    if [[ -n "$short_id" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "Short ID:" | tee -a "$output_file"
         for ((i=0; i<${#short_ids[@]}; i++)); do
@@ -5244,7 +5200,7 @@ function display_reality_config_info() {
         done
     fi
 
-    if [ -n "$public_key" ]; then
+    if [[ -n "$public_key" ]]; then
         echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
         echo "PublicKey: $public_key" | tee -a "$output_file"
     fi
@@ -5372,13 +5328,13 @@ function display_vmess_config_info() {
 
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
 
-    if [ "$transport_type" != "null" ]; then
+    if [[ "$transport_type" != "null" ]]; then
         echo "传输协议: $transport_type" | tee -a "$output_file"
-        if [ "$transport_type" == "ws" ]; then
+        if [[ "$transport_type" == "ws" ]]; then
             echo "路径: $transport_path" | tee -a "$output_file"
-        elif [ "$transport_type" == "httpupgrade" ]; then
+        elif [[ "$transport_type" == "httpupgrade" ]]; then
             echo "路径: $transport_path" | tee -a "$output_file"
-        elif [ "$transport_type" == "grpc" ]; then
+        elif [[ "$transport_type" == "grpc" ]]; then
             echo "grpc-service-name: $transport_service_name" | tee -a "$output_file"
         fi
     else
@@ -5414,36 +5370,36 @@ function display_vmess_config_files() {
         generate_vmess_win_client_config
         generate_vmess_phone_client_config
 
-        if [ "$enable_ech" != true ] && [ -z "$domain" ] && [ -z "$domain_name" ] && [ "$transport_type" == "null" ]; then
+        if [[ "$enable_ech" != true && -z "$domain" && -z "$domain_name" && "$transport_type" == "null" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_tcp_yaml
-        elif [ "$enable_ech" != true ] && [ -z "$domain" ] && [ -z "$domain_name" ] && [ "$transport_type" == "ws" ]; then
+        elif [[ "$enable_ech" != true && -z "$domain" && -z "$domain_name" && "$transport_type" == "ws" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_ws_yaml
-        elif [ "$enable_ech" != true ] && [ -z "$domain" ] && [ -z "$domain_name" ] && [ "$transport_type" == "grpc" ]; then
+        elif [[ "$enable_ech" != true && -z "$domain" && -z "$domain_name" && "$transport_type" == "grpc" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_grpc_yaml
-        elif [ "$enable_ech" != true ] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "null" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "null" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_tcp_tls_yaml
-        elif [ "$enable_ech" != true ] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "ws" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "ws" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_ws_tls_yaml
-        elif [ "$enable_ech" != true ] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "grpc" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "grpc" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_vmess_grpc_tls_yaml
-        elif [ "$enable_ech" != true ] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "http" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "http" ]]; then
             show_clash_message=false
         fi
     done
 
-    if [ "$transport_type" == "http" ] || [ "$transport_type" == "httpupgrade" ] || [ "$enable_ech" = true ]; then
+    if [[ "$transport_type" == "http" || "$transport_type" == "httpupgrade" || "$enable_ech" == true ]]; then
         echo "手机端配置文件已保存至$phone_client_file，请下载后使用！"
         echo "电脑端配置文件已保存至$win_client_file，请下载后使用！"
     else
@@ -5492,13 +5448,13 @@ function display_trojan_config_info() {
 
     echo -e "${CYAN}------------------------------------------------------------------------------${NC}" | tee -a "$output_file"
 
-    if [ "$transport_type" != "null" ]; then
+    if [[ "$transport_type" != "null" ]]; then
         echo "传输协议: $transport_type" | tee -a "$output_file"
-        if [ "$transport_type" == "ws" ]; then
+        if [[ "$transport_type" == "ws" ]]; then
             echo "路径: $transport_path" | tee -a "$output_file"
-        elif [ "$transport_type" == "httpupgrade" ]; then
+        elif [[ "$transport_type" == "httpupgrade" ]]; then
             echo "路径: $transport_path" | tee -a "$output_file"
-        elif [ "$transport_type" == "grpc" ]; then
+        elif [[ "$transport_type" == "grpc" ]]; then
             echo "grpc-service-name: $transport_service_name" | tee -a "$output_file"
         fi
     else
@@ -5533,22 +5489,22 @@ function display_trojan_config_files() {
         generate_trojan_win_client_config
         generate_trojan_phone_client_config
 
-        if [[ "$enable_ech" != true ]] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "null" ]; then
+        if [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "null" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_trojan_tcp_tls_yaml
-        elif [[ "$enable_ech" != true ]] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "ws" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "ws" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_trojan_ws_tls_yaml
-        elif [[ "$enable_ech" != true ]] && [[ -n "$domain" || -n "$domain_name" ]] && [ "$transport_type" == "grpc" ]; then
+        elif [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" == "grpc" ]]; then
             ensure_clash_yaml
             write_clash_yaml
             generate_trojan_grpc_tls_yaml
         fi       
     done
 
-    if [[ "$enable_ech" != true ]] && [[ -n "$domain" || -n "$domain_name" ]] && [[ "$transport_type" != "http" || "$transport_type" != "httpupgrade" ]]; then
+    if [[ "$enable_ech" != true && ( -n "$domain" || -n "$domain_name" ) && "$transport_type" != "http" && "$transport_type" != "httpupgrade" ]]; then
         echo "Clash配置文件已保存至 $clash_file，请下载使用！"
     fi    
 
@@ -5672,11 +5628,11 @@ function uninstall_juicity() {
 
 # 更新代理工具
 function update_proxy_tool() {
-    if [ -e /usr/local/bin/juicity-server ]; then
+    if [[ -e /usr/local/bin/juicity-server ]]; then
         install_latest_juicity
     fi
 
-    if [ -e /usr/local/bin/sing-box ]; then
+    if [[ -e /usr/local/bin/sing-box ]]; then
         select_sing_box_install_option
     fi
 }
@@ -5715,8 +5671,7 @@ function check_wireguard_config() {
 
 # 更新安装脚本
 function Update_Script() {
-    wget -O /root/singbox.sh https://raw.githubusercontent.com/Devmiston/sing-box/refs/heads/main/Install.sh
-    chmod +x /root/singbox.sh
+    wget -N -O /usr/local/bin/singbox.sh https://raw.githubusercontent.com/Devmiston/sing-box/refs/heads/main/Install.sh && chmod +x /usr/local/bin/singbox.sh && ln -sf /usr/local/bin/singbox.sh /usr/local/bin/singbox
 }
 
 # 添加定时任务以自动更新证书
@@ -5726,6 +5681,16 @@ function add_cron_job() {
     else
         (crontab -l 2>/dev/null ; echo "0 3 * * 1 /bin/bash /root/singbox.sh 18 >> /usr/local/etc/certificate.log 2>&1") | crontab -
         echo "Cron job added successfully."
+    fi
+}
+
+# 查找 juicity 服务
+function check_juicity_installed() {
+    if systemctl list-unit-files | grep -q juicity.service && [[ -e /usr/local/etc/juicity ]]; then
+        echo -e "${RED}juicity 服务已安装，请不要重新安装！${NC}"
+        return
+    else
+        juicity_install
     fi
 }
 
@@ -6012,6 +5977,7 @@ function Update_certificate() {
     Reapply_certificates
 }
 
+# 自动更新 TLS 证书
 function run_option() {
     case "$1" in
         "18")
@@ -6026,7 +5992,7 @@ function main_menu() {
 echo "╔════════════════════════════════════════════════════════════════════════╗"
 echo -e "║ ${CYAN}Telegram反馈群组${NC}： https://t.me/Devmiston                              ║"
 echo -e "║ ${CYAN}项目地址${NC}: https://github.com/smith-stack/sing-box                      ║"
-echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox                              Version：1.12.0    ║"
+echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox                              Version：1.12.1    ║"
 echo "╠════════════════════════════════════════════════════════════════════════╣"
 echo "║ 请选择要执行的操作：                                                   ║"
 echo -e "║${CYAN} [1]${NC}  SOCKS                             ${CYAN} [2]${NC}   Direct                   ║"
@@ -6071,7 +6037,7 @@ echo "╚═══════════════════════�
             exit 0
             ;;
         7)
-            juicity_install
+            check_juicity_installed
             exit 0
             ;;
         8)
@@ -6143,7 +6109,7 @@ echo "╚═══════════════════════�
     esac
 }
 
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     main_menu
 else
     run_option "$1"

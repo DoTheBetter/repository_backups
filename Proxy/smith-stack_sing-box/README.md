@@ -2,6 +2,8 @@
 - **适配sing-box1.12.0版本。**
 - **添加对AnyTLS协议的支持。**
 - **添加对Hysteria、Hysteria2协议端口跳跃的支持。**
+- **添加Juicity节点管理。**
+- **其它修复和改进。**
 
 ## **说明**
 - **脚本使用sing-box、Juicity内核。**
