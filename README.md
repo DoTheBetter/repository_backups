@@ -25,15 +25,15 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu | main | 2025.06.01 | toolchain based on Ubuntu docker image |
 | https://github.com/abcfy2/aria2-static-build | main | 2025.06.19 | aria2-static-build |
-| https://github.com/gshang2017/docker | master | 2025.08.23 | Docker集合 |
+| https://github.com/gshang2017/docker | master | 2025.08.25 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2025.07.09 | Warp Docker镜像 |
 
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2025.08.20 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.08.24 | OpenClash自定义 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.08.06 | OpenClash自定义Wiki |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.08.25 | OpenClash自定义 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.08.25 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.08.23 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2025.08.16 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.07.27 | PAC代理工具 |
