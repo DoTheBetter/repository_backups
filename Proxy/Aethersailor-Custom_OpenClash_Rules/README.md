@@ -43,6 +43,8 @@ OpenClash 无疑是 OpenWrt 中最强大的科学上网软件，它可以实现�
 
 按照本项目的 [Wiki](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki) 中的设置方案，搭配本项目的[订阅转换模板](https://raw.githubusercontent.com/Aethersailor/Custom_OpenClash_Rules/main/cfg/Custom_Clash.ini)，花费数分钟对 OpenClash 进行设置，无需套娃其他工具，仅依靠 OpenClash 自身即可实现快速、无污染、无泄漏的 DNS 解析以及完善多样的分流功能，同时配合 Dnsmasq 可实现无需第三方插件的广告拦截，并且完美兼容 IPv6。
 
+同时也提供了使用 OpenClash 远程覆写功能实现的一键设置方案。
+
 欢迎 ⭐star！
 
 ---
@@ -90,6 +92,8 @@ OpenClash 无疑是 OpenWrt 中最强大的科学上网软件，它可以实现�
 > 免去各种 DNS 插件带来的搭配烦恼，全部特性依靠 OpenClash 一个插件实现，且保证 OpenClash 即使挂了也不影响访问国内网站。
 - 🖱️ **傻瓜化的设置操作。**  
 > 全程在 OpenClash 页面上操作，鼠标点击+复制粘贴几分钟即可完成完美设置，无需手搓配置，无需上传文件。
+- 🛤️ **两种使用路径。**  
+> 同时提供手工设置+订阅转换，以及远程覆写+配置文件两种设置方案和对应文件，总有一个适合你。
 - 🗂️ **丰富的分流策略组。**  
 > 多款规则模板，包含流媒体服务、AI 工具、电商、游戏平台等在内的大量常见的分流策略组，同时也为轻量化需求用户提供简化版本的规则。
 - ⚡ **节点地区分类测速优选。**  
@@ -120,6 +124,8 @@ OpenClash 无疑是 OpenWrt 中最强大的科学上网软件，它可以实现�
 方案中已包括了本项目订阅转换模板的使用方法，根据描述，自行选择需要使用的规则模板即可。
 
 以上方案非常详尽，只需按部就班设置即可。全部设置内容均基于 OpenClash 的 luci 设置页面，有手就行！
+
+实在看不懂教程，可以使用 OpenClash 远程覆写功能进行一键设置。  
 
 > 📝 **设置方案文字较多，务必逐字逐句认真阅读，不要忽略以防漏掉关键部分导致故障。且方案内含多处设置的讲解便于理解相关设置原理，有助于小白学习。**
 
@@ -220,7 +226,7 @@ https://api.asailor.org/sub
 - 🆓 支持试用
 - 💬 工单支持简体中文沟通且客服反应迅速
 
-注册链接：[SSRDOG 注册](https://st1.hosbb.com/#/register?code=FnSb4oWM)  (链接包含 aff 信息，感谢支持！)
+注册链接：[SSRDOG 注册](https://st1.hosbb.com/#/register?code=FnSb4oWM)  (链接包含 aff 代码，感谢支持！介意 aff 可自行去除代码)
 
 本项目订阅模板的节点地区分类即参考了该机场的节点地区进行分类。
 
@@ -276,6 +282,9 @@ Traffic、GB、Expire
 
 ### ⚡ 加速规则
 - [521xueweihan/GitHub520](https://github.com/521xueweihan/GitHub520)
+
+### 🔄 订阅转换后端
+- [asdlokj1qpi233/subconverter](https://github.com/asdlokj1qpi233/subconverter)
 
 ### 🔖 其他
 - [immortalwrt/user-FAQ](https://github.com/immortalwrt/user-FAQ/)
