@@ -16,7 +16,7 @@
 4. [无插件广告拦截设置方案](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%97%A0%E6%8F%92%E4%BB%B6%E5%B9%BF%E5%91%8A%E6%8B%A6%E6%88%AA%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)  
 讲解如何使 OpenClash 和 Dnsmasq 搭配实现无需第三方插件参与的广告拦截设置方法。  
 
-> 注意：去广告功能存在 BUG，暂时停用，已设置过的请尽快删除！！！
+> 注意：去广告功能可能存在 BUG，建议弃用，不对任何不良后果负责
 
 5. [故障排除](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4)  
 工作不正常？各种问题疑惑看这里
