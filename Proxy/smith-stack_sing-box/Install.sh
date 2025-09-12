@@ -37,6 +37,50 @@ ss_passwords=()
 stls_passwords=()
 short_ids=()
 
+# 安装必需的软件包
+function install_pkgs() {
+    local PKGS_DEB=(curl wget tar socat jq git openssl uuid-runtime build-essential zlib1g-dev libssl-dev libevent-dev dnsutils xxd net-tools cron)
+    local PKGS_RHEL=(curl wget tar socat jq git openssl util-linux gcc-c++ zlib-devel openssl-devel libevent-devel bind-utils vim-common net-tools cronie)
+
+    if [[ -f /etc/os-release ]]; then
+        . /etc/os-release
+        local OS_ID=${ID,,}
+        local OS_LIKE=${ID_LIKE,,}
+    else
+        echo -e "${RED}ERROR：无法检测系统类型！${NC}"
+        return 1
+    fi
+
+    local SUPPORTED=("debian" "ubuntu" "centos" "rhel" "rocky" "almalinux" "fedora")
+    if ! [[ " ${SUPPORTED[*]} " =~ " ${OS_ID} " ]] && ! [[ " ${SUPPORTED[*]} " =~ " ${OS_LIKE} " ]]; then
+        echo -e "${RED}ERROR：不支持的系统类型: $OS_ID！${NC}"
+        return 1
+    fi
+
+    if [[ "$OS_ID" =~ (debian|ubuntu) ]] || [[ "$OS_LIKE" =~ (debian|ubuntu) ]]; then
+        local MISSING=()
+        for pkg in "${PKGS_DEB[@]}"; do
+            dpkg -s "$pkg" &>/dev/null || MISSING+=("$pkg")
+        done
+        if [[ ${#MISSING[@]} -gt 0 ]]; then
+            apt-get update -y -qq
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${MISSING[@]}"
+        fi
+
+    elif [[ "$OS_ID" =~ (centos|rhel|rocky|almalinux|fedora) ]] || [[ "$OS_LIKE" =~ (rhel|fedora|centos) ]]; then
+        local PKG_MGR="yum"
+        command -v dnf &>/dev/null && PKG_MGR="dnf"
+        local MISSING=()
+        for pkg in "${PKGS_RHEL[@]}"; do
+            rpm -q "$pkg" &>/dev/null || MISSING+=("$pkg")
+        done
+        if [[ ${#MISSING[@]} -gt 0 ]]; then
+            $PKG_MGR makecache -q
+            $PKG_MGR install -y "${MISSING[@]}"
+        fi
+    fi
+}
+
 # 检查防火墙以及放行端口
 function check_firewall_configuration() {
     local os_name=$(uname -s)
@@ -144,7 +188,7 @@ function check_config_file_existence() {
     local config_file="/usr/local/etc/sing-box/config.json"
 
     if [[ ! -f "$config_file" ]]; then
-        echo -e "${RED}sing-box 配置文件不存在，请先搭建节点！${NC}"
+        echo -e "${RED}ERROR：sing-box 配置文件不存在，请先搭建节点！${NC}"
         exit 1
     fi
 }
@@ -216,7 +260,7 @@ function enable_bbr() {
             echo "BBR will not be enabled."
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -247,7 +291,7 @@ function select_sing_box_install_option() {
                 break
                 ;;
             *)
-                echo -e "${RED}无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -316,7 +360,7 @@ github.com/sagernet/sing-box/cmd/sing-box@latest"
         chmod +x /usr/local/bin/sing-box
         echo "sing-box has been compiled and installed successfully."
     else
-        echo -e "${RED}sing-box compilation and installation failed.${NC}"
+        echo -e "${RED}ERROR：sing-box compilation and installation failed.${NC}"
         exit 1
     fi
 }
@@ -357,7 +401,7 @@ function install_latest_sing_box() {
         chmod +x /usr/local/bin/sing-box
         echo "Sing-Box installed successfully."
     else
-        echo -e "${RED}Unable to retrieve the download URL for Sing-Box.${NC}"
+        echo -e "${RED}ERROR：Unable to retrieve the download URL for Sing-Box.${NC}"
         return 1
     fi
 }
@@ -385,7 +429,7 @@ function install_Pre_release_sing_box() {
             download_url=$(curl -s "$url" | jq -r '.[] | select(.prerelease == true) | .assets[] | select(.browser_download_url | contains("linux-s390x.tar.gz")) | .browser_download_url' | head -n 1)
             ;;
         *)
-            echo -e "${RED}不支持的架构：$arch${NC}"
+            echo -e "${RED}ERROR：不支持的架构：$arch${NC}"
             return 1
             ;;
     esac
@@ -399,7 +443,7 @@ function install_Pre_release_sing_box() {
         
         echo "Sing-Box installed successfully."
     else
-        echo -e "${RED}Unable to get pre-release download link for Sing-Box.${NC}"
+        echo -e "${RED}ERROR：Unable to get pre-release download link for Sing-Box.${NC}"
         return 1
     fi
 }
@@ -539,10 +583,10 @@ function set_listen_port() {
                 echo "监听端口：$new_listen_port"
                 break
             else
-                echo -e "${RED}错误：端口已被占用，请选择其他端口！${NC}" >&2
+                echo -e "${RED}ERROR：端口已被占用，请选择其他端口！${NC}" >&2
             fi
         else
-            echo -e "${RED}错误：端口范围1-65535，请重新输入！${NC}" >&2
+            echo -e "${RED}ERROR：端口范围1-65535，请重新输入！${NC}" >&2
         fi
     done
 
@@ -613,7 +657,7 @@ function set_ss_password() {
             break
         
         else
-            echo -e "${RED}错误：密码长度不符合要求，请重新输入！${NC}"
+            echo -e "${RED}ERROR：密码长度不符合要求，请重新输入！${NC}"
         fi
     done
 }
@@ -648,7 +692,7 @@ function set_stls_password() {
             break
         
         else
-            echo -e "${RED}错误：密码长度不符合要求，请重新输入！${NC}"
+            echo -e "${RED}ERROR：密码长度不符合要求，请重新输入！${NC}"
         fi
     done
 }
@@ -663,7 +707,7 @@ function set_up_speed() {
             echo "上行速率：$new_up_mbps Mbps"
             break
         else
-            echo -e "${RED}错误：请输入数字作为上行速率！${NC}"
+            echo -e "${RED}ERROR：请输入数字作为上行速率！${NC}"
         fi
     done
     
@@ -680,7 +724,7 @@ function set_down_speed() {
             echo "下行速率：$new_down_mbps Mbps"
             break
         else
-            echo -e "${RED}错误：请输入数字作为下行速率！${NC}"
+            echo -e "${RED}ERROR：请输入数字作为下行速率！${NC}"
         fi
     done
     
@@ -700,7 +744,7 @@ function set_uuid() {
             echo "UUID：$new_user_uuid"
             break
         else
-            echo -e "${RED}无效的UUID格式，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的UUID格式，请重新输入！${NC}"
         fi
     done
     
@@ -717,7 +761,7 @@ function set_override_port() {
             echo "目标端口: $new_override_port"
             break
         else
-            echo -e "${RED}错误：端口范围1-65535，请重新输入！${NC}"
+            echo -e "${RED}ERROR：端口范围1-65535，请重新输入！${NC}"
         fi
     done
     
@@ -744,7 +788,7 @@ function set_override_address() {
         read -p "请输入目标地址（IP或域名）: " target_address
         
         if [[ -z "$target_address" ]]; then
-            echo -e "${RED}错误：目标地址不能为空！${NC}"
+            echo -e "${RED}ERROR：目标地址不能为空！${NC}"
             continue
         fi
         
@@ -757,7 +801,7 @@ function set_override_address() {
             if [[ -n "$resolved_ips" ]] && ( [[ "$resolved_ips" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || [[ "$resolved_ips" =~ ^[a-fA-F0-9:]+$ ]] ); then
                 break
             else
-                echo -e "${RED}错误：请输入有效的 IP 地址或域名！${NC}"
+                echo -e "${RED}ERROR：请输入有效的 IP 地址或域名！${NC}"
             fi
         fi
     done
@@ -787,7 +831,7 @@ function set_server_name() {
                       $openssl_output == *"TLS_AES_128_CCM_8_SHA256"* ]]; then
                     break
                 else
-                    echo -e "${RED}该网址不支持 TLS 1.3，请重新输入！${NC}"
+                    echo -e "${RED}ERROR：该网址不支持 TLS 1.3，请重新输入！${NC}"
                 fi
             else
                 echo "OpenSSL is not installed, cannot verify TLS support."
@@ -821,7 +865,7 @@ function set_target_server() {
                       $openssl_output == *"TLS_AES_128_CCM_8_SHA256"* ]]; then
                     break
                 else
-                    echo -e "${RED}该目标网站地址不支持 TLS 1.3，请重新输入！${NC}" 
+                    echo -e "${RED}ERROR：该目标网站地址不支持 TLS 1.3，请重新输入！${NC}" 
                 fi
             else
                 echo "OpenSSL is not installed, cannot verify TLS support."
@@ -861,7 +905,7 @@ function get_local_ip() {
     fi
     
     if [[ -z "$ip_v4" && -z "$ip_v6" ]]; then
-        echo -e "${RED}无法获取本机IP地址！${NC}"
+        echo -e "${RED}ERROR：无法获取本机IP地址！${NC}"
     fi
 }
 
@@ -913,7 +957,7 @@ function get_domain() {
         resolved_ipv6=$(dig +short AAAA "$user_domain" 2>/dev/null)
         
         if [[ -z $user_domain ]]; then
-            echo -e "${RED}错误：域名不能为空，请重新输入！${NC}"
+            echo -e "${RED}ERROR：域名不能为空，请重新输入！${NC}"
         else
             if [[ ("$resolved_ipv4" == "$ip_v4" && ! -z "$resolved_ipv4") || ("$resolved_ipv6" == "$ip_v6" && ! -z "$resolved_ipv6") ]]; then
                 break
@@ -932,7 +976,7 @@ function get_domain() {
                     fi
                 fi
                 
-                echo -e "${RED}错误：域名未绑定本机IP，请重新输入！${NC}"
+                echo -e "${RED}ERROR：域名未绑定本机IP，请重新输入！${NC}"
             fi
         fi
     done
@@ -946,7 +990,7 @@ function verify_domain() {
     -H "Authorization: Bearer $api_token" | jq -r '.result.name')
 
     if [[ $new_domain =~ \.(tk|ml|ga|gq|cf)$ ]]; then
-        echo -e "${RED}您的域名为$new_domain，该域名不支持使用 CloudFlare 的 API 申请证书，请选择其他方式申请证书！${NC}"
+        echo -e "${RED}WARN：您的域名为$new_domain，该域名不支持使用 CloudFlare 的 API 申请证书，请选择其他方式申请证书！${NC}"
         domain_supported=false
     else
         while true; do
@@ -994,7 +1038,7 @@ function get_api_token() {
         read -p "请输入 CloudFlare 的限制性 API 令牌: " api_token
         
         if [[ ! $api_token =~ ^[A-Za-z0-9_-]{40}$ ]]; then
-            echo -e "${RED}API令牌格式不正确，请重新输入！${NC}"
+            echo -e "${RED}ERROR：API令牌格式不正确，请重新输入！${NC}"
         else
             export CF_Token="$api_token"
             break
@@ -1008,7 +1052,7 @@ function get_zone_id() {
         read -p "请输入 CloudFlare 的区域 ID: " zone_id
         
         if [[ ! $zone_id =~ ^[a-z0-9]{32}$ ]]; then
-            echo -e "${RED}CloudFlare 的区域 ID 格式不正确，请重新输入！${NC}"
+            echo -e "${RED}ERROR：CloudFlare 的区域 ID 格式不正确，请重新输入！${NC}"
         else
             export CF_Zone_ID="$zone_id"
             break
@@ -1022,7 +1066,7 @@ function get_api_email() {
         read -p "请输入 CloudFlare 的登录邮箱: " api_email
         
         if [[ ! $api_email =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$ ]]; then
-            echo -e "${RED}邮箱格式不正确，请重新输入！${NC}"
+            echo -e "${RED}ERROR：邮箱格式不正确，请重新输入！${NC}"
         else
             export CF_Email="$api_email"
             break
@@ -1040,7 +1084,7 @@ function set_fake_domain() {
             echo "伪装网址: $fake_domain"
             break
         else
-            echo -e "${RED}伪装网址无效或不可用，请重新输入！${NC}"
+            echo -e "${RED}ERROR：伪装网址无效或不可用，请重新输入！${NC}"
         fi
     done
 }
@@ -1051,7 +1095,7 @@ function set_certificate_path() {
         read -p "请输入 PEM 证书位置: " certificate_path_input
         
         if [[ ! -f "$certificate_path_input" ]]; then
-            echo -e "${RED}错误：证书文件不存在，请重新输入！${NC}"
+            echo -e "${RED}ERROR：证书文件不存在，请重新输入！${NC}"
             continue
         fi
         
@@ -1059,7 +1103,7 @@ function set_certificate_path() {
         allowed_extensions=("crt" "pem")
         
         if [[ ! "${allowed_extensions[@]}" =~ "${certificate_file##*.}" ]]; then
-            echo -e "${RED}错误：不支持的证书格式，请配置.crt或.pem格式的证书文件！${NC}"
+            echo -e "${RED}ERROR：不支持的证书格式，请配置.crt或.pem格式的证书文件！${NC}"
             continue
         fi
         
@@ -1074,7 +1118,7 @@ function set_private_key_path() {
         read -p "请输入 PEM 私钥位置: " private_key_path_input
         
         if [[ ! -f "$private_key_path_input" ]]; then
-            echo -e "${RED}错误：私钥文件不存在，请重新输入！${NC}"
+            echo -e "${RED}ERROR：私钥文件不存在，请重新输入！${NC}"
             continue
         fi
         
@@ -1082,7 +1126,7 @@ function set_private_key_path() {
         allowed_extensions=("key" "pem")
         
         if [[ ! "${allowed_extensions[@]}" =~ "${private_key_file##*.}" ]]; then
-            echo -e "${RED}错误：不支持的私钥格式，请配置.key或.pem格式的私钥文件！${NC}"
+            echo -e "${RED}ERROR：不支持的私钥格式，请配置.key或.pem格式的私钥文件！${NC}"
             continue
         fi
         
@@ -1141,7 +1185,7 @@ function apply_certificate() {
     done
 
     if [[ "$return_to_menu" == true ]]; then
-        echo -e "${RED}证书申请失败，请使用其它方法申请证书！${NC}"
+        echo -e "${RED}ERROR：证书申请失败，请使用其它方法申请证书！${NC}"
         return 1
     fi
 }
@@ -1188,7 +1232,7 @@ function Apply_api_certificate() {
     done
     
     if [[ "$return_to_menu" == true ]]; then
-        echo -e "${RED}证书申请失败，请使用其它方法申请证书！${NC}"
+        echo -e "${RED}ERROR：证书申请失败，请使用其它方法申请证书！${NC}"
         return 1
     fi
 }
@@ -1267,12 +1311,12 @@ function generate_private_key() {
                 read -p "请输入公钥: " local_public_key
                 
                 if ! [[ "$local_public_key" =~ ^[A-Za-z0-9_\-]{43}$ ]]; then
-                    echo -e "${RED}无效的公钥，请重新输入！${NC}" 
+                    echo -e "${RED}ERROR：无效的公钥，请重新输入！${NC}" 
                 else
                     break
                 fi
             else
-                echo -e "${RED}无效的私钥，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的私钥，请重新输入！${NC}"
             fi
         fi
     done
@@ -1297,7 +1341,7 @@ function create_self_signed_cert() {
             chmod 777 /etc/ssl/private/$domain_name.crt
             break 
         else
-            echo -e "${RED}无效的域名或域名不可用，请输入有效的域名！${NC}"
+            echo -e "${RED}ERROR：无效的域名或域名不可用，请输入有效的域名！${NC}"
         fi
     done
     
@@ -1398,7 +1442,7 @@ function get_port_range() {
         if [[ $start_port =~ ^[1-9][0-9]{0,4}$ && $start_port -le 65535 ]]; then
             break
         else
-            echo -e "${RED}错误：端口范围 1-65535，请重新输入！${NC}" >&2
+            echo -e "${RED}ERROR：端口范围 1-65535，请重新输入！${NC}" >&2
         fi
     done
 
@@ -1408,12 +1452,12 @@ function get_port_range() {
 
         if [[ $end_port =~ ^[1-9][0-9]{0,4}$ && $end_port -le 65535 ]]; then
             if [[ "$end_port" -le "$start_port" ]]; then
-                echo -e "${RED}错误：终止端口必须大于起始端口！${NC}" >&2
+                echo -e "${RED}ERROR：终止端口必须大于起始端口！${NC}" >&2
                 return 1
             fi
             break
         else
-            echo -e "${RED}错误：端口范围 1-65535，请重新输入！${NC}" >&2
+            echo -e "${RED}ERROR：端口范围 1-65535，请重新输入！${NC}" >&2
         fi
     done
 }
@@ -1431,7 +1475,7 @@ function ask_enable_port_forwarding() {
         elif [[ "$choice" == "n" || "$choice" == "N" ]]; then
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -1542,7 +1586,7 @@ function select_encryption_method() {
                 break
                 ;;                                                                
             *)
-                echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -1562,7 +1606,7 @@ function select_unlocked_items() {
             selected=($(echo "$choices" | sed 's/./& /g'))
             break
         else
-            echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
         fi
     done
 }
@@ -1584,7 +1628,7 @@ function update_rule_set() {
                 rule_set+=("\"geosite-youtube\"")
                 ;;
             *)
-                echo -e "${RED}无效的选择: $choice${NC}"
+                echo -e "${RED}ERROR：无效的选择: $choice${NC}"
                 ;;
         esac
     done
@@ -1619,7 +1663,7 @@ function select_congestion_control() {
                 break
                 ;;
             *)
-                echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -1690,7 +1734,7 @@ function select_certificate_option() {
                 break
                 ;;
             *)
-                echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -1756,7 +1800,7 @@ function select_vmess_type() {
                 break
                 ;;
             *)
-                echo -e "${RED}无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -1813,7 +1857,7 @@ function select_vless_type() {
                 break
                 ;;            
             *)
-                echo -e "${RED}错误的选项，请重新输入！${NC}" >&2
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}" >&2
                 ;;
         esac
     done
@@ -1879,7 +1923,7 @@ function select_trojan_type() {
                 break
                 ;;
             *)
-                echo -e "${RED}无效的选择，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
                 ;;
         esac
     done
@@ -1898,7 +1942,7 @@ function set_short_id() {
             echo "Short_Id：$short_id"
             break
         else
-            echo "错误：请输入两到八位的十六进制字符串！"
+            echo "ERROR：请输入两到八位的十六进制字符串！"
         fi
     done
 
@@ -1928,7 +1972,7 @@ function set_short_ids() {
                 short_Ids+="\n            \"$short_id\","
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -1961,7 +2005,7 @@ function tuic_multiple_users() {
                 users+="\n        {\n          \"name\": \"$user_name\",\n          \"uuid\": \"$user_uuid\",\n          \"password\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -1990,7 +2034,7 @@ function vmess_multiple_users() {
                 users+="\n        {\n          \"uuid\": \"$user_uuid\",\n          \"alterId\": 0\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2019,7 +2063,7 @@ function vless_multiple_users() {
                 users+="\n        {\n          \"uuid\": \"$user_uuid\",\n          \"flow\": \"$flow_type\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2050,7 +2094,7 @@ function socks_naive_multiple_users() {
                 users+="\n        {\n          \"username\": \"$user_name\",\n          \"password\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2081,7 +2125,7 @@ function anytls_multiple_users() {
                 users+="\n        {\n          \"name\": \"$user_name\",\n          \"password\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2112,7 +2156,7 @@ function hysteria_multiple_users() {
                 users+="\n        {\n          \"name\": \"$user_name\",\n          \"auth_str\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2143,7 +2187,7 @@ function hy2_multiple_users() {
                 users+="\n        {\n          \"name\": \"$user_name\",\n          \"password\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2172,7 +2216,7 @@ function trojan_multiple_users() {
                 users+="\n        {\n          \"password\": \"$user_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2203,7 +2247,7 @@ function shadowtls_multiple_users() {
                 users+="\n        {\n          \"name\": \"$user_name\",\n          \"password\": \"$stls_password\"\n        },"
                 break
             else
-                echo -e "${RED}无效的输入，请重新输入！${NC}"
+                echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
             fi
         done
     done
@@ -2278,7 +2322,7 @@ function set_ech_config() {
             ech_server_config=""
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -2315,7 +2359,7 @@ function configure_quic_obfuscation() {
             obfs_config=""
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -2340,7 +2384,7 @@ function configure_obfuscation() {
             obfs_config=""
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -2359,7 +2403,7 @@ function configure_multiplex() {
             multiplex_config=""
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -2379,7 +2423,7 @@ function configure_brutal() {
             brutal_config=""
             break
         else
-            echo -e "${RED}无效的输入，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的输入，请重新输入！${NC}"
         fi
     done
 }
@@ -4292,7 +4336,7 @@ function select_node_choice() {
         if [[ $choice == 0 ]]; then
             return 1
         elif [[ ! $choice =~ ^[0-9]+$ || $choice -lt 1 || $choice -gt ${#types[@]} ]]; then
-            echo -e "${RED}错误：无效的选择，请重新输入！${NC}"
+            echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
         else
             valid_choice=true
         fi
@@ -5664,7 +5708,7 @@ function check_wireguard_config() {
     local config_file="/usr/local/etc/sing-box/config.json"
 
     if grep -q "wireguard" "$config_file"; then
-        echo -e "${RED}Warp 已安装，请勿重复安装！${NC}"
+        echo -e "${RED}WARN：Warp 已安装，请勿重复安装！${NC}"
         exit 1
     fi
 }
@@ -5687,7 +5731,7 @@ function add_cron_job() {
 # 查找 juicity 服务
 function check_juicity_installed() {
     if systemctl list-unit-files | grep -q juicity.service && [[ -e /usr/local/etc/juicity ]]; then
-        echo -e "${RED}juicity 服务已安装，请不要重新安装！${NC}"
+        echo -e "${RED}WARN：juicity 服务已安装，请不要重新安装！${NC}"
         return
     else
         juicity_install
@@ -5992,7 +6036,7 @@ function main_menu() {
 echo "╔════════════════════════════════════════════════════════════════════════╗"
 echo -e "║ ${CYAN}Telegram反馈群组${NC}： https://t.me/Devmiston                              ║"
 echo -e "║ ${CYAN}项目地址${NC}: https://github.com/smith-stack/sing-box                      ║"
-echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox                              Version：1.12.1    ║"
+echo -e "║ ${CYAN}脚本快捷方式${NC}： singbox                              Version：1.12.2    ║"
 echo "╠════════════════════════════════════════════════════════════════════════╣"
 echo "║ 请选择要执行的操作：                                                   ║"
 echo -e "║${CYAN} [1]${NC}  SOCKS                             ${CYAN} [2]${NC}   Direct                   ║"
@@ -6103,10 +6147,15 @@ echo "╚═══════════════════════�
             exit 0
             ;;
         *)
-            echo -e "${RED}无效的选择，请重新输入。${NC}"
+            echo -e "${RED}ERROR：无效的选择，请重新输入！${NC}"
             main_menu
             ;;
     esac
+}
+
+install_pkgs || { 
+    echo -e "${RED}ERROR：安装软件包失败！${NC}"; 
+    exit 1; 
 }
 
 if [[ $# -eq 0 ]]; then

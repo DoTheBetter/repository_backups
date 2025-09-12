@@ -1,4 +1,6 @@
 ## **更新内容**
+- **当前版本1.12.1。**
+- **自动检测缺失的软件包并安装。**
 - **适配sing-box1.12.0版本。**
 - **添加对AnyTLS协议的支持。**
 - **添加对Hysteria、Hysteria2协议端口跳跃的支持。**
@@ -22,15 +24,6 @@
 - **https://t.me/Devmiston**
 
 ## **安装**
-### **Debian&&Ubuntu使用以下命令安装依赖**
-```
-apt update && apt -y install curl wget tar socat jq git openssl uuid-runtime build-essential zlib1g-dev libssl-dev libevent-dev dnsutils xxd net-tools cron
-```
-### **Rocky使用以下命令安装依赖**
-```
-yum update && yum -y install curl wget tar socat jq git openssl util-linux gcc-c++ zlib-devel openssl-devel libevent-devel bind-utils vim-common net-tools cronie
-```
-### **使用以下命令运行脚本**
 ```
 wget -N -O /usr/local/bin/singbox.sh https://raw.githubusercontent.com/Devmiston/sing-box/refs/heads/main/Install.sh && chmod +x /usr/local/bin/singbox.sh && ln -sf /usr/local/bin/singbox.sh /usr/local/bin/singbox && bash /usr/local/bin/singbox.sh
 ```
