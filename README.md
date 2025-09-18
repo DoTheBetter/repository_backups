@@ -11,7 +11,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/leitbogioro/Tools | master | 2025.01.09 | DD重装Linux系统 |
-| https://github.com/217heidai/NestingDNS | main | 2025.08.22 | DNS三合一Docker镜像 |
+| https://github.com/217heidai/NestingDNS | main | 2025.09.19 | DNS三合一Docker镜像 |
 
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
@@ -31,8 +31,8 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2025.09.18 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.09.18 | OpenClash自定义 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2025.09.19 | mihomo和sing-box教程合集 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.09.19 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.09.17 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.08.28 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2025.09.13 | Sing-box代理工具 |
