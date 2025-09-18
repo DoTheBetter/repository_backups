@@ -1,6 +1,6 @@
 ---
 title: 生成带有自定义出站和规则的 sing-boxp 配置文件直链-geodata 方案
-description: 此教程搭载 sing-boxp 内核，采用 `geosite` 和 `geoip` 规则搭配 geosite.db 和 geoip.db 路由规则文件
+description: 此教程搭载 sing-boxp 内核，采用 <code>geosite</code> 和 <code>geoip</code> 规则搭配 geosite.db 和 geoip.db 路由规则文件
 date: 2024-08-22 17:39:50 +0800
 categories: [直链配置, sing-boxp 直链]
 tags: [sing-box, sing-boxp, 直链, 订阅, geodata, geosite, 基础]

@@ -1,6 +1,6 @@
 ---
 title: 分享 ShellCrash 搭载 mihomo 内核采用 geodata 方案的一套配置
-description: 此配置搭载 mihomo 内核，采用 `GEOSITE` 和 `GEOIP` 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
+description: 此配置搭载 mihomo 内核，采用 <code>GEOSITE</code> 和 <code>GEOIP</code> 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
 date: 2024-08-21 18:12:46 +0800
 categories: [分享配置, Router]
 tags: [Clash, mihomo, ShellCrash, geodata, geosite, 分享, Router]

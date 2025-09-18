@@ -1,6 +1,6 @@
 ---
 title: 分享 ShellCrash 搭载 sing-boxp 内核采用 geodata 方案的一套配置
-description: 此配置搭载 sing-boxp 内核，采用 `geosite` 和 `geoip` 规则搭配 geosite.db 和 geoip.db 路由规则文件
+description: 此配置搭载 sing-boxp 内核，采用 <code>geosite</code> 和 <code>geoip</code> 规则搭配 geosite.db 和 geoip.db 路由规则文件
 date: 2024-08-22 19:43:41 +0800
 categories: [分享配置, Router]
 tags: [sing-box, sing-boxp, ShellCrash, geodata, geosite, 分享, Router]

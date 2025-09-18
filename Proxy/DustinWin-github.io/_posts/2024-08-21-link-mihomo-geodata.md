@@ -1,6 +1,6 @@
 ---
 title: 生成带有自定义策略组和规则的 mihomo 配置文件直链-geodata 方案
-description: 此教程搭载 mihomo 内核，采用 `GEOSITE` 和 `GEOIP` 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
+description: 此教程搭载 mihomo 内核，采用 <code>GEOSITE</code> 和 <code>GEOIP</code> 规则搭配 geosite.dat 和 geoip.dat（或 Country.mmdb）路由规则文件
 date: 2024-08-21 07:12:24 +0800
 categories: [直链配置, mihomo 直链]
 tags: [Clash, mihomo, 直链, 订阅, geodata, geosite, 基础]

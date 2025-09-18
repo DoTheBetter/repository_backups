@@ -1,6 +1,6 @@
 ---
 title: 生成带有自定义出站和规则的 sing-boxp 配置文件直链-ruleset 方案
-description: 此教程搭载 sing-boxp 内核，采用 `rule_set` 规则搭配 .srs 规则集文件
+description: 此教程搭载 sing-boxp 内核，采用 <code>rule_set</code> 规则搭配 .srs 规则集文件
 date: 2024-08-22 17:44:59 +0800
 categories: [直链配置, sing-boxp 直链]
 tags: [sing-box, sing-boxp, 直链, 订阅, ruleset, rule_set, 基础]
