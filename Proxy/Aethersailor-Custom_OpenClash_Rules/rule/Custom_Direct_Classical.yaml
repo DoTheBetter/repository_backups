@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 264
+# TOTAL: 270
 
 payload:
   - DOMAIN-KEYWORD,m-team
@@ -36,6 +36,7 @@ payload:
   - DOMAIN-SUFFIX,bdcb.cc
   - DOMAIN-SUFFIX,belimked.com
   - DOMAIN-SUFFIX,bgm.tv
+  - DOMAIN-SUFFIX,bochk.com
   - DOMAIN-SUFFIX,bsbsb.top
   - DOMAIN-SUFFIX,canghaiip.com
   - DOMAIN-SUFFIX,centbrowser.net
@@ -73,6 +74,7 @@ payload:
   - DOMAIN-SUFFIX,feihengip.com
   - DOMAIN-SUFFIX,feizhiyi.com
   - DOMAIN-SUFFIX,ffhome.com
+  - DOMAIN-SUFFIX,fjpit.com
   - DOMAIN-SUFFIX,flingtrainer.com
   - DOMAIN-SUFFIX,fofuai.com
   - DOMAIN-SUFFIX,fowep.com
@@ -120,6 +122,7 @@ payload:
   - DOMAIN-SUFFIX,hbctic.com
   - DOMAIN-SUFFIX,hexiny.com
   - DOMAIN-SUFFIX,hf-mirror.com
+  - DOMAIN-SUFFIX,hsbc.com.hk
   - DOMAIN-SUFFIX,hstbroker.com
   - DOMAIN-SUFFIX,hszq6.com
   - DOMAIN-SUFFIX,hub.crdz.gq
@@ -196,6 +199,7 @@ payload:
   - DOMAIN-SUFFIX,pool.ntp.org
   - DOMAIN-SUFFIX,powershellgallery.com
   - DOMAIN-SUFFIX,privateapi.xyz
+  - DOMAIN-SUFFIX,qiankunshopping.com
   - DOMAIN-SUFFIX,qianuni.com
   - DOMAIN-SUFFIX,qiaoxuesi.com
   - DOMAIN-SUFFIX,qinglue.com
@@ -222,6 +226,7 @@ payload:
   - DOMAIN-SUFFIX,tangguobaohe.com
   - DOMAIN-SUFFIX,tclai.top
   - DOMAIN-SUFFIX,tcp.pub
+  - DOMAIN-SUFFIX,tcp5.com
   - DOMAIN-SUFFIX,tcy365.net
   - DOMAIN-SUFFIX,thinkerride.com
   - DOMAIN-SUFFIX,tool56.com
@@ -229,6 +234,7 @@ payload:
   - DOMAIN-SUFFIX,tuxing.art
   - DOMAIN-SUFFIX,u-carloan.com
   - DOMAIN-SUFFIX,ugdocker.link
+  - DOMAIN-SUFFIX,ulife.group
   - DOMAIN-SUFFIX,vbkhk.com
   - DOMAIN-SUFFIX,vbkr.com
   - DOMAIN-SUFFIX,vbkrhk.com
