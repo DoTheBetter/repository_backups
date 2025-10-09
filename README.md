@@ -43,4 +43,4 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/jonssonyan/cf-workers-proxy | main | 2025.08.12 | CF Workers代理工具 |
 | https://github.com/cmliu/CF-Workers-docker.io | main | 2025.06.27 | CF Workers Docker镜像 |
-| https://github.com/hunshcn/gh-proxy | master | 2025.01.09 | GitHub代理工具 |
+| https://github.com/hunshcn/gh-proxy | master | 2025.10.10 | GitHub代理工具 |
