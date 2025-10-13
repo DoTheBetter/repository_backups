@@ -84,6 +84,16 @@ You can also use the `latest` tag to use the latest version of the image.
 > [!NOTE]
 > Not all version combinations are available. Do check [the list of tags in Docker Hub](https://hub.docker.com/r/caomingjun/warp/tags) before you use one. If the version you want is not available, you can [build your own image](#build).
 
+#### EXPERIMENTAL: Debian slim variant
+
+This repository now publishes an additional set of images based on Debian image `debian:bookworm-slim`. These images have the `slim-` prefix in their tags:
+
+- `slim-latest`
+- `slim-{WARP_VERSION}-{GOST_VERSION}`
+- `slim-{WARP_VERSION}-{GOST_VERSION}-{COMMIT_SHA}`
+
+The slim variants use a smaller base image (`debian:bookworm-slim`) to reduce image size and memory usage. However, tests are still ongoing to ensure that all functionalities work as expected. Use these images at your own risk. If you encounter any issues, please report them in the [issue #67](https://github.com/cmj2002/warp-docker/issues/67).
+
 ## Build
 
 You can use Github Actions to build the image yourself.
