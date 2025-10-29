@@ -1,5 +1,10 @@
 # Setting up as WARP connector
 
+> [!CAUTION]
+> **This article is out-of-date.** Cloudflare has changed their document. The `mdm.xml` file instruction are no longer exist in the [link](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/private-net/warp-connector/#4-install-a-warp-connector) of step 1. You can find it in [Wayback Machine](https://web.archive.org/web/20240128042134/https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/private-net/warp-connector/). **However, it may not work as expected due to the changes made by Cloudflare.** Please use at your own risk.
+> 
+> We are discussing this issue in [#68](https://github.com/cmj2002/warp-docker/issues/68).
+
 If you want to setup [WARP Connector](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/private-net/warp-connector)
 
 > [!NOTE]
