@@ -13,8 +13,6 @@ COPY docker_init.sh /sing-box/init.sh
 RUN set -ex &&\
   apk add --no-cache supervisor wget nginx bash openssl &&\
   mkdir -p /sing-box/cert /sing-box/conf /sing-box/subscribe /sing-box/logs &&\
-  openssl ecparam -genkey -name prime256v1 -out /sing-box/cert/private.key && \
-  openssl req -new -x509 -days 36500 -key /sing-box/cert/private.key -out /sing-box/cert/cert.pem -subj "/CN=mozilla.org" &&\
   chmod +x /sing-box/init.sh &&\
   rm -rf /var/cache/apk/*
 

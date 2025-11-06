@@ -58,6 +58,11 @@ install() {
   echo "正在下载 cloudflared ..."
   wget -O ${WORK_DIR}/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$ARGO_ARCH && chmod +x ${WORK_DIR}/cloudflared
 
+  # 生成证书文件
+  echo "生成自签证书 ..."
+  openssl ecparam -genkey -name prime256v1 -out ${WORK_DIR}/cert/private.key
+  openssl req -new -x509 -days 36500 -key ${WORK_DIR}/cert/private.key -out ${WORK_DIR}/cert/cert.pem -subj "/CN=mozilla.org" -addext "subjectAltName = IP:${SERVER_IP}"
+
   # 检查系统是否已经安装 tcp-brutal
   IS_BRUTAL=false && [ -x "$(type -p lsmod)" ] && lsmod | grep -q brutal && IS_BRUTAL=true
   [ "$IS_BRUTAL" = 'false' ] && [ -x "$(type -p modprobe)" ] && modprobe brutal 2>/dev/null && IS_BRUTAL=true
@@ -1054,11 +1059,11 @@ vless://${UUID}@${SERVER_IP_1}:${PORT_XTLS_REALITY}?security=reality&sni=addons.
 
   [ "${HYSTERIA2}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
-hy2://${UUID}@${SERVER_IP_1}:${PORT_HYSTERIA2}?insecure=1#${NODE_NAME} hysteria2"
+hy2://${UUID}@${SERVER_IP_1}:${PORT_HYSTERIA2}?insecure=1#${NODE_NAME}%20hysteria2"
 
   [ "${TUIC}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
-tuic://${UUID}:${UUID}@${SERVER_IP_1}:${PORT_TUIC}?congestion_control=bbr&alpn=h3&udp_relay_mode=native&allow_insecure=1&disable_sni=1#${NODE_NAME} tuic"
+tuic://${UUID}:${UUID}@${SERVER_IP_1}:${PORT_TUIC}?congestion_control=bbr&alpn=h3&udp_relay_mode=native&allow_insecure=1&disable_sni=1#${NODE_NAME}%20tuic"
 
   [ "${SHADOWTLS}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
@@ -1068,11 +1073,11 @@ nekoray://shadowsocks#$(echo -n "{\"_v\":0,\"method\":\"2022-blake3-aes-128-gcm\
 
   [ "${SHADOWSOCKS}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
-ss://$(echo -n "aes-128-gcm:${UUID}" | base64 -w0)@${SERVER_IP_1}:$PORT_SHADOWSOCKS#${NODE_NAME} shadowsocks"
+ss://$(echo -n "aes-128-gcm:${UUID}" | base64 -w0)@${SERVER_IP_1}:$PORT_SHADOWSOCKS#${NODE_NAME}%20shadowsocks"
 
   [ "${TROJAN}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
-trojan://${UUID}@${SERVER_IP_1}:$PORT_TROJAN?security=tls&allowInsecure=1&fp=firefox&type=tcp#${NODE_NAME} trojan"
+trojan://${UUID}@${SERVER_IP_1}:$PORT_TROJAN?security=tls&allowInsecure=1&fp=firefox&type=tcp#${NODE_NAME}%20trojan"
 
   [ "${VMESS_WS}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
@@ -1091,6 +1096,10 @@ vless://${UUID}@${SERVER_IP_1}:${PORT_H2_REALITY}?security=reality&sni=addons.mo
   [ "${GRPC_REALITY}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
 ----------------------------
 vless://${UUID}@${SERVER_IP_1}:${PORT_GRPC_REALITY}?security=reality&sni=addons.mozilla.org&fp=firefox&pbk=${REALITY_PUBLIC}&type=grpc&serviceName=grpc&encryption=none#${NODE_NAME}%20grpc-reality"
+
+  [ "${ANYTLS}" = 'true' ] && local NEKOBOX_SUBSCRIBE+="
+----------------------------
+anytls://${UUID}@${SERVER_IP_1}:${PORT_ANYTLS}/?insecure=1#${NODE_NAME}%20anytls"
 
   echo -n "$NEKOBOX_SUBSCRIBE" | sed -E '/^[ ]*#|^--/d' | sed '/^$/d' | base64 -w0 > ${WORK_DIR}/subscribe/neko
 
