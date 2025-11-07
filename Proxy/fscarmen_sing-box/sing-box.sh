@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='v1.2.19 (2025.11.05)'
+VERSION='v1.2.19 (2025.11.07)'
 
 # 各变量默认值
 GH_PROXY='https://hub.glowp.xyz/'
@@ -228,8 +228,8 @@ E[99]="The \${SING_BOX_SCRIPT} is detected to be installed. Script exits."
 C[99]="检测到已安装 \${SING_BOX_SCRIPT}，脚本退出!"
 E[100]="Can't get the official latest version. Script exits."
 C[100]="获取不到官方的最新版本，脚本退出!"
-E[101]=""
-C[101]=""
+E[101]="Fetching self-signed & Cloudflare certificate fingerprints. Please wait a seconds ..."
+C[101]="正在获取自签与 Cloudflare 证书指纹，请稍等..."
 E[102]="Backing up old version sing-box to ${WORK_DIR}/sing-box.bak"
 C[102]="已备份旧版本 sing-box 到 ${WORK_DIR}/sing-box.bak"
 E[103]="New version \$ONLINE is running successfully, backup file deleted"
@@ -1168,11 +1168,12 @@ ingress:
 EOF
 }
 
-# 生成100年的自签证书
+# 生成100年的自签证书，区分使用 IPv4 / IPv6 / 域名
 ssl_certificate() {
   mkdir -p ${WORK_DIR}/cert
+  [[ $SERVER_IP =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9a-fA-F:]+)$ ]] && SAN_TYPE="IP" || SAN_TYPE="DNS"
   openssl ecparam -genkey -name prime256v1 -out ${WORK_DIR}/cert/private.key
-  openssl req -new -x509 -days 36500 -key ${WORK_DIR}/cert/private.key -out ${WORK_DIR}/cert/cert.pem -subj "/CN=$(awk -F . '{print $(NF-1)"."$NF}' <<< "$TLS_SERVER_DEFAULT")" -addext "subjectAltName = IP:${SERVER_IP}"
+  openssl req -new -x509 -days 36500 -key ${WORK_DIR}/cert/private.key -out ${WORK_DIR}/cert/cert.pem -subj "/CN=$(awk -F . '{print $(NF-1)"."$NF}' <<< "$TLS_SERVER_DEFAULT")" -addext "subjectAltName = ${SAN_TYPE}:${SERVER_IP}"
 }
 
 # 处理防火墙规则
@@ -2279,13 +2280,14 @@ export_list() {
 
   # 如果使用了 vless + ws + tls，获取证书指纹
   if ls ${WORK_DIR}/conf/*_${NODE_TAG[7]}_inbounds.json >/dev/null 2>&1; then
+    hint " $(text 101) "
     if grep -q '.' <<< "${ARGO_DOMAIN}"; then
       local FINGERPRINT_ERROR_TIME=15
       until [[ $CLOUDFLARE_CERT_FINGERPRINT_SHA256 =~ ^([0-9A-F]{2}:){31}[0-9A-F]{2}$ ]]; do
         (( FINGERPRINT_ERROR_TIME-- )) || true
         [ "$FINGERPRINT_ERROR_TIME" = 0 ] && local CERT_FINGERPRINT_METHOD_SHA256="skip-cert-verify: true" && local CERT_FINGERPRINT_METHOD_BASE64='"insecure": true' && break
         sleep 1
-        local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${ARGO_DOMAIN}:443 -servername ${ARGO_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 | awk -F '=' '{print $NF}')
+        local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${ARGO_DOMAIN}:443 -servername ${ARGO_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 2>/dev/null | awk -F '=' '{print $NF}')
         if grep -q '.' <<< "${CLOUDFLARE_CERT_FINGERPRINT_SHA256}"; then
           local CLOUDFLARE_CERT_FINGERPRINT_BASE64=$(echo | openssl s_client -servername ${ARGO_DOMAIN} -connect ${ARGO_DOMAIN}:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
           local CERT_FINGERPRINT_METHOD_SHA256="fingerprint: $CLOUDFLARE_CERT_FINGERPRINT_SHA256"
@@ -2293,7 +2295,7 @@ export_list() {
         fi
       done
     elif grep -q '.' <<< "${VLESS_HOST_DOMAIN}"; then
-      local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${VLESS_HOST_DOMAIN}:443 -servername ${VLESS_HOST_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 | awk -F '=' '{print $NF}')
+      local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${VLESS_HOST_DOMAIN}:443 -servername ${VLESS_HOST_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 2>/dev/null | awk -F '=' '{print $NF}')
       if [[ $CLOUDFLARE_CERT_FINGERPRINT_SHA256 =~ ^([0-9A-F]{2}:){31}[0-9A-F]{2}$ ]]; then
         local CLOUDFLARE_CERT_FINGERPRINT_BASE64=$(echo | openssl s_client -servername ${VLESS_HOST_DOMAIN} -connect ${VLESS_HOST_DOMAIN}:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
         local CERT_FINGERPRINT_METHOD_SHA256="fingerprint: $CLOUDFLARE_CERT_FINGERPRINT_SHA256"
