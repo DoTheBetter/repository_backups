@@ -166,8 +166,8 @@ E[68]="Press [n] if there is an error, other keys to continue:"
 C[68]="如有错误请按 [n]，其他键继续:"
 E[69]="Install sba scripts (argo + sing-box) [https://github.com/fscarmen/sba]"
 C[69]="安装 sba 脚本 (argo + sing-box) [https://github.com/fscarmen/sba]"
-E[70]="Please set inSecure in tls to true."
-C[70]="请把 tls 里的 inSecure 设置为 true"
+E[70]=""
+C[70]=""
 E[71]="Create shortcut [ sb ] successfully."
 C[71]="创建快捷 [ sb ] 指令成功!"
 E[72]="Path to each client configuration file: ${WORK_DIR}/subscribe/\n The full template can be found at:\n https://github.com/chika0801/sing-box-examples/tree/main/Tun"
@@ -228,8 +228,8 @@ E[99]="The \${SING_BOX_SCRIPT} is detected to be installed. Script exits."
 C[99]="检测到已安装 \${SING_BOX_SCRIPT}，脚本退出!"
 E[100]="Can't get the official latest version. Script exits."
 C[100]="获取不到官方的最新版本，脚本退出!"
-E[101]="Fetching self-signed & Cloudflare certificate fingerprints. Please wait a seconds ..."
-C[101]="正在获取自签与 Cloudflare 证书指纹，请稍等..."
+E[101]=""
+C[101]=""
 E[102]="Backing up old version sing-box to ${WORK_DIR}/sing-box.bak"
 C[102]="已备份旧版本 sing-box 到 ${WORK_DIR}/sing-box.bak"
 E[103]="New version \$ONLINE is running successfully, backup file deleted"
@@ -2274,38 +2274,9 @@ export_list() {
   # 如果使用 Json 或者 Token Argo，则使用加密的而且是固定的 Argo 隧道域名，否则使用 IP:PORT 的 http 服务
   [[ "$ARGO_TYPE" = 'is_token_argo' || "$ARGO_TYPE" = 'is_json_argo' ]] && SUBSCRIBE_ADDRESS="https://$ARGO_DOMAIN" || SUBSCRIBE_ADDRESS="http://${SERVER_IP_1}:${PORT_NGINX}"
 
-  # 获取自签证书指纹
+  # 获取自签证书指纹。origin rules 或者 argo 回源的是由 Google Trust Services（谷歌信任服务）作为中间 CA（CN=WE1）签发，受信任的证书（非自签名）
   SELF_SIGNED_FINGERPRINT_SHA256=$(openssl x509 -fingerprint -noout -sha256 -in ${WORK_DIR}/cert/cert.pem | awk -F '=' '{print $NF}')
   SELF_SIGNED_FINGERPRINT_BASE64=$(openssl x509 -in ${WORK_DIR}/cert/cert.pem -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
-
-  # 如果使用了 vless + ws + tls，获取证书指纹
-  if ls ${WORK_DIR}/conf/*_${NODE_TAG[7]}_inbounds.json >/dev/null 2>&1; then
-    hint " $(text 101) "
-    if grep -q '.' <<< "${ARGO_DOMAIN}"; then
-      local FINGERPRINT_ERROR_TIME=15
-      until [[ $CLOUDFLARE_CERT_FINGERPRINT_SHA256 =~ ^([0-9A-F]{2}:){31}[0-9A-F]{2}$ ]]; do
-        (( FINGERPRINT_ERROR_TIME-- )) || true
-        [ "$FINGERPRINT_ERROR_TIME" = 0 ] && local CERT_FINGERPRINT_METHOD_SHA256="skip-cert-verify: true" && local CERT_FINGERPRINT_METHOD_BASE64='"insecure": true' && break
-        sleep 1
-        local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${ARGO_DOMAIN}:443 -servername ${ARGO_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 2>/dev/null | awk -F '=' '{print $NF}')
-        if grep -q '.' <<< "${CLOUDFLARE_CERT_FINGERPRINT_SHA256}"; then
-          local CLOUDFLARE_CERT_FINGERPRINT_BASE64=$(echo | openssl s_client -servername ${ARGO_DOMAIN} -connect ${ARGO_DOMAIN}:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
-          local CERT_FINGERPRINT_METHOD_SHA256="fingerprint: $CLOUDFLARE_CERT_FINGERPRINT_SHA256"
-          local CERT_FINGERPRINT_METHOD_BASE64="\"certificate_public_key_sha256\": [\"$CLOUDFLARE_CERT_FINGERPRINT_BASE64\"]"
-        fi
-      done
-    elif grep -q '.' <<< "${VLESS_HOST_DOMAIN}"; then
-      local CLOUDFLARE_CERT_FINGERPRINT_SHA256=$(openssl s_client -connect ${VLESS_HOST_DOMAIN}:443 -servername ${VLESS_HOST_DOMAIN} </dev/null 2>/dev/null | openssl x509 -fingerprint -noout -sha256 2>/dev/null | awk -F '=' '{print $NF}')
-      if [[ $CLOUDFLARE_CERT_FINGERPRINT_SHA256 =~ ^([0-9A-F]{2}:){31}[0-9A-F]{2}$ ]]; then
-        local CLOUDFLARE_CERT_FINGERPRINT_BASE64=$(echo | openssl s_client -servername ${VLESS_HOST_DOMAIN} -connect ${VLESS_HOST_DOMAIN}:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
-        local CERT_FINGERPRINT_METHOD_SHA256="fingerprint: $CLOUDFLARE_CERT_FINGERPRINT_SHA256"
-        local CERT_FINGERPRINT_METHOD_BASE64="\"certificate_public_key_sha256\": [\"$CLOUDFLARE_CERT_FINGERPRINT_BASE64\"]"
-      else
-        local CERT_FINGERPRINT_METHOD_SHA256="skip-cert-verify: true"
-        local CERT_FINGERPRINT_METHOD_BASE64='"insecure": true'
-      fi
-    fi
-  fi
 
   # 生成各订阅文件
   # 生成 Clash proxy providers 订阅文件
@@ -2362,7 +2333,7 @@ export_list() {
 
   if [ -n "$PORT_VLESS_WS" ]; then
      if [[ "${STATUS[1]}" =~ $(text 27)|$(text 28) ]] || [[ "$IS_ARGO" = 'is_argo' && "$NONINTERACTIVE_INSTALL" = 'noninteractive_install' ]]; then
-      local CLASH_VLESS_WS="- {name: \"${NODE_NAME[18]} ${NODE_TAG[7]}\", type: vless, server: ${CDN[18]}, port: 443, uuid: ${UUID[18]}, udp: true, tls: true, servername: $ARGO_DOMAIN, network: ws, $CERT_FINGERPRINT_METHOD_SHA256, ws-opts: { path: \"/$VLESS_WS_PATH\", headers: {Host: $ARGO_DOMAIN}, max-early-data: 2560, early-data-header-name: Sec-WebSocket-Protocol }, smux: { enabled: true, protocol: 'h2mux', padding: true, max-connections: '8', min-streams: '16', statistic: true, only-tcp: false }, brutal-opts: { enabled: ${IS_BRUTAL}, up: '1000 Mbps', down: '1000 Mbps' } }" &&
+      local CLASH_VLESS_WS="- {name: \"${NODE_NAME[18]} ${NODE_TAG[7]}\", type: vless, server: ${CDN[18]}, port: 443, uuid: ${UUID[18]}, udp: true, tls: true, servername: $ARGO_DOMAIN, network: ws, skip-cert-verify: false, ws-opts: { path: \"/$VLESS_WS_PATH\", headers: {Host: $ARGO_DOMAIN}, max-early-data: 2560, early-data-header-name: Sec-WebSocket-Protocol }, smux: { enabled: true, protocol: 'h2mux', padding: true, max-connections: '8', min-streams: '16', statistic: true, only-tcp: false }, brutal-opts: { enabled: ${IS_BRUTAL}, up: '1000 Mbps', down: '1000 Mbps' } }" &&
       local CLASH_SUBSCRIBE+="
   $CLASH_VLESS_WS
 "
@@ -2370,7 +2341,7 @@ export_list() {
   # $(text 94)
 "
     else
-      local CLASH_VLESS_WS="- {name: \"${NODE_NAME[18]} ${NODE_TAG[7]}\", type: vless, server: ${CDN[18]}, port: 443, uuid: ${UUID[18]}, udp: true, tls: true, servername: $VLESS_HOST_DOMAIN, network: ws, $CERT_FINGERPRINT_METHOD_SHA256, ws-opts: { path: \"/$VLESS_WS_PATH\", headers: {Host: $VLESS_HOST_DOMAIN}, max-early-data: 2560, early-data-header-name: Sec-WebSocket-Protocol }, smux: { enabled: true, protocol: 'h2mux', padding: true, max-connections: '8', min-streams: '16', statistic: true, only-tcp: false }, brutal-opts: { enabled: ${IS_BRUTAL}, up: '1000 Mbps', down: '1000 Mbps' } }" &&
+      local CLASH_VLESS_WS="- {name: \"${NODE_NAME[18]} ${NODE_TAG[7]}\", type: vless, server: ${CDN[18]}, port: 443, uuid: ${UUID[18]}, udp: true, tls: true, servername: $VLESS_HOST_DOMAIN, network: ws, skip-cert-verify: false, ws-opts: { path: \"/$VLESS_WS_PATH\", headers: {Host: $VLESS_HOST_DOMAIN}, max-early-data: 2560, early-data-header-name: Sec-WebSocket-Protocol }, smux: { enabled: true, protocol: 'h2mux', padding: true, max-connections: '8', min-streams: '16', statistic: true, only-tcp: false }, brutal-opts: { enabled: ${IS_BRUTAL}, up: '1000 Mbps', down: '1000 Mbps' } }" &&
       local WS_SERVER_IP_SHOW=${WS_SERVER_IP[18]} && local TYPE_HOST_DOMAIN=$VLESS_HOST_DOMAIN && local TYPE_PORT_WS=$PORT_VLESS_WS &&
       local CLASH_SUBSCRIBE+="
   $CLASH_VLESS_WS
@@ -2456,7 +2427,7 @@ vmess://$(echo -n "auto:${UUID[17]}@${CDN[17]}:80" | base64 -w0)?remarks=${NODE_
      if [[ "${STATUS[1]}" =~ $(text 27)|$(text 28) ]] || [[ "$IS_ARGO" = 'is_argo' && "$NONINTERACTIVE_INSTALL" = 'noninteractive_install' ]]; then
       local SHADOWROCKET_SUBSCRIBE+="
 ----------------------------
-vless://$(echo -n "auto:${UUID[18]}@${CDN[18]}:443" | base64 -w0)?remarks=${NODE_NAME[18]// /%20}%20${NODE_TAG[7]}&obfsParam=$ARGO_DOMAIN&path=/$VLESS_WS_PATH?ed=2560&obfs=websocket&tls=1&peer=$ARGO_DOMAIN&hpkp=${CLOUDFLARE_CERT_FINGERPRINT_SHA256}
+vless://$(echo -n "auto:${UUID[18]}@${CDN[18]}:443" | base64 -w0)?remarks=${NODE_NAME[18]// /%20}%20${NODE_TAG[7]}&obfsParam=$ARGO_DOMAIN&path=/$VLESS_WS_PATH?ed=2560&obfs=websocket&tls=1&peer=$ARGO_DOMAIN
 "
       [ "$ARGO_TYPE" = 'is_token_argo' ] && SHADOWROCKET_SUBSCRIBE+="
   # $(text 94)
@@ -2464,7 +2435,7 @@ vless://$(echo -n "auto:${UUID[18]}@${CDN[18]}:443" | base64 -w0)?remarks=${NODE
     else
       WS_SERVER_IP_SHOW=${WS_SERVER_IP[18]} && TYPE_HOST_DOMAIN=$VLESS_HOST_DOMAIN && TYPE_PORT_WS=$PORT_VLESS_WS && local SHADOWROCKET_SUBSCRIBE+="
 ----------------------------
-vless://$(echo -n "auto:${UUID[18]}@${CDN[18]}:443" | base64 -w0)?remarks=${NODE_NAME[18]// /%20}%20${NODE_TAG[7]}&obfsParam=$VLESS_HOST_DOMAIN&path=/$VLESS_WS_PATH?ed=2560&obfs=websocket&tls=1&peer=$VLESS_HOST_DOMAIN&hpkp=${CLOUDFLARE_CERT_FINGERPRINT_SHA256}
+vless://$(echo -n "auto:${UUID[18]}@${CDN[18]}:443" | base64 -w0)?remarks=${NODE_NAME[18]// /%20}%20${NODE_TAG[7]}&obfsParam=$VLESS_HOST_DOMAIN&path=/$VLESS_WS_PATH?ed=2560&obfs=websocket&tls=1&peer=$VLESS_HOST_DOMAIN
 
 # $(text 52)
 "
@@ -2494,9 +2465,7 @@ hysteria2://${UUID[12]}@${SERVER_IP_1}:${PORT_HYSTERIA2}/?alpn=h3&insecure=1#${N
 
   [ -n "$PORT_TUIC" ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-tuic://${UUID[13]}:${TUIC_PASSWORD}@${SERVER_IP_1}:${PORT_TUIC}?alpn=h3&congestion_control=$TUIC_CONGESTION_CONTROL#${NODE_NAME[13]// /%20}%20${NODE_TAG[2]}
-
-# $(text 70)"
+tuic://${UUID[13]}:${TUIC_PASSWORD}@${SERVER_IP_1}:${PORT_TUIC}?alpn=h3&insecure=1&congestion_control=$TUIC_CONGESTION_CONTROL#${NODE_NAME[13]// /%20}%20${NODE_TAG[2]}"
 
   [ -n "$PORT_SHADOWTLS" ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
@@ -2555,9 +2524,7 @@ ss://$(echo -n "${SHADOWSOCKS_METHOD}:${UUID[15]}@${SERVER_IP_1}:$PORT_SHADOWSOC
 
   [ -n "$PORT_TROJAN" ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-trojan://$TROJAN_PASSWORD@${SERVER_IP_1}:$PORT_TROJAN?security=tls&type=tcp&headerType=none#${NODE_NAME[16]// /%20}%20${NODE_TAG[5]}
-
-# $(text 70)"
+trojan://$TROJAN_PASSWORD@${SERVER_IP_1}:$PORT_TROJAN?security=tls&insecure=1&type=tcp&headerType=none#${NODE_NAME[16]// /%20}%20${NODE_TAG[5]}"
 
   if [ -n "$PORT_VMESS_WS" ]; then
      if [[ "${STATUS[1]}" =~ $(text 27)|$(text 28) ]] || [[ "$IS_ARGO" = 'is_argo' && "$NONINTERACTIVE_INSTALL" = 'noninteractive_install' ]]; then
@@ -2605,7 +2572,7 @@ vless://${UUID[20]}@${SERVER_IP_1}:${PORT_GRPC_REALITY}?encryption=none&security
 
   [ -n "$PORT_ANYTLS" ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-anytls://${UUID[21]}@${SERVER_IP_1}:${PORT_ANYTLS}?security=tls&fp=firefox&allowInsecure=1&type=tcp#${NODE_NAME[21]// /%20}%20${NODE_TAG[10]}"
+anytls://${UUID[21]}@${SERVER_IP_1}:${PORT_ANYTLS}?security=tls&fp=firefox&insecure=1&type=tcp#${NODE_NAME[21]// /%20}%20${NODE_TAG[10]}"
 
   echo -n "$V2RAYN_SUBSCRIBE" | sed -E '/^[ ]*#|^[ ]+|^--|^\{|^\}/d' | sed '/^$/d' | base64 -w0 > ${WORK_DIR}/subscribe/v2rayn
 
@@ -2737,7 +2704,7 @@ anytls://${UUID[21]}@${SERVER_IP_1}:${PORT_ANYTLS}/?insecure=1#${NODE_NAME[21]}%
 
   if [ -n "$PORT_VLESS_WS" ]; then
     if [[ "${STATUS[1]}" =~ $(text 27)|$(text 28) ]] || [[ "$IS_ARGO" = 'is_argo' && "$NONINTERACTIVE_INSTALL" = 'noninteractive_install' ]]; then
-      local INBOUND_REPLACE+=" { \"type\": \"vless\", \"tag\": \"${NODE_NAME[18]} ${NODE_TAG[7]}\", \"server\":\"${CDN[18]}\", \"server_port\":443, \"uuid\": \"${UUID[18]}\", \"tls\": { \"enabled\":true, \"server_name\":\"$ARGO_DOMAIN\", $CERT_FINGERPRINT_METHOD_BASE64, \"utls\": { \"enabled\":true, \"fingerprint\":\"firefox\" } }, \"transport\": { \"type\":\"ws\", \"path\":\"/$VLESS_WS_PATH\", \"headers\": { \"Host\": \"$ARGO_DOMAIN\" }, \"max_early_data\":2560, \"early_data_header_name\":\"Sec-WebSocket-Protocol\" }, \"multiplex\": { \"enabled\":true, \"protocol\":\"h2mux\", \"max_streams\":16, \"padding\": true, \"brutal\":{ \"enabled\":${IS_BRUTAL}, \"up_mbps\":1000, \"down_mbps\":1000 } } },"
+      local INBOUND_REPLACE+=" { \"type\": \"vless\", \"tag\": \"${NODE_NAME[18]} ${NODE_TAG[7]}\", \"server\":\"${CDN[18]}\", \"server_port\":443, \"uuid\": \"${UUID[18]}\", \"tls\": { \"enabled\":true, \"server_name\":\"$ARGO_DOMAIN\", \"insecure\": false, \"utls\": { \"enabled\":true, \"fingerprint\":\"firefox\" } }, \"transport\": { \"type\":\"ws\", \"path\":\"/$VLESS_WS_PATH\", \"headers\": { \"Host\": \"$ARGO_DOMAIN\" }, \"max_early_data\":2560, \"early_data_header_name\":\"Sec-WebSocket-Protocol\" }, \"multiplex\": { \"enabled\":true, \"protocol\":\"h2mux\", \"max_streams\":16, \"padding\": true, \"brutal\":{ \"enabled\":${IS_BRUTAL}, \"up_mbps\":1000, \"down_mbps\":1000 } } },"
       [ "$ARGO_TYPE" = 'is_token_argo' ] && [ -z "$PROMPT" ] && local PROMPT="
   # $(text 94)"
     else
@@ -2746,7 +2713,7 @@ anytls://${UUID[21]}@${SERVER_IP_1}:${PORT_ANYTLS}/?insecure=1#${NODE_NAME[21]}%
       local TYPE_PORT_WS=$PORT_VLESS_WS &&
       local PROMPT+="
       # $(text 52)" &&
-      local INBOUND_REPLACE+=" { \"type\": \"vless\", \"tag\": \"${NODE_NAME[18]} ${NODE_TAG[7]}\", \"server\":\"${CDN[18]}\", \"server_port\":443, \"uuid\": \"${UUID[18]}\",\"tls\": { \"enabled\":true, \"server_name\":\"$VLESS_HOST_DOMAIN\", $CERT_FINGERPRINT_METHOD_BASE64, \"utls\": { \"enabled\":true, \"fingerprint\":\"firefox\" } }, \"transport\": { \"type\":\"ws\", \"path\":\"/$VLESS_WS_PATH\", \"headers\": { \"Host\": \"$VLESS_HOST_DOMAIN\" }, \"max_early_data\":2560, \"early_data_header_name\":\"Sec-WebSocket-Protocol\" }, \"multiplex\": { \"enabled\":true, \"protocol\":\"h2mux\", \"max_streams\":16, \"padding\": true, \"brutal\":{ \"enabled\":${IS_BRUTAL}, \"up_mbps\":1000, \"down_mbps\":1000 } } },"
+      local INBOUND_REPLACE+=" { \"type\": \"vless\", \"tag\": \"${NODE_NAME[18]} ${NODE_TAG[7]}\", \"server\":\"${CDN[18]}\", \"server_port\":443, \"uuid\": \"${UUID[18]}\",\"tls\": { \"enabled\":true, \"server_name\":\"$VLESS_HOST_DOMAIN\", \"insecure\": false, \"utls\": { \"enabled\":true, \"fingerprint\":\"firefox\" } }, \"transport\": { \"type\":\"ws\", \"path\":\"/$VLESS_WS_PATH\", \"headers\": { \"Host\": \"$VLESS_HOST_DOMAIN\" }, \"max_early_data\":2560, \"early_data_header_name\":\"Sec-WebSocket-Protocol\" }, \"multiplex\": { \"enabled\":true, \"protocol\":\"h2mux\", \"max_streams\":16, \"padding\": true, \"brutal\":{ \"enabled\":${IS_BRUTAL}, \"up_mbps\":1000, \"down_mbps\":1000 } } },"
     fi
     local NODE_REPLACE+="\"${NODE_NAME[18]} ${NODE_TAG[7]}\","
   fi
