@@ -2135,7 +2135,7 @@ fetch_nodes_value() {
   # 获取 Nginx 端口和路径
   [[ "${IS_SUB}" = 'is_sub' || "${IS_ARGO}" = 'is_argo' ]] && local NGINX_JSON=$(cat ${WORK_DIR}/nginx.conf) &&
   PORT_NGINX=$(awk '/listen/{print $2; exit}' <<< "$NGINX_JSON") &&
-  UUID_CONFIRM=$(awk -F '/' '/location ~ \^/{print $2; exit}' <<< "$NGINX_JSON")
+  UUID_CONFIRM=$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' <<< "$NGINX_JSON" | sed -n '1p')
 
   # 获取 XTLS + Reality key-value
   [ -s ${WORK_DIR}/conf/*_${NODE_TAG[0]}_inbounds.json ] && local JSON=$(cat ${WORK_DIR}/conf/*_${NODE_TAG[0]}_inbounds.json) && NODE_NAME[11]=$(sed -n "s/.*\"tag\":\"\(.*\) ${NODE_TAG[0]}.*/\1/p" <<< "$JSON") && PORT_XTLS_REALITY=$(sed -n 's/.*"listen_port":\([0-9]\+\),/\1/gp' <<< "$JSON") && UUID[11]=$(awk -F '"' '/"uuid"/{print $4}' <<< "$JSON") && TLS_SERVER[11]=$(awk -F '"' '/"server_name"/{print $4}' <<< "$JSON") && REALITY_PRIVATE[11]=$(awk -F '"' '/"private_key"/{print $4}' <<< "$JSON") && REALITY_PUBLIC[11]=$(awk -F '"' '/"public_key"/{print $4}' <<< "$JSON")
