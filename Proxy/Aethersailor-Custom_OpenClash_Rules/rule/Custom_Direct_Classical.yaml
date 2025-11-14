@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 336
+# TOTAL: 341
 
 payload:
   - DOMAIN-KEYWORD,m-team
@@ -46,6 +46,7 @@ payload:
   - DOMAIN-SUFFIX,belimked.com
   - DOMAIN-SUFFIX,bgm.tv
   - DOMAIN-SUFFIX,biandangroup.com
+  - DOMAIN-SUFFIX,biaoda.me
   - DOMAIN-SUFFIX,bochk.com
   - DOMAIN-SUFFIX,boyuemobile.com
   - DOMAIN-SUFFIX,bsbsb.top
@@ -61,6 +62,7 @@ payload:
   - DOMAIN-SUFFIX,cheriexsky.love
   - DOMAIN-SUFFIX,cheshire.top
   - DOMAIN-SUFFIX,chii.in
+  - DOMAIN-SUFFIX,chinatle.com
   - DOMAIN-SUFFIX,chujingapp.com
   - DOMAIN-SUFFIX,clivia.fun
   - DOMAIN-SUFFIX,cn-music.mefun.vip
@@ -223,11 +225,13 @@ payload:
   - DOMAIN-SUFFIX,neihang.net
   - DOMAIN-SUFFIX,netzz.net
   - DOMAIN-SUFFIX,nhk.or.jp
+  - DOMAIN-SUFFIX,nicezhuanye.com
   - DOMAIN-SUFFIX,nn.ci
   - DOMAIN-SUFFIX,nxog.top
   - DOMAIN-SUFFIX,oceando.cloud
   - DOMAIN-SUFFIX,ok321.top
   - DOMAIN-SUFFIX,onebuygz.com
+  - DOMAIN-SUFFIX,opentrust.net
   - DOMAIN-SUFFIX,ottai.com
   - DOMAIN-SUFFIX,ourschool.cc
   - DOMAIN-SUFFIX,paperang.com
@@ -261,6 +265,7 @@ payload:
   - DOMAIN-SUFFIX,sanligu.top
   - DOMAIN-SUFFIX,sapphiretech.com
   - DOMAIN-SUFFIX,scbaijia.com
+  - DOMAIN-SUFFIX,sct.ftqq.com
   - DOMAIN-SUFFIX,seaflysoft.com
   - DOMAIN-SUFFIX,seedpace.com
   - DOMAIN-SUFFIX,sgtv.ii00.cc
