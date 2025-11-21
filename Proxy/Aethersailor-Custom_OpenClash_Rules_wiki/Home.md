@@ -26,3 +26,6 @@ QNMD 旁路由！
 
 7. [一些零碎的教程](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B)  
 想到什么写什么…
+
+8. [其他推荐项目](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E6%8E%A8%E8%8D%90%E9%A1%B9%E7%9B%AE)  
+社区中其他比较实用的 OpenClash 相关仓库
