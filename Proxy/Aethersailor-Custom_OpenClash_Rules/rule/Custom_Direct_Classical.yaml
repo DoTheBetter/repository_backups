@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 357
+# TOTAL: 359
 
 payload:
   - DOMAIN-KEYWORD,m-team
@@ -302,6 +302,7 @@ payload:
   - DOMAIN-SUFFIX,tcy365.net
   - DOMAIN-SUFFIX,thinkerride.com
   - DOMAIN-SUFFIX,tool56.com
+  - DOMAIN-SUFFIX,topwd.top
   - DOMAIN-SUFFIX,tozi-cn.top
   - DOMAIN-SUFFIX,tulipsport.com
   - DOMAIN-SUFFIX,tumukaoyan.com
@@ -355,6 +356,7 @@ payload:
   - DOMAIN-SUFFIX,zjxhedu.com
   - DOMAIN-SUFFIX,znnu.com
   - DOMAIN-SUFFIX,znztv.com
+  - DOMAIN-SUFFIX,zsytit.com
   - DOMAIN-SUFFIX,ztytech.com
   - DOMAIN-SUFFIX,zuobiao.press
   - IP-CIDR,108.174.48.100/32,no-resolve
