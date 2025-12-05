@@ -12,11 +12,11 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 基础, Router]
 2. 查看 CPU 架构可连接 SSH 后执行命令 `uname -ms`，若执行结果是“linux aarch64”，就是搭载的 ARMv8 架构
 
 ## 一、 导入 [sing-box reF1nd 版内核](https://github.com/reF1nd/sing-box)
-**sing-box 内核 Linux 版下载链接后缀和 CPU 架构对应关系如下表：**
+**sing-boxr 内核 Linux 版下载链接后缀和 CPU 架构对应关系如下表：**
 
-| CPU 架构     | AMD64   | ARMv5   | ARMv6   | ARMv7   | ARMv8&ARM64&AArch64 | mips-softfloat   | mipsle-softfloat   | mipsle-hardfloat   |
-| ------------ | ------- | ------- | ------- | ------- | :-----------------: | ---------------- | ------------------ | ------------------ |
-| **链接后缀** | `amd64` | `armv5` | `armv6` | `armv7` |       `armv8`       | `mips-softfloat` | `mipsle-softfloat` | `mipsle-hardfloat` |
+| CPU 架构     | AMD64v1   | AMD64v3   | ARMv5   | ARMv6   | ARMv7   | ARMv8&ARM64&AArch64 | mips-softfloat   | mipsle-softfloat   | mipsle-hardfloat   |
+| ------------ | --------- | --------- | ------- | ------- | ------- | :-----------------: | ---------------- | ------------------ | ------------------ |
+| **链接后缀** | `amd64v1` | `amd64v3` | `armv5` | `armv6` | `armv7` |       `armv8`       | `mips-softfloat` | `mipsle-softfloat` | `mipsle-hardfloat` |
 
 连接 SSH 后执行如下命令：
 
@@ -64,7 +64,7 @@ curl -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/dow
 10. 进入 Dashboard 面板 → 代理 → 代理提供者，点击“转圈”图标，可手动更新节点
 
 ## 四、 在线 Dashboard 面板
-推荐使用在线 Dashboard 面板 [zashboard](https://github.com/Zephyruso/zashboard)，网址：<https://board.zash.run.place>
+在线 Dashboard 面板 [zashboard](https://github.com/Zephyruso/zashboard)，网址：<https://board.zash.run.place>
 1. 若使用基于 [Chromium 项目](https://www.chromium.org/Home/)开发的浏览器打开网址去访问 Dashboard 面板时，以 [Chrome 浏览器](https://www.google.com/chrome/)为例，需要设置该网址域名“允许显示不安全内容”，进入设置 → 隐私和安全 → 网站设置 → 更多内容设置 → 不安全内容（或者直接在地址栏打开 `chrome://settings/content/insecureContent` 进行设置），在“允许显示不安全内容”内添加网址域名 `board.zash.run.place`  
 <img src="/assets/img/tools/chrome-setting-dashboard.png" alt="在线 Dashboard 面板 1" width="60%" />
 

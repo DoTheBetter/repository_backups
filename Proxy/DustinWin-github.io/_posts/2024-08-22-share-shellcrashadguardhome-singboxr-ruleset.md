@@ -46,9 +46,9 @@ tags: [sing-box, sing-boxr, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
     }
   ],
   "outbounds": [
-    { "tag": "节点选择", "type": "selector", "outbounds": [ "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
-    { "tag": "网络测试", "type": "selector", "outbounds": [ "全球直连", "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
-    { "tag": "AI 平台", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "节点选择", "type": "selector", "outbounds": [ "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "网络测试", "type": "selector", "outbounds": [ "全球直连", "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "AI 平台", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
     { "tag": "Trackerslist", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "游戏服务", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "微软服务", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
@@ -57,9 +57,9 @@ tags: [sing-box, sing-boxr, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
     { "tag": "直连域名", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "直连 IP", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "代理域名", "type": "selector", "outbounds": [ "节点选择", "全球直连" ] },
-    { "tag": "电报消息", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "电报消息", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
     { "tag": "私有网络", "type": "selector", "outbounds": [ "全球直连" ] },
-    { "tag": "漏网之鱼", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点", "全球直连" ] },
+    { "tag": "漏网之鱼", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点", "全球直连" ] },
     { "tag": "全球直连", "type": "selector", "outbounds": [ "DIRECT" ] },
     { "tag": "DIRECT", "type": "direct" },
     { "tag": "GLOBAL", "type": "selector", "outbounds": [ "DIRECT", "节点选择" ] },
@@ -99,7 +99,7 @@ tags: [sing-box, sing-boxr, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
       { "rule_set": [ "cn" ], "outbound": "直连域名" },
       { "rule_set": [ "privateip" ], "outbound": "私有网络" },
       { "rule_set": [ "telegramip" ], "outbound": "电报消息" },
-      { "action": "resolve", "server": "dns_proxy" },
+      { "action": "resolve", "match_only": true },
       { "rule_set": [ "cnip" ], "outbound": "直连 IP" }
     ],
     "rule_set": [
@@ -123,7 +123,7 @@ tags: [sing-box, sing-boxr, ShellCrash, AdGuard Home, ruleset, rule_set, 分享,
         "format": "binary",
         "path": "./ruleset/trackerslist.srs",
         "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/trackerslist.srs"
-      }
+      },
       {
         "tag": "microsoft-cn",
         "type": "remote",
@@ -252,14 +252,12 @@ crash
       { "ip_accept_any": true, "server": "hosts" },
       { "clash_mode": [ "Direct" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
       { "clash_mode": [ "Global" ], "query_type": [ "A", "AAAA" ], "server": "dns_proxy" },
-      { "domain": [ "services.googleapis.cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip", "rewrite_ttl": 1 },
+      { "domain": [ "services.googleapis.cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" },
       { "rule_set": [ "fakeip-filter", "trackerslist", "private", "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct", "rewrite_ttl": 1 },
-      { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip", "rewrite_ttl": 1 }
+      { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
     ],
     "final": "dns_proxy",
     "strategy": "prefer_ipv4",
-    "disable_cache": true,
-    "disable_expire": false,
     "independent_cache": true,
     "reverse_mapping": true,
     // 推荐将 `client_subnet` 设置为当前网络的公网 IP 段，如当前网络公网 IP 为 `202.103.17.123`，可设置为 `202.103.17.0/24`
@@ -275,12 +273,10 @@ crash
 {
   "experimental": {
     "cache_file": {
-      "enabled": true,
-      "store_fakeip": true,
-      "store_rdrc": false
+      "store_fakeip": true
     },
     "clash_api": {
-      "external_controller": "192.168.31.1:9090",
+      "external_controller": "192.168.31.1:9999",
       "external_ui": "ui",
       "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/gh-pages.zip",
       "secret": ""
@@ -308,8 +304,7 @@ crash
 2. 进入主菜单 → 2 内核功能设置 → 2 切换 DNS 运行模式 → 4 DNS 进阶设置，设置如下：  
 <img src="/assets/img/share/close-dns-null.png" alt="设置部分 2" width="60%" />
 
-3. 进入主菜单 → 7 内核进阶设置 → 5 自定义端口及秘钥，设置为 `9090`
-4. 进入主菜单 → 6 导入配置文件 → 2 在线获取完整配置文件，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-singboxr-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-json-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .json 文件直链，启动服务即可
+3. 进入主菜单 → 6 导入配置文件 → 2 在线获取完整配置文件，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-singboxr-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-json-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .json 文件直链，启动服务即可
 
 ## 七、 安装 AdGuard Home
 连接 SSH 后执行如下命令：
@@ -346,8 +341,7 @@ https://doh.pub/dns-query
 ```
 
 ## 九、 访问 Dashboard 面板
-打开 <http://miwifi.com:9090/ui/> 后，“主机”输入 `192.168.31.1`，点击“提交”即可访问 Dashboard 面板  
-<img src="/assets/img/share/192-9090-dashboard.png" alt="在线 Dashboard 面板" width="60%" />
+打开 <http://miwifi.com:9999/ui/> 后，“主机”输入 `192.168.31.1`，“端口”输入 `9999`，点击“提交”即可访问 Dashboard 面板
 
 > 推荐设置
 {: .prompt-tip }

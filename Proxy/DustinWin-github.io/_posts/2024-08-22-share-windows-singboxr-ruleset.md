@@ -65,12 +65,10 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       { "clash_mode": [ "Global" ], "query_type": [ "A", "AAAA" ], "server": "dns_proxy" },
       { "rule_set": [ "ads" ], "action": "predefined" },
       { "rule_set": [ "trackerslist", "private", "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct", "rewrite_ttl": 1 },
-      { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip", "rewrite_ttl": 1 }
+      { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
     ],
     "final": "dns_proxy",
     "strategy": "prefer_ipv4",
-    "disable_cache": true,
-    "disable_expire": false,
     "independent_cache": true,
     "reverse_mapping": true,
     // 推荐将 `client_subnet` 设置为当前网络的公网 IP 段，如当前网络公网 IP 为 `202.103.17.123`，可设置为 `202.103.17.0/24`
@@ -80,9 +78,9 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
     { "tag": "tun-in", "type": "tun", "interface_name": "sing-box", "address": [ "172.18.0.1/30", "fdfe:dcba:9876::1/126" ], "auto_route": true, "strict_route": true, "stack": "mixed" }
   ],
   "outbounds": [
-    { "tag": "节点选择", "type": "selector", "outbounds": [ "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
-    { "tag": "网络测试", "type": "selector", "outbounds": [ "全球直连", "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
-    { "tag": "AI 平台", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "节点选择", "type": "selector", "outbounds": [ "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "网络测试", "type": "selector", "outbounds": [ "全球直连", "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "AI 平台", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
     { "tag": "Trackerslist", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "游戏服务", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "微软服务", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
@@ -91,10 +89,10 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
     { "tag": "直连域名", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "直连 IP", "type": "selector", "outbounds": [ "全球直连", "节点选择" ] },
     { "tag": "代理域名", "type": "selector", "outbounds": [ "节点选择", "全球直连" ] },
-    { "tag": "电报消息", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
+    { "tag": "电报消息", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点" ] },
     { "tag": "直连软件", "type": "selector", "outbounds": [ "全球直连" ] },
     { "tag": "私有网络", "type": "selector", "outbounds": [ "全球直连" ] },
-    { "tag": "漏网之鱼", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "德国节点", "美国节点", "美国节点", "免费节点", "🆚 vless 节点", "全球直连" ] },
+    { "tag": "漏网之鱼", "type": "selector", "outbounds": [ "节点选择", "香港节点", "台湾节点", "日本节点", "新加坡节点", "美国节点", "免费节点", "🆚 vless 节点", "全球直连" ] },
     { "tag": "全球直连", "type": "selector", "outbounds": [ "DIRECT" ] },
     { "tag": "DIRECT", "type": "direct" },
     { "tag": "GLOBAL", "type": "selector", "outbounds": [ "DIRECT", "节点选择" ] },
@@ -138,7 +136,7 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       { "rule_set": [ "cn" ], "outbound": "直连域名" },
       { "rule_set": [ "privateip" ], "outbound": "私有网络" },
       { "rule_set": [ "telegramip" ], "outbound": "电报消息" },
-      { "action": "resolve", "server": "dns_proxy" },
+      { "action": "resolve", "match_only": true },
       { "rule_set": [ "cnip" ], "outbound": "直连 IP" }
     ],
     "rule_set": [
@@ -253,12 +251,10 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
   },
   "experimental": {
     "cache_file": {
-      "enabled": true,
-      "store_fakeip": true,
-      "store_rdrc": false
+      "store_fakeip": true
     },
     "clash_api": {
-      "external_controller": "127.0.0.1:9090",
+      "external_controller": "127.0.0.1:9999",
       "external_ui": "ui",
       "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/gh-pages.zip",
       "secret": ""
@@ -296,7 +292,7 @@ Windows Registry Editor Version 5.00
   echo "导入 sing-boxr 内核和配置文件..."
   cd "$PROGRAMFILES"
   mkdir -p sing-box/ui
-  curl -o sing-box/sing-box.exe -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-dev-windows-amd64.exe
+  curl -o sing-box/sing-box.exe -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-dev-windows-amd64v3.exe
   curl -o sing-box/config.json -L https://ghfast.top/{.json 配置文件直链}
   sed -i -E "s/(\"client_subnet\": \")[0-9.]+\/[0-9]+/\1$(curl -s 4.ipw.cn | cut -d. -f1-3).0\/24/" sing-box/config.json
   echo "导入 sing-boxr 内核和配置文件成功"
@@ -348,7 +344,7 @@ Windows Registry Editor Version 5.00
 
 echo "下载 sing-boxr 相关文件..."
 cd "$PROGRAMFILES/sing-box"
-curl -o "$USERPROFILE/Downloads/sing-box.exe" -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-dev-windows-amd64.exe
+curl -o "$USERPROFILE/Downloads/sing-box.exe" -L https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-dev-windows-amd64v3.exe
 curl -o "$USERPROFILE/Downloads/config.json" -L {.json 配置文件直链}
 echo "下载 sing-boxr 相关文件成功"
 
@@ -374,8 +370,7 @@ read -p "按任意键退出" -n1 -s
 
 ## 五、 访问 Dashboard 面板
 .json 文件已配置 [zashboard 面板](https://github.com/Zephyruso/zashboard)  
-打开 <http://miwifi.com:9090/ui/> 后可直接点击“提交”，即可访问 Dashboard 面板  
-<img src="/assets/img/share/127-9090-dashboard.png" alt="在线 Dashboard 面板" width="60%" />
+打开 <http://miwifi.com:9999/ui/> 后，“端口”输入 `9999`，点击“提交”，即可访问 Dashboard 面板
 
 > 推荐设置
 {: .prompt-tip }
