@@ -10,7 +10,7 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 分流]
 {: .prompt-tip }
 1. 使用 [ShellCrash](https://github.com/juewuy/ShellCrash) 搭配 [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome) 并将 AdGuard Home 作为上游时不要使用该方法
 2. 本教程以 ShellCrash 为例，其它客户端亦可参考
-3. DNS 分流简单来说就是**指定国内域名走国内 DNS 解析，其它域名包括国外域名都走 `fake-ip`，未知域名走国内 DNS 解析，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则**
+3. DNS 分流简单来说就是**指定国内域名走国内 DNS 解析，国外域名走 `fake-ip`，未知域名走国内 DNS 解析，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则**
 4. 部分用户觉得未知域名处理方式会导致 DNS 泄露，可参考《[搭载 mihomo 内核配置 DNS 不泄露教程-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/dnsnoleaks-mihomo-ruleset)》
 
 ## 一、 导入规则集合文件
@@ -18,20 +18,12 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 分流]
 
 ```yaml
 rule-providers:
-  fakeip-filter:
+  proxy:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/fakeip-filter.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.mrs"
-    interval: 86400
-
-  cn:
-    type: http
-    behavior: domain
-    format: mrs
-    path: ./ruleset/cn.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"
+    path: ./ruleset/proxy.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
     interval: 86400
 ```
 
@@ -54,10 +46,11 @@ dns:
   prefer-h3: true
   ipv6: true
   listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
   fake-ip-range: 28.0.0.1/8
   fake-ip-range6: fc00::/16
-  enhanced-mode: fake-ip
-  fake-ip-filter: ['rule-set:fakeip-filter,cn']
+  fake-ip-filter-mode: whitelist
+  fake-ip-filter: ['rule-set:proxy']
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query

@@ -189,9 +189,9 @@ dns:
   prefer-h3: true
   ipv6: true
   listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
   fake-ip-range: 28.0.0.1/8
   fake-ip-range6: fc00::/16
-  enhanced-mode: fake-ip
   fake-ip-filter: ['geosite:trackerslist,private,cn']
   nameserver:
     - https://dns.alidns.com/dns-query
@@ -221,10 +221,11 @@ dns:
   enable: true
   ipv6: true
   listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
   fake-ip-range: 28.0.0.1/8
   fake-ip-range6: fc00::/16
-  enhanced-mode: fake-ip
-  fake-ip-filter: ['geosite:trackerslist,private,cn']
+  fake-ip-filter-mode: whitelist
+  fake-ip-filter: ['geosite:proxy']
   respect-rules: true
   nameserver:
     # 推荐将 `ecs` 设置为当前网络的公网 IP 段

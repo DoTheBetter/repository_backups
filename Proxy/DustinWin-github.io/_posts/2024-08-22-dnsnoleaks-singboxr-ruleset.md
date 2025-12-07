@@ -8,7 +8,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 
 > 说明
 {: .prompt-tip }
-1. 此方案彻底防止了 DNS 泄露（针对未知域名走国外 DNS 解析，解析出 IP 在国内则走国内 DNS 解析和 `🀄️ 直连 IP` 规则，否则走 `fake-ip` 和 `🐟 漏网之鱼` 规则），兼容性无法保证，请慎用
+1. 此方案彻底防止了 DNS 泄露（针对未知域名走国外 DNS 解析且配置 `client_subnet`，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则），兼容性高，可放心使用
 2. 本教程以 [ShellCrash](https://github.com/juewuy/ShellCrash) 为例，其它客户端亦可参考
 3. 可进入 <https://ipleak.net> 测试 DNS 是否泄露，“DNS Addresses” 栏目下没有中国国旗（因 `ipleak.net` 属未知域名，默认走 `🐟 漏网之鱼` 规则），即代表 DNS 没有发生泄露
 
@@ -19,13 +19,6 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 {
   "route": {
     "rule_set": [
-      {
-        "tag": "fakeip-filter",
-        "type": "remote",
-        "format": "binary",
-        "path": "./ruleset/fakeip-filter.srs",
-        "url": "https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter.srs"
-      },
       {
         "tag": "cn",
         "type": "remote",
@@ -68,7 +61,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
           "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
         }
       },
-      { "tag": "dns_resolver", "type": "https", "server": "223.5.5.5"},
+      { "tag": "dns_resolver", "type": "https", "server": "223.5.5.5" },
       { "tag": "dns_direct", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "dns_resolver" },
       // `outbounds` 里必须存在 `🚀 节点选择`
       { "tag": "dns_proxy", "type": "https", "server": "dns.google", "domain_resolver": "dns_resolver", "detour": "🚀 节点选择" },
@@ -78,8 +71,8 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
       { "ip_accept_any": true, "server": "hosts" },
       { "clash_mode": [ "Direct" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct" },
       { "clash_mode": [ "Global" ], "query_type": [ "A", "AAAA" ], "server": "dns_proxy" },
-      { "rule_set": [ "fakeip-filter", "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct", "rewrite_ttl": 1 },
-      { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
+      { "rule_set": [ "private", "cn" ], "query_type": [ "A", "AAAA" ], "server": "dns_direct", "rewrite_ttl": 1 },
+      { "rule_set": [ "proxy" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
     ],
     "final": "dns_proxy",
     "strategy": "prefer_ipv4",
