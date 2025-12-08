@@ -8,7 +8,7 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 泄露]
 
 > 说明
 {: .prompt-tip }
-1. 此方案彻底防止了 DNS 泄露（针对未知域名走国外 DNS 解析且配置 `ecs`，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则），兼容性高，可放心使用
+1. 此方案彻底防止了 DNS 泄露（未知域名在匹配 `rules.GEOIP:cn` 规则时会走国外 DNS 解析且配置 `ecs`，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则），兼容性高，可放心使用
 2. 本教程以 [ShellCrash](https://github.com/juewuy/ShellCrash) 为例，其它客户端亦可参考
 3. 可进入 <https://ipleak.net> 测试 DNS 是否泄露，“DNS Addresses” 栏目下没有中国国旗（因 `ipleak.net` 属未知域名，默认走 `🐟 漏网之鱼` 规则），即代表 DNS 没有发生泄露
 
@@ -20,7 +20,7 @@ geosite.dat 文件须包含 `fakeip-filter` 和 `cn`，推荐导入我定制的[
 <img src="/assets/img/dns/dns-null.png" alt="ShellCrash 设置" width="60%" />
 
 ## 三、 DNS 防泄漏配置
-### 1. DNS 模式为 `mix` 并配置 `ecs`（推荐）
+### 1. DNS 模式为 `mix`（推荐）
 连接 SSH 后执行 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：
 >推荐将 `ecs` 设置为当前网络的公网 IP 段，如当前网络公网 IP 为 `202.103.17.123`，可设置为 `202.103.17.0/24`（后续维护更新可直接执行命令 `sed -i -E "s/(ecs=)[0-9.]+\/[0-9]+/\1$(curl -s 4.ipw.cn | cut -d. -f1-3).0\/24/" $CRASHDIR/yamls/user.yaml`）
 {: .prompt-info }
@@ -39,8 +39,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 28.0.0.1/8
   fake-ip-range6: fc00::/16
-  fake-ip-filter-mode: whitelist
-  fake-ip-filter: ['geosite:proxy']
+  fake-ip-filter: ['geosite:fakeip-filter,cn']
   respect-rules: true
   nameserver:
     # 推荐将 `ecs` 设置为当前网络的公网 IP 段
@@ -56,7 +55,7 @@ dns:
 
 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
-### 2. DNS 模式为 `fake-ip`
+### 2. DNS 模式为 `fake-ip`（不推荐）
 - ① 额外编辑配置文件，在《[生成带有自定义策略组和规则的 mihomo 配置文件直链-geodata 方案/添加模板](https://proxy-tutorials.dustinwin.us.kg/posts/link-mihomo-geodata/#%E4%BA%8C-%E6%B7%BB%E5%8A%A0%E6%A8%A1%E6%9D%BF)》编辑 .yaml 配置文件时，将 `rules` 里的所有 `GEOIP` 规则末尾加上 `no-resolve`，即修改为：
 
   ```yaml
@@ -79,14 +78,13 @@ dns:
     enhanced-mode: fake-ip
     fake-ip-range: 28.0.0.1/8
     fake-ip-range6: fc00::/16
-    fake-ip-filter-mode: whitelist
-    fake-ip-filter: ['geosite:proxy']
+    fake-ip-filter: ['geosite:fakeip-filter']
     nameserver:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
   ```
 
-- ③ 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
+  按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
 ### 3. DNS 模式为 `redir-host`
 连接 SSH 后执行 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：

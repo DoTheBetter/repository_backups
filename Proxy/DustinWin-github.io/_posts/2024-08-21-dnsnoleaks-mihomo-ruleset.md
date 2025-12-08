@@ -8,7 +8,7 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 泄露]
 
 > 说明
 {: .prompt-tip }
-1. 此方案彻底防止了 DNS 泄露（针对未知域名走国外 DNS 解析且配置 `ecs`，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则），兼容性高，可放心使用
+1. 此方案彻底防止了 DNS 泄露（未知域名在匹配 `rules.RULE-SET:cn` 规则时会走国外 DNS 解析且配置 `ecs`，解析出 IP 在国内则走 `🀄️ 直连 IP` 规则，否则走 `🐟 漏网之鱼` 规则），兼容性高，可放心使用
 2. 本教程以 [ShellCrash](https://github.com/juewuy/ShellCrash) 为例，其它客户端亦可参考
 3. 可进入 <https://ipleak.net> 测试 DNS 是否泄露，“DNS Addresses” 栏目下没有中国国旗（因 `ipleak.net` 属未知域名，默认走 `🐟 漏网之鱼` 规则），即代表 DNS 没有发生泄露
 
@@ -17,12 +17,20 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 泄露]
 
 ```yaml
 rule-providers:
-  proxy:
+  fakeip-filter:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/proxy.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
+    path: ./ruleset/fakeip-filter.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.mrs"
+    interval: 86400
+
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/cn.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"
     interval: 86400
 ```
 
@@ -50,8 +58,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 28.0.0.1/8
   fake-ip-range6: fc00::/16
-  fake-ip-filter-mode: whitelist
-  fake-ip-filter: ['rule-set:proxy']
+  fake-ip-filter: ['rule-set:fakeip-filter,cn']
   respect-rules: true
   nameserver:
     # 推荐将 `ecs` 设置为当前网络的公网 IP 段
@@ -67,7 +74,7 @@ dns:
 
 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
-### 2. DNS 模式为 `fake-ip`
+### 2. DNS 模式为  `fake-ip`（不推荐）
 - ① 额外编辑配置文件
   在《[生成带有自定义策略组和规则的 mihomo 配置文件直链-ruleset 方案/添加模板](https://proxy-tutorials.dustinwin.us.kg/posts/link-mihomo-ruleset/#%E4%BA%8C-%E6%B7%BB%E5%8A%A0%E6%A8%A1%E6%9D%BF)》编辑 .yaml 配置文件时，将 `rules` 里所有 IP 相关的规则末尾加上 `no-resolve`，即修改为：
 
@@ -92,14 +99,13 @@ dns:
     enhanced-mode: fake-ip
     fake-ip-range: 28.0.0.1/8
     fake-ip-range6: fc00::/16
-    fake-ip-filter-mode: whitelist
-    fake-ip-filter: ['rule-set:proxy']
+    fake-ip-filter: ['rule-set:fakeip-filter']
     nameserver:
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
   ```
 
-- ③ 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
+  按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
 
 ### 3. DNS 模式为 `redir-host`
 连接 SSH 后执行 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：
