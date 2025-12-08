@@ -13,10 +13,11 @@
 - [7.Docker 和 Docker compose 安装](README.md#7docker-和-docker-compose-安装)
 - [8.Nekobox 设置 shadowTLS 方法](README.md#8nekobox-设置-shadowtls-方法)
 - [9.主体目录文件及说明](README.md#9主体目录文件及说明)
-- [10.鸣谢下列作者的文章和项目](README.md#10鸣谢下列作者的文章和项目)
-- [11.感谢赞助商](README.md#11感谢赞助商)
-- [12.免责声明](README.md#12免责声明)
-- [13.开源证书](README.md#13开源证书)
+- [10.自签证书在不同客户端中的处理方式对比](README.md#10自签证书在不同客户端中的处理方式对比)
+- [11.鸣谢下列作者的文章和项目](README.md#11鸣谢下列作者的文章和项目)
+- [12.感谢赞助商](README.md#12感谢赞助商)
+- [13.免责声明](README.md#13免责声明)
+- [14.开源证书](README.md#14开源证书)
 
 
 * * *
@@ -590,11 +591,67 @@ services:
 ```
 
 
-## 10.鸣谢下列作者的文章和项目:
+## 10.自签证书在不同客户端中的处理方式对比
+
+| 客户端 / 工具 | 使用的证书验证方式 | SNI 是否必须匹配 SAN | 是否依赖完整证书链 | 使用的 Hash / 指纹类型 | SNI 用途说明 |
+|---------------|---------------------|------------------------|------------------------|--------------------------|----------------------|
+| **V2RayN** | 标准 X.509 证书链验证 | **是**（必须匹配） | ✔ 是 | 不使用指纹 | 用于 TLS Hostname 验证（必须与 SAN 一致） |
+| **NekoBox** | 标准 X.509 证书链验证 | **是**（必须匹配） | ✔ 是 | 不使用指纹 | 用于 TLS Hostname 验证（必须与 SAN 一致） |
+| **ShadowRocket** | 对证书 **DER 全内容** 做 SHA-256 | ✖ 不需要匹配 | ✖ 不依赖证书链 | **SHA-256(DER)** | 仅用于伪装，可为空或任意域名 |
+| **Clash Verge / Meta** | 对证书 **DER 全内容** 做 SHA-256 | ✖ 不需要匹配 | ✖ 不依赖证书链 | **SHA-256(DER)** | 仅用于伪装，可为空或任意域名 |
+| **Sing-box** | 仅验证 SPKI 公钥（SPKI pin） | ✖ 不需要匹配 | ✖ 不依赖证书链 | **SHA-256(SPKI Base64)** | 仅用于伪装，可为空或任意域名 |
+
+
+> **结论：**
+> - **V2RayN、NekoBox 必须要 SAN = SNI**，否则“x509: cannot validate certificate because it doesn't contain IP SAN”。  
+> - **ShadowRocket、Clash、Sing-box、HY2、TUIC 完全不需要 SAN**，因为用的是指纹机制。
+
+### X.509 自签证书结构与不同指纹方式包含内容对比
+
+| 证书字段 / 内容 | X.509 完整证书（TBSCert + Sig） | DER 指纹（SHA-256(DER)） | 公钥 SPKI（Subject Public Key Info） |
+|----------------|---------------------------------|----------------------------|-------------------------------------|
+| Version | ✔ 包含 | ✔ 包含 | ✖ 不包含 |
+| Serial Number | ✔ | ✔ | ✖ |
+| Issuer | ✔ | ✔ | ✖ |
+| Validity (Not Before / Not After) | ✔ | ✔ | ✖ |
+| Subject（CN） | ✔ | ✔ | ✖ |
+| **SAN（Subject Alternative Name）** | ✔ | ✔ | ✖ |
+| Extensions | ✔ | ✔ | ✖ |
+| **Public Key** | ✔ | ✔ | ✔ |
+| 公钥算法（ECC/P256 等） | ✔ | ✔ | ✔ |
+| EC 曲线参数 | ✔ | ✔ | ✔ |
+| Signature Algorithm | ✔ | ✔ | ✖ |
+| Signature Value | ✔ | ✔ | ✖ |
+| 用途场景 | V2RayN / NekoBox | ShadowRocket / Clash | Sing-box / Hysteria2 / TUIC |
+
+---
+
+### 指纹方式说明
+
+#### **1. X.509 证书链验证**
+- 完整验证 CA → Leaf 证书  
+- **必须要求：SNI = SAN 中的一个 DNS 名称**
+- 不允许 SAN 不匹配或缺失
+- 用于：**V2RayN / NekoBox**
+
+#### **2. SHA-256(DER) 指纹**
+- 对证书 **整体 DER（二进制）内容** 计算 SHA-256  
+- 包含所有字段（版本、序列号、Subject、SAN、扩展、公钥、签名等）  
+- **任意字段变化 → 指纹都会改变**
+- 用于：**ShadowRocket / Clash Mihomo**
+
+#### **3. SHA-256(SPKI) 指纹**
+- 只包含 **公钥 SPKI（Subject Public Key Info）**
+- 证书重新签发、变更 Issuer、Subject、SAN **都不会改变**
+- 更稳定、更适合自签证书
+- 用于：**Sing-box**
+
+
+## 11.鸣谢下列作者的文章和项目:
 千歌 sing-box 模板: https://github.com/chika0801/sing-box-examples  
 
 
-## 11.感谢赞助商
+## 12.感谢赞助商
 
 ### 🚀 Sponsored by SharonNetworks
 
@@ -616,11 +673,12 @@ SharonNetworks 为您的业务起飞保驾护航！
 想体验同款构建环境？欢迎 [访问 Sharon 官网](https://sharon.io) 或 [加入 Telegram 群组](https://t.me/SharonNetwork) 了解更多并申请赞助。
 
 
-## 12.免责声明:
+## 13.免责声明
 * 本程序仅供学习了解, 非盈利目的，请于下载后 24 小时内删除, 不得用作任何商业用途, 文字、数据及图片均有所属版权, 如转载须注明来源。
 * 使用本程序必循遵守部署免责声明。使用本程序必循遵守部署服务器所在地、所在国家和用户所在国家的法律法规, 程序作者不对使用者任何不当行为负责。
 
-## 13.开源证书
+
+## 14.开源证书
 * 本项目严格遵守 GNU GPL v3 许可证 [LICENSE](LICENSE)。
 * 任何形式的复制、分发、修改或衍生使用，必须完整保留原版权声明、许可证文本，并以相同许可证开源发布。违反此条款（如闭源使用、商业独占或未开源修改版）将被视为抄袭，作者保留追究法律责任的权利。
 * 鼓励社区贡献，但请通过 Pull Request 提交。
