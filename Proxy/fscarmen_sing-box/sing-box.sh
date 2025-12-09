@@ -228,7 +228,7 @@ E[99]="The \${SING_BOX_SCRIPT} is detected to be installed. Script exits."
 C[99]="检测到已安装 \${SING_BOX_SCRIPT}，脚本退出!"
 E[100]="Can't get the official latest version. Script exits."
 C[100]="获取不到官方的最新版本，脚本退出!"
-E[101]=""
+E[101]="The privateKey should be a 43-character base64url encoding; please check."
 C[101]="privateKey 应该是43位的 base64url 编码，请检查"
 E[102]="Backing up old version sing-box to ${WORK_DIR}/sing-box.bak"
 C[102]="已备份旧版本 sing-box 到 ${WORK_DIR}/sing-box.bak"
@@ -478,7 +478,7 @@ input_argo_auth() {
     ARGO_RUNS="${WORK_DIR}/cloudflared tunnel --edge-ip-version auto --no-autoupdate --url http://localhost:$PORT_NGINX"
   elif [ -n "${ARGO_DOMAIN}" ]; then
     if [ -z "${ARGO_AUTH}" ]; then
-      until [[ "$ARGO_AUTH" =~ TunnelSecret || "$ARGO_AUTH" =~ ^[A-Z0-9a-z=]{120,250}$ || "$ARGO_AUTH" =~ .*cloudflared.*service[[:space:]]+install[[:space:]]+[A-Z0-9a-z=]{1,100} ]]; do
+      until [[ "$ARGO_AUTH" =~ TunnelSecret || "$ARGO_AUTH" =~ [A-Z0-9a-z=]{120,250}$ ]]; do
         [ "$DOMAIN_ERROR_TIME" != 6 ] && warning "\n $(text 86) \n"
       (( DOMAIN_ERROR_TIME-- )) || true
         [ "$DOMAIN_ERROR_TIME" != 0 ] && reading "\n $(text 85) " ARGO_AUTH || error "\n $(text 3) \n"
@@ -491,7 +491,7 @@ input_argo_auth() {
       ARGO_JSON=${ARGO_AUTH//[ ]/}
       [ "$IS_CHANGE_ARGO" = 'is_install' ] && export_argo_json_file $TEMP_DIR || export_argo_json_file ${WORK_DIR}
       ARGO_RUNS="${WORK_DIR}/cloudflared tunnel --edge-ip-version auto --config ${WORK_DIR}/tunnel.yml run"
-    elif [[ "${ARGO_AUTH,,}" =~ .*[a-z0-9=]{120,250}$ ]]; then
+    elif [[ "${ARGO_AUTH}" =~ [A-Z0-9a-z=]{120,250}$ ]]; then
       ARGO_TYPE=is_token_argo
       ARGO_TOKEN=$(awk '{print $NF}' <<< "$ARGO_AUTH")
       ARGO_RUNS="${WORK_DIR}/cloudflared tunnel --edge-ip-version auto run --token ${ARGO_TOKEN}"
@@ -1290,7 +1290,7 @@ http {
     default                    /;               # 默认路径
     ~*v2rayN                   /v2rayn;         # 匹配 V2rayN 客户端
     ~*clash                    /clash;          # 匹配 Clash 客户端
-    ~*Neko|Throne              /neko;           # 匹配 Neko 客户端
+    ~*Neko|Throne              /neko;           # 匹配 Neko / Throne 客户端
     ~*ShadowRocket             /shadowrocket;   # 匹配 ShadowRocket 客户端
     ~*SFM                      /sing-box-pc;    # 匹配 Sing-box pc 客户端
     ~*SFI|SFA                  /sing-box-phone; # 匹配 Sing-box phone 客户端
@@ -3545,7 +3545,7 @@ menu_setting() {
     OPTION[8]="8.  $(text 69)"
     OPTION[9]="9.  $(text 76)"
 
-    ACTION[1]() { IS_FAST_INSTALL='is_fast_install';   CHOOSE_PROTOCOLS=${CHOOSE_PROTOCOLS:-'a'}; START_PORT=${START_PORT:-"$START_PORT_DEFAULT"}; CDN=${CDN:-"${CDN_DOMAIN[0]}"}; IS_SUB='is_sub'; IS_ARGO='is_argo'; PORT_HOPPING_RANGE=${PORT_HOPPING_RANGE:-'50000:51000'}; install_sing-box; export_list install; create_shortcut; exit; }
+    ACTION[1]() { IS_FAST_INSTALL='is_fast_install'; CHOOSE_PROTOCOLS=${CHOOSE_PROTOCOLS:-'a'}; START_PORT=${START_PORT:-"$START_PORT_DEFAULT"}; CDN=${CDN:-"${CDN_DOMAIN[0]}"}; IS_SUB='is_sub'; IS_ARGO='is_argo'; PORT_HOPPING_RANGE=${PORT_HOPPING_RANGE:-'50000:51000'}; install_sing-box; export_list install; create_shortcut; exit; }
     ACTION[2]() { IS_SUB=is_sub; IS_ARGO=is_argo; install_sing-box; export_list install; create_shortcut; exit; }
     ACTION[3]() { IS_SUB=no_sub; IS_ARGO=is_argo; install_sing-box; export_list install; create_shortcut; exit; }
     ACTION[4]() { IS_SUB=is_sub; IS_ARGO=no_argo; install_sing-box; export_list install; create_shortcut; exit; }
