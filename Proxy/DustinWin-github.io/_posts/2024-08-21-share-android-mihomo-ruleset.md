@@ -311,7 +311,6 @@ hosts:
   dns.google: [8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844]
   dns11.quad9.net: [9.9.9.11, 149.112.112.11, 2620:fe::11, 2620:fe::fe:11]
   miwifi.com: [192.168.31.1, 127.0.0.1]
-  services.googleapis.cn: [services.googleapis.com]
 
 dns:
   enable: true
