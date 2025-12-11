@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
 # 当前脚本版本号
-VERSION='v1.3.1 (2025.12.08)'
+VERSION='v1.3.2 (2025.12.11)'
+
+# Github 反代加速代理
+GITHUB_PROXY=('https://v6.gh-proxy.org/' 'https://gh-proxy.com/' 'https://hub.glowp.xyz/' 'https://proxy.vvvv.ee/')
 
 # 各变量默认值
-GH_PROXY='https://hub.glowp.xyz/'
 TEMP_DIR='/tmp/sing-box'
 WORK_DIR='/etc/sing-box'
 START_PORT_DEFAULT='8881'
@@ -16,7 +18,7 @@ TLS_SERVER_DEFAULT=addons.mozilla.org
 PROTOCOL_LIST=("XTLS + reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "trojan" "vmess + ws" "vless + ws + tls" "H2 + reality" "gRPC + reality" "AnyTLS")
 NODE_TAG=("xtls-reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "trojan" "vmess-ws" "vless-ws-tls" "h2-reality" "grpc-reality" "anytls")
 CONSECUTIVE_PORTS=${#PROTOCOL_LIST[@]}
-CDN_DOMAIN=("skk.moe" "ip.sb" "time.is" "cfip.xxxxxxxx.tk" "bestcf.top" "cdn.2020111.xyz" "xn--b6gac.eu.org")
+CDN_DOMAIN=("skk.moe" "ip.sb" "time.is" "cfip.xxxxxxxx.tk" "bestcf.top" "cdn.2020111.xyz" "xn--b6gac.eu.org" "cf.090227.xyz")
 SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/fscarmen/client_template/main"
 DEFAULT_NEWEST_VERSION='1.12.0-beta.15'
 
@@ -28,8 +30,8 @@ mkdir -p $TEMP_DIR
 
 E[0]="Language:\n 1. English (default) \n 2. 简体中文"
 C[0]="${E[0]}"
-E[1]="\\n 1. Reality Configuration Update: In Reality configurations, the original multiplexing (multiplex) has been replaced with xtls-rprx-vision flow control, improving transmission efficiency, reducing latency, and enhancing security. The original configuration conversion script command remains fully compatible and unchanged. — bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/vision.sh)\\n 2. Quick Install Mode: Added a one-click installation feature that auto-fills all parameters, simplifying the deployment process. Chinese users can use -l or -L; English users can use -k or -K. Case-insensitive support makes operations more flexible.\\n 3. Custom Reality Key Support: In response to user feedback, you can now specify a custom Reality private key via --REALITY_PRIVATE=<privateKey>. The script will automatically compute the corresponding public key using the integrated API. If left blank, it generates a random private-public key pair in real-time.\\n 4. Enhanced HTTP + Reality Support in Clash Clients: Added full compatibility for HTTP + Reality transport in Clash clients, improving connection stability and performance."
-C[1]="\\n 1. Reality 配置变更：在 Reality 配置中，将原来的多路复用（multiplex）替换为 xtls-rprx-vision 流控，提升传输效率、降低延迟并增强安全性。原配置转换脚本命令—— bash <(curl -sSL https://raw.githubusercontent.com/fscarmen/tools/main/vision.sh)\\n 2. 极速安装模式：新增一键安装功能，所有参数自动填充，简化部署流程。中文用户使用 -l 或 -L，英文用户使用 -k 或 -K，大小写均支持，操作更灵活\\n 3. 自定义 Reality 密钥支持：响应用户反馈，现支持通过 --REALITY_PRIVATE=<privateKey> 指定自定义 Reality 私钥，脚本将调用相关 API 自动计算对应公钥。若留空，则实时生成随机公私钥对\\n 4. HTTP + Reality 在 Clash 客户端的增强支持：补充了对 Clash 客户端中 HTTP + Reality 传输方式的完整兼容，提升了连接稳定性和性能"
+E[1]="Argo tunnel creation via API. Suitable for users with large-scale deployments, one Token for all. Automatically completed: Create tunnel > DNS configuration > Origin settings. Thanks to [zmlu] for providing the method: https://raw.githubusercontent.com/zmlu/sba/main/tunnel.sh"
+C[1]="Argo 隧道新增通过 API 创建，适合大量部署的用户，一个 Token 走天下， 自动完成：创建隧道 > DNS 配置 > 回源设置。感谢热心网友 [zmlu] 提供的方法: https://raw.githubusercontent.com/zmlu/sba/main/tunnel.sh"
 E[2]="Downloading Sing-box. Please wait a seconds ..."
 C[2]="下载 Sing-box 中，请稍等 ..."
 E[3]="Input errors up to 5 times.The script is aborted."
@@ -54,8 +56,8 @@ E[12]="Please enter UUID \(Default is \${UUID_DEFAULT}\):"
 C[12]="请输入 UUID \(默认为 \${UUID_DEFAULT}\):"
 E[13]="Please enter the node name. \(Default is \${NODE_NAME_DEFAULT}\):"
 C[13]="请输入节点名称 \(默认为: \${NODE_NAME_DEFAULT}\):"
-E[14]="Node name only allow uppercase and lowercase letters and numeric characters, please re-enter \(\${a} times remaining\):"
-C[14]="节点名称只允许英文大小写及数字字符，请重新输入 \(剩余\${a}次\):"
+E[14]="Node name only allow uppercase and lowercase letters, numeric characters, hyphens, underscores, dots and @, please re-enter \(\${a} times remaining\):"
+C[14]="节点名称只允许英文大小写、数字、连字符、下划线、点和@字符，请重新输入 \(剩余\${a}次\):"
 E[15]="Sing-box script has not been installed yet."
 C[15]="Sing-box 脚本还没有安装"
 E[16]="Sing-box is completely uninstalled."
@@ -196,8 +198,8 @@ E[83]="To uninstall Nginx press [y], it is not uninstalled by default:"
 C[83]="如要卸载 Nginx 请按 [y]，默认不卸载:"
 E[84]="Set SElinux: enforcing --> disabled"
 C[84]="设置 SElinux: enforcing --> disabled"
-E[85]="Please input Argo Token or Json ( User can easily obtain the json at https://fscarmen.cloudflare.now.cc ):"
-C[85]="请输入 Argo Token 或者 Json ( 用户通过以下网站轻松获取 json: https://fscarmen.cloudflare.now.cc ):"
+E[85]="Please enter Argo Token, Argo Json or Cloudflare API\n\n [*] Token: Visit https://dash.cloudflare.com/ , Zero Trust > Networks > Connectors > Create a tunnel > Select Cloudflared\n\n [*] Json: Users can easily obtain it through the following website: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: Visit https://dash.cloudflare.com/profile/api-tokens > Create Token > Create Custom Token > Add the following permissions:\n - Account > Cloudflare One Connectors: cloudflared > Edit\n - Zone > Zone > Read\n - Zone > DNS > Edit\n - Account Resources > Include > Required Account\n - Zone Resources > Include > Specific Zone > Required Domain"
+C[85]="请输入 Argo Token, Argo Json 或者 Cloudflare API\n\n [*] Token: 访问 https://dash.cloudflare.com/ ，Zero Trust > 网络 > 连接器 > 创建隧道 > 选择 Cloudflared\n\n [*] Json: 用户通过以下网站轻松获取: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: 访问 https://dash.cloudflare.com/profile/api-tokens > 创建令牌 > 创建自定义令牌 > 添加以下权限:\n - 帐户 > Cloudflare One连接器: Cloudflared > 编辑\n - 区域 > 区域 > 读取\n - 区域 > DNS > 编辑\n - 帐户资源> 包括 > 所需账户\n - 区域资源 > 包括 > 特定区域 > 所需域名"
 E[86]="Argo authentication message does not match the rules, neither Token nor Json, script exits. Feedback:[https://github.com/fscarmen/sba/issues]"
 C[86]="Argo 认证信息不符合规则，既不是 Token，也是不是 Json，脚本退出，问题反馈:[https://github.com/fscarmen/sba/issues]"
 E[87]="Please input the Argo domain (Default is temporary domain if left blank):"
@@ -208,8 +210,8 @@ E[89]="( Additional dependencies: nginx )"
 C[89]="( 额外依赖: nginx )"
 E[90]="Argo tunnel is: \$ARGO_TYPE\\\n The domain is: \$ARGO_DOMAIN"
 C[90]="Argo 隧道类型为: \$ARGO_TYPE\\\n 域名是: \$ARGO_DOMAIN"
-E[91]="Argo tunnel type:\n 1. Try\n 2. Token or Json"
-C[91]="Argo 隧道类型:\n 1. Try\n 2. Token 或者 Json"
+E[91]="Argo tunnel type:\n 1. Try\n 2. Token or Json. Including created through Cloudflare API"
+C[91]="Argo 隧道类型:\n 1. Try\n 2. Token 或者 Json，包括通过 Cloudflare API 创建"
 E[92]="Change the Argo tunnel (sb -t)"
 C[92]="更换 Argo 隧道 (sb -t)"
 E[93]="Can't get the temporary tunnel domain, script exits. Feedback:[https://github.com/fscarmen/sing-box/issues]"
@@ -259,7 +261,13 @@ C[114]="privateKey 私钥格式错误，应该为 43位 base64url 编码"
 E[115]="Quick install mode (all protocols + subscription) (sb -k)"
 C[115]="极速安装模式 (所有协议 + 订阅) (sb -l)"
 E[116]="Failed to generate publicKey from privateKey, using random privateKey"
-C[116]="从 privateKey 生成 publicKey失败，将使用随机公私钥"
+C[116]="从 privateKey 生成 publicKey 失败，将使用随机公私钥"
+E[117]="Failed to create Tunnel using Cloudflare API"
+C[117]="使用 Cloudflare API 创建 Tunnel 失败"
+E[118]="Please enter [Token, Json, API] value:"
+C[118]="请输入 [Token, Json, API] 的值:"
+E[119]="Using Cloudflare API to create Tunnel and handle DNS config..."
+C[119]="使用 Cloudflare API 创建 Tunnel 和处理 DNS 配置..."
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -271,7 +279,19 @@ text() { grep -q '\$' <<< "${E[$*]}" && eval echo "\$(eval echo "\${${L}[$*]}")"
 
 # 检测是否需要启用 Github CDN，如能直接连通，则不使用
 check_cdn() {
-  [ -n "$GH_PROXY" ] && wget --server-response --quiet --output-document=/dev/null --no-check-certificate --tries=2 --timeout=3 ${GH_PROXY}https://raw.githubusercontent.com/fscarmen/sing-box/main/README.md >/dev/null 2>&1 || unset GH_PROXY
+  # 首先测试默认连接（不使用代理）
+  local DIRECT_STATUS_CODE=$(wget --server-response --spider --quiet --timeout=3 --tries=1 https://api.github.com/repos/SagerNet/sing-box/releases 2>&1 | grep "HTTP/" | awk '{print $2}')
+
+  if [ "$DIRECT_STATUS_CODE" != "200" ]; then
+    # 如果直连失败，则逐一测试各github proxy
+    for PROXY_URL in "${GITHUB_PROXY[@]}"; do
+      local PROXY_STATUS_CODE=$(wget --server-response --spider --quiet --timeout=3 --tries=1 ${PROXY_URL}https://api.github.com/repos/SagerNet/sing-box/releases 2>&1 | grep "HTTP/" | awk '{print $2}')
+      [ "$PROXY_STATUS_CODE" = "200" ] && GH_PROXY="$PROXY_URL" && break
+    done
+  else
+    # 直连成功，不使用代理
+    unset GH_PROXY
+  fi
 }
 
 # 检测是否解锁 chatGPT，以决定是否使用 warp 链式代理或者是 direct out，此处判断改编自 https://github.com/lmc999/RegionRestrictionCheck
@@ -386,6 +406,130 @@ change_cdn() {
   export_list; info "\n $(text 112) \n"
 }
 
+# 创建 Argo Tunnel API
+create_argo_tunnel() {
+  local CLOUDFLARE_API_TOKEN="$1"
+  local TUNNEL_NAME=${ARGO_DOMAIN%%.*}
+  local ROOT_DOMAIN=${ARGO_DOMAIN#*.}
+
+  # 步骤 1: 获取 Zone ID 和 Account ID
+  local ZONE_RESPONSE=$(wget --no-check-certificate -qO- \
+    --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+    --header="Content-Type: application/json" \
+    "https://api.cloudflare.com/client/v4/zones?name=${ROOT_DOMAIN}")
+
+  local ZONE_ID=$(sed 's/.*"result":[ ]*[{"id:[ ]*"\([^"]*\)",.*/\1/' <<< $ZONE_RESPONSE)
+  [[ ! "$ZONE_ID" =~ ^[a-f0-9]{32}$ ]] && return 1
+
+  local ACCOUNT_ID=$(sed 's/.*account":[ ]*{"id":"\([^"]*\)",.*/\1/' <<< $ZONE_RESPONSE)
+  [[ ! "$ACCOUNT_ID" =~ ^[a-f0-9]{32}$ ]] && return 1
+
+  # 步骤 2: 查询并处理现有 Tunnel
+  local TUNNEL_LIST=$(wget --no-check-certificate -qO- \
+    --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+    --header="Content-Type: application/json" \
+    "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel")
+
+  # 检查是否存在同名 Tunnel（可能有多个）；如果完全没有隧道，返回 {"result":null,"success":false,"errors":[{"code":7003,"message":"Could not route to /client/v4/accounts/cfd_tunnel, perhaps your object identifier is invalid?"}],"messages":[]}
+  ! grep -q '"code":7003' <<< $TUNNEL_LIST && grep -q '"name":"'$TUNNEL_NAME'"' <<< $TUNNEL_LIST && local EXISTING_TUNNEL_IDS=($(echo "$TUNNEL_LIST" | sed 's/},{/\n/g' | sed -n 's/.*"id":"\([^"]\+\)",.*"deleted_at":null,"name":"'$TUNNEL_NAME'".*/\1/gp'))
+
+  [[ "${#EXISTING_TUNNEL_IDS[@]}" > 0 ]] && \
+  for TUNNEL_ID_TO_DELETE in "${EXISTING_TUNNEL_IDS[@]}"; do
+    wget --no-check-certificate -qO- \
+      --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+      --header="Content-Type: application/json" \
+      --method=DELETE \
+      "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID_TO_DELETE}" \
+      >/dev/null 2>&1
+  done
+
+  # 生成 Tunnel Secret (至少 32 字节的 base64 编码)
+  local TUNNEL_SECRET=$(openssl rand -base64 32)
+
+  # 创建新 Tunnel
+  local CREATE_RESPONSE=$(wget --no-check-certificate -qO- \
+    --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+    --header="Content-Type: application/json" \
+    --post-data="{
+      \"name\": \"$TUNNEL_NAME\",
+      \"config_src\": \"cloudflare\",
+      \"tunnel_secret\": \"$TUNNEL_SECRET\"
+    }" \
+    "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel")
+
+  grep -q '"success":[ ]*true' <<< "$CREATE_RESPONSE" && \
+  [[ $CREATE_RESPONSE =~ \"id\":\"([^\"]+)\".*\"token\":\"([^\"]+)\" ]] && \
+  local TUNNEL_ID=${BASH_REMATCH[1]} TUNNEL_TOKEN=${BASH_REMATCH[2]} || \
+  return 1
+
+  # 步骤 2: 配置 Tunnel ingress 规则...
+  local CONFIG_RESPONSE=$(wget --no-check-certificate -qO- \
+    --method=PUT \
+    --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+    --header="Content-Type: application/json" \
+    --body-data="{
+      \"config\": {
+        \"ingress\": [
+          {
+            \"service\": \"http://localhost:${PORT_NGINX}\",
+            \"hostname\": \"${ARGO_DOMAIN}\"
+          },
+          {
+            \"service\": \"http_status:404\"
+          }
+        ],
+        \"warp-routing\": {
+          \"enabled\": false
+        }
+      }
+    }" \
+    "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations")
+
+  ! grep -q '"success":[ ]*true' <<< $CONFIG_RESPONSE && return 1
+
+  # 步骤 3: 管理 DNS 记录
+  local DNS_LIST=$(wget --no-check-certificate -qO- \
+    --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+    --header="Content-Type: application/json" \
+    "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=CNAME&name=${ARGO_DOMAIN}")
+
+  local EXISTING_DNS_ID=$(sed 's/.*"result":[ ]*[{"id:[ ]*"\([^"]*\)",.*/\1/' <<< $DNS_LIST)
+
+  local DNS_PAYLOAD="{
+    \"name\": \"${ARGO_DOMAIN}\",
+    \"type\": \"CNAME\",
+    \"content\": \"${TUNNEL_ID}.cfargotunnel.com\",
+    \"proxied\": true,
+    \"settings\": {
+      \"flatten_cname\": false
+    }
+  }"
+
+  if [[ "$EXISTING_DNS_ID" =~ ^[a-f0-9]{32}$ ]]; then
+    # 发现现有 DNS 记录，使用 PATCH 更新
+    local DNS_RESPONSE=$(wget --no-check-certificate -qO- \
+      --method=PATCH \
+      --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+      --header="Content-Type: application/json" \
+      --body-data="$DNS_PAYLOAD" \
+      "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${EXISTING_DNS_ID}")
+  else
+    # 未找到现有 DNS 记录，使用 POST 创建
+    local DNS_RESPONSE=$(wget --no-check-certificate -qO- \
+      --method=POST \
+      --header="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+      --header="Content-Type: application/json" \
+      --body-data="$DNS_PAYLOAD" \
+      "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records")
+  fi
+
+  ! grep -q '"success":[ ]*true' <<<"$DNS_RESPONSE" && return 1
+
+  # 返回 Argo Tunnel Token 或者 Json
+  ### echo "$TUNNEL_TOKEN"
+  echo "{\"AccountTag\":\"$ACCOUNT_ID\",\"TunnelSecret\":\"$TUNNEL_SECRET\",\"TunnelID\":\"$TUNNEL_ID\",\"Endpoint\":\"\"}"
+}
+
 # 输入 Nginx 服务端口
 input_nginx_port() {
   local NUM=$1
@@ -459,7 +603,7 @@ input_reality_key() {
 input_argo_auth() {
   local IS_CHANGE_ARGO=$1
   [ -n "$IS_CHANGE_ARGO" ] && local EMPTY_ERROR_TIME=5
-  local DOMAIN_ERROR_TIME=6
+  local DOMAIN_ERROR_TIME=6 ARGO_AUTH_LENGTH=40
 
   # 处理可能输入的错误，去掉开头和结尾的空格，去掉最后的 :
   if [ "$IS_CHANGE_ARGO" = 'is_change_argo' ]; then
@@ -478,17 +622,24 @@ input_argo_auth() {
     ARGO_RUNS="${WORK_DIR}/cloudflared tunnel --edge-ip-version auto --no-autoupdate --url http://localhost:$PORT_NGINX"
   elif [ -n "${ARGO_DOMAIN}" ]; then
     if [ -z "${ARGO_AUTH}" ]; then
-      until [[ "$ARGO_AUTH" =~ TunnelSecret || "$ARGO_AUTH" =~ [A-Z0-9a-z=]{120,250}$ ]]; do
+      until [[ "$ARGO_AUTH" =~ TunnelSecret || "$ARGO_AUTH" =~ [A-Z0-9a-z=]{120,250}$ || "${#ARGO_AUTH}" = $ARGO_AUTH_LENGTH ]]; do
         [ "$DOMAIN_ERROR_TIME" != 6 ] && warning "\n $(text 86) \n"
       (( DOMAIN_ERROR_TIME-- )) || true
-        [ "$DOMAIN_ERROR_TIME" != 0 ] && reading "\n $(text 85) " ARGO_AUTH || error "\n $(text 3) \n"
+        [ "$DOMAIN_ERROR_TIME" != 0 ] && hint "\n $(text 85) \n " && reading "\n $(text 118) " ARGO_AUTH || error "\n $(text 3) \n"
       done
     fi
 
     # 根据 ARGO_AUTH 的内容，自行判断是 Json 还是 Token
-    if [[ "$ARGO_AUTH" =~ TunnelSecret ]]; then
+    if [[ "$ARGO_AUTH" =~ TunnelSecret || "${#ARGO_AUTH}" = $ARGO_AUTH_LENGTH ]]; then
+      if [[ "${#ARGO_AUTH}" = $ARGO_AUTH_LENGTH ]]; then
+        hint "\n $(text 119) \n "
+        local ARGO_API=$(create_argo_tunnel ${ARGO_AUTH})
+        [[ "$ARGO_API" =~ TunnelSecret ]] && ARGO_JSON=$ARGO_API || error "\n $(text 117) \n"
+      else
+        ARGO_JSON=${ARGO_AUTH//[ ]/}
+      fi
+
       ARGO_TYPE=is_json_argo
-      ARGO_JSON=${ARGO_AUTH//[ ]/}
       [ "$IS_CHANGE_ARGO" = 'is_install' ] && export_argo_json_file $TEMP_DIR || export_argo_json_file ${WORK_DIR}
       ARGO_RUNS="${WORK_DIR}/cloudflared tunnel --edge-ip-version auto --config ${WORK_DIR}/tunnel.yml run"
     elif [[ "${ARGO_AUTH}" =~ [A-Z0-9a-z=]{120,250}$ ]]; then
@@ -3724,7 +3875,6 @@ done
 
 check_root
 check_arch
-check_system_info
 check_dependencies
 check_system_ip
 check_install

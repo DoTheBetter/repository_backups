@@ -702,8 +702,128 @@ EOF
 
   # 判断 argo 隧道类型
   if [[ -n "$ARGO_DOMAIN" && -n "$ARGO_AUTH" ]]; then
-    if [[ "$ARGO_AUTH" =~ TunnelSecret ]]; then
-      ARGO_JSON=${ARGO_AUTH//[ ]/}
+    if [[ "$ARGO_AUTH" =~ TunnelSecret || "${#ARGO_AUTH}" == 40 ]]; then
+      # 检查是否为 Cloudflare API Token (长度为40的字符串)
+      if [[ "${#ARGO_AUTH}" == 40 ]]; then
+        # 使用 Cloudflare API 创建隧道
+        echo "使用 Cloudflare API 创建隧道..."
+        
+        # 获取根域名
+        local ROOT_DOMAIN=${ARGO_DOMAIN#*.}
+        
+        # 获取 Zone ID 和 Account ID
+        local ZONE_RESPONSE=$(wget --no-check-certificate -qO- \
+          --header="Authorization: Bearer ${ARGO_AUTH}" \
+          --header="Content-Type: application/json" \
+          "https://api.cloudflare.com/client/v4/zones?name=${ROOT_DOMAIN}")
+        
+        local ZONE_ID=$(sed 's/.*"result":[ ]*[{"id:[ ]*"\([^"]*\)",.*/\1/' <<< $ZONE_RESPONSE)
+        local ACCOUNT_ID=$(sed 's/.*account":[ ]*{"id":"\([^"]*\)",.*/\1/' <<< $ZONE_RESPONSE)
+        
+        # 删除同名隧道（如果存在）
+        local TUNNEL_LIST=$(wget --no-check-certificate -qO- \
+          --header="Authorization: Bearer ${ARGO_AUTH}" \
+          --header="Content-Type: application/json" \
+          "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel")
+        
+        if grep -q '"name":"'$ARGO_DOMAIN'' <<< $TUNNEL_LIST; then
+          local EXISTING_TUNNEL_ID=$(echo "$TUNNEL_LIST" | sed 's/},{/\n/g' | sed -n 's/.*"id":"\([^"]\+\)",.*"deleted_at":null,"name":"'$ARGO_DOMAIN'".*/\1/gp' | head -1)
+          if [ -n "$EXISTING_TUNNEL_ID" ]; then
+            wget --no-check-certificate -qO- \
+              --header="Authorization: Bearer ${ARGO_AUTH}" \
+              --header="Content-Type: application/json" \
+              --method=DELETE \
+              "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${EXISTING_TUNNEL_ID}" \
+              >/dev/null 2>&1
+          fi
+        fi
+        
+        # 生成 Tunnel Secret
+        local TUNNEL_SECRET=$(openssl rand -base64 32)
+        
+        # 创建新隧道
+        local CREATE_RESPONSE=$(wget --no-check-certificate -qO- \
+          --header="Authorization: Bearer ${ARGO_AUTH}" \
+          --header="Content-Type: application/json" \
+          --post-data="{
+            \"name\": \"$ARGO_DOMAIN\",
+            \"config_src\": \"cloudflare\",
+            \"tunnel_secret\": \"$TUNNEL_SECRET\"
+          }" \
+          "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel")
+        
+        if grep -q '"success":[ ]*true' <<< "$CREATE_RESPONSE" && [[ $CREATE_RESPONSE =~ \"id\":\"([^\"]+)\".*\"token\":\"([^\"]+)\" ]]; then
+          local TUNNEL_ID=${BASH_REMATCH[1]}
+          
+          # 配置隧道ingress规则
+          local CONFIG_RESPONSE=$(wget --no-check-certificate -qO- \
+            --method=PUT \
+            --header="Authorization: Bearer ${ARGO_AUTH}" \
+            --header="Content-Type: application/json" \
+            --body-data="{
+              \"config\": {
+                \"ingress\": [
+                  {
+                    \"service\": \"http://localhost:${START_PORT}\",
+                    \"hostname\": \"${ARGO_DOMAIN}\"
+                  },
+                  {
+                    \"service\": \"http_status:404\"
+                  }
+                ],
+                \"warp-routing\": {
+                  \"enabled\": false
+                }
+              }
+            }" \
+            "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/cfd_tunnel/${TUNNEL_ID}/configurations")
+          
+          # 管理DNS记录
+          local DNS_LIST=$(wget --no-check-certificate -qO- \
+            --header="Authorization: Bearer ${ARGO_AUTH}" \
+            --header="Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=CNAME&name=${ARGO_DOMAIN}")
+          
+          local EXISTING_DNS_ID=$(sed 's/.*"result":[ ]*[{"id:[ ]*"\([^"]*\)",.*/\1/' <<< $DNS_LIST)
+          
+          local DNS_PAYLOAD="{
+            \"name\": \"${ARGO_DOMAIN}\",
+            \"type\": \"CNAME\",
+            \"content\": \"${TUNNEL_ID}.cfargotunnel.com\",
+            \"proxied\": true,
+            \"settings\": {
+              \"flatten_cname\": false
+            }
+          }"
+          
+          if [[ "$EXISTING_DNS_ID" =~ ^[a-f0-9]{32}$ ]]; then
+            # 更新现有DNS记录
+            wget --no-check-certificate -qO- \
+              --method=PATCH \
+              --header="Authorization: Bearer ${ARGO_AUTH}" \
+              --header="Content-Type: application/json" \
+              --body-data="$DNS_PAYLOAD" \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${EXISTING_DNS_ID}" \
+              >/dev/null 2>&1
+          else
+            # 创建新DNS记录
+            wget --no-check-certificate -qO- \
+              --method=POST \
+              --header="Authorization: Bearer ${ARGO_AUTH}" \
+              --header="Content-Type: application/json" \
+              --body-data="$DNS_PAYLOAD" \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records" \
+              >/dev/null 2>&1
+          fi
+          
+          # 构造ARGO_JSON
+          ARGO_JSON="{\"AccountTag\":\"$ACCOUNT_ID\",\"TunnelSecret\":\"$TUNNEL_SECRET\",\"TunnelID\":\"$TUNNEL_ID\",\"Endpoint\":\"\"}"
+
+      # 检查是否为 Json 值    
+      elif [[ "$ARGO_AUTH" =~ TunnelSecret ]]; then
+        ARGO_JSON=${ARGO_AUTH//[ ]/}
+      fi
+
       ARGO_RUNS="cloudflared tunnel --edge-ip-version auto --config ${WORK_DIR}/tunnel.yml run"
       echo $ARGO_JSON > ${WORK_DIR}/tunnel.json
       cat > ${WORK_DIR}/tunnel.yml << EOF
@@ -716,8 +836,9 @@ ingress:
   - service: http_status:404
 EOF
 
-    elif [[ "${ARGO_AUTH}" =~ [a-z0-9A-Z=]{120,250} ]]; then
-      [[ "{$ARGO_AUTH}" =~ cloudflared.*service ]] && ARGO_TOKEN=$(awk -F ' ' '{print $NF}' <<< "$ARGO_AUTH") || ARGO_TOKEN=$ARGO_AUTH
+    # 检查是否为 Token 值
+    elif [[ "${ARGO_AUTH}" =~ [a-z0-9A-Z=]{120,250}$ ]]; then
+      ARGO_TOKEN=$(awk '{print $NF}' <<< "$ARGO_AUTH")
       ARGO_RUNS="cloudflared tunnel --edge-ip-version auto run --token ${ARGO_TOKEN}"
     fi
   else
