@@ -397,7 +397,6 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 ### API Token 最小权限要求:
 1. Account - Cloudflare One Connectors: cloudflared - Edit
 2. Zone - DNS - Edit
-3. Zone - Zone - Read
 
 ### 创建 API Token 步骤:
 1. 访问 https://dash.cloudflare.com/profile/api-tokens
@@ -406,11 +405,10 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 4. 添加以下权限:
    - Account > Cloudflare One Connectors: cloudflared > Edit
    - Zone > DNS > Edit
-   - Zone > Zone > Read
 5. Account Resources: Include > 所需账户
 6. Zone Resources: Include > 特定Zone > 所需Zone
 
-<img width="1417" height="707" alt="image" src="https://github.com/user-attachments/assets/5b5336d6-8fa4-478b-9e3f-284774a60149" />
+<img width="1336" height="691" alt="image" src="https://github.com/user-attachments/assets/e9c6d946-02ed-48fc-81c4-0fe374461eca" />
 
 
 ## 8.Vmess / Vless 方案设置任意端口回源以使用 CDN
@@ -438,8 +436,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 docker run -dit \
     --pull always \
     --name sing-box \
-    -p 8800-8820:8800-8820/tcp \
-    -p 8800-8820:8800-8820/udp \
+    --network host \
     -e START_PORT=8800 \
     -e SERVER_IP=123.123.123.123 \
     -e XTLS_REALITY=true \
@@ -477,11 +474,7 @@ services:
         pull_policy: always
         container_name: sing-box
         restart: always
-        networks:
-            - sing-box
-        ports:
-            - "8800-8820:8800-8820/tcp"
-            - "8800-8820:8800-8820/udp"
+        network_mode: host
         environment:
             - START_PORT=8800
             - SERVER_IP=123.123.123.123
