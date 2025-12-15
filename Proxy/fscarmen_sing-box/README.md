@@ -394,19 +394,13 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 
 ## 7.使用 Cloudflare API 自动创建 Argo
 
-### API Token 最小权限要求:
-1. Account - Cloudflare One Connectors: cloudflared - Edit
-2. Zone - DNS - Edit
-
-### 创建 API Token 步骤:
 1. 访问 https://dash.cloudflare.com/profile/api-tokens
-2. 点击 "Create Token"
-3. 选择 "Create Custom Token"
-4. 添加以下权限:
-   - Account > Cloudflare One Connectors: cloudflared > Edit
-   - Zone > DNS > Edit
-5. Account Resources: Include > 所需账户
-6. Zone Resources: Include > 特定Zone > 所需Zone
+2. API 令牌 > 创建令牌 > 创建自定义令牌
+3. 添加以下权限:
+   - 帐户 > Cloudflare One连接器: Cloudflared > 编辑
+   - 区域 > DNS > 编辑
+4. 帐户资源 > 包括 > 所需账户
+5. 区域资源 > 包括 > 特定区域 > 所需域名
 
 <img width="1336" height="691" alt="image" src="https://github.com/user-attachments/assets/e9c6d946-02ed-48fc-81c4-0fe374461eca" />
 

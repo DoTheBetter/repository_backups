@@ -20,7 +20,7 @@ NODE_TAG=("xtls-reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "trojan" "
 CONSECUTIVE_PORTS=${#PROTOCOL_LIST[@]}
 CDN_DOMAIN=("skk.moe" "ip.sb" "time.is" "cfip.xxxxxxxx.tk" "bestcf.top" "cdn.2020111.xyz" "xn--b6gac.eu.org" "cf.090227.xyz")
 SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/fscarmen/client_template/main"
-DEFAULT_NEWEST_VERSION='1.12.0-beta.15'
+DEFAULT_NEWEST_VERSION='1.13.0-alpha.28'
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -198,7 +198,7 @@ E[83]="To uninstall Nginx press [y], it is not uninstalled by default:"
 C[83]="如要卸载 Nginx 请按 [y]，默认不卸载:"
 E[84]="Set SElinux: enforcing --> disabled"
 C[84]="设置 SElinux: enforcing --> disabled"
-E[85]="Please enter Argo Token, Argo Json or Cloudflare API\n\n [*] Token: Visit https://dash.cloudflare.com/ , Zero Trust > Networks > Connectors > Create a tunnel > Select Cloudflared\n\n [*] Json: Users can easily obtain it through the following website: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: Visit https://dash.cloudflare.com/profile/api-tokens > Create Token > Create Custom Token > Add the following permissions:\n - Account > Cloudflare One Connectors: cloudflared > Edit\n - Zone > DNS > Edit\n\n - Account Resources: Include > Required Account\n - Zone Resources: Include > Specific Zone > Required Domain"
+E[85]="Please enter Argo Token, Argo Json or Cloudflare API\n\n [*] Token: Visit https://dash.cloudflare.com/ , Zero Trust > Networks > Connectors > Create a tunnel > Select Cloudflared\n\n [*] Json: Users can easily obtain it through the following website: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: Visit https://dash.cloudflare.com/profile/api-tokens > Create Token > Create Custom Token > Add the following permissions:\n - Account > Cloudflare One Connectors: cloudflared > Edit\n - Zone > DNS > Edit\n\n - Account Resources: Include > Required Account\n - Zone Resources: Include > Specific zone > Argo Root Domain"
 C[85]="请输入 Argo Token, Argo Json 或者 Cloudflare API\n\n [*] Token: 访问 https://dash.cloudflare.com/ ，Zero Trust > 网络 > 连接器 > 创建隧道 > 选择 Cloudflared\n\n [*] Json: 用户通过以下网站轻松获取: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: 访问 https://dash.cloudflare.com/profile/api-tokens > 创建令牌 > 创建自定义令牌 > 添加以下权限:\n - 帐户 > Cloudflare One连接器: Cloudflared > 编辑\n - 区域 > DNS > 编辑\n\n - 帐户资源: 包括 > 所需账户\n - 区域资源: 包括 > 特定区域 > 所需域名"
 E[86]="Argo authentication message does not match the rules, neither Token nor Json, script exits. Feedback:[https://github.com/fscarmen/sba/issues]"
 C[86]="Argo 认证信息不符合规则，既不是 Token，也是不是 Json，脚本退出，问题反馈:[https://github.com/fscarmen/sba/issues]"
@@ -274,12 +274,14 @@ E[121]="Change preferred domain or IP (sb -d)"
 C[121]="更换优选域名或 IP (sb -d)"
 E[122]="Invalid access token. Please roll at https://dash.cloudflare.com/profile/api-tokens to re-generate."
 C[122]="Token 访问令牌无效。请在 https://dash.cloudflare.com/profile/api-tokens 轮转，以重新获取"
-E[123]="Token zone resources failed. Please check at https://dash.cloudflare.com/profile/api-tokens"
-C[123]="Token 区域资源获取失败，请到 https://dash.cloudflare.com/profile/api-tokens 检查"
-E[124]="API does not have enough permissions. Please check at https://dash.cloudflare.com/profile/api-tokens"
-C[124]="API 没有足够权限，请在 https://dash.cloudflare.com/profile/api-tokens 检查 Token 权限配置"
+E[123]="Token zone resource failed. The tunnel root domain and the authorized domain of the token are inconsistent. Please go to https://dash.cloudflare.com/profile/api-tokens to re-authorize."
+C[123]="Token 区域资源获取失败，隧道的根域名和 Token 授权的域名不一致，请到 https://dash.cloudflare.com/profile/api-tokens 检查"
+E[124]="API does not have enough permissions. Please check at https://dash.cloudflare.com/profile/api-tokens\n\n [*] Token: Visit https://dash.cloudflare.com/ , Zero Trust > Networks > Connectors > Create a tunnel > Select Cloudflared\n\n [*] Json: Users can easily obtain it through the following website: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: Visit https://dash.cloudflare.com/profile/api-tokens > Create Token > Create Custom Token > Add the following permissions:\n - Account > Cloudflare One Connectors: cloudflared > Edit\n - Zone > DNS > Edit\n\n - Account Resources: Include > Required Account\n - Zone Resources: Include > Specific zone > Argo Root Domain"
+C[124]="API 没有足够权限，请在 https://dash.cloudflare.com/profile/api-tokens 检查 Token 权限配置\n\n [*] Token: 访问 https://dash.cloudflare.com/ ，Zero Trust > 网络 > 连接器 > 创建隧道 > 选择 Cloudflared\n\n [*] Json: 用户通过以下网站轻松获取: https://fscarmen.cloudflare.now.cc\n\n [*] Cloudflare API: 访问 https://dash.cloudflare.com/profile/api-tokens > 创建令牌 > 创建自定义令牌 > 添加以下权限:\n - 帐户 > Cloudflare One连接器: Cloudflared > 编辑\n - 区域 > DNS > 编辑\n\n - 帐户资源: 包括 > 所需账户\n - 区域资源: 包括 > 特定区域 > 所需域名"
 E[125]="API execution failed. Response: \$RESPONSE"
 C[125]="执行 API 失败，返回: \$RESPONSE"
+E[126]="Network request URL structure is wrong. Missing Zone ID"
+C[126]="网络请求地址（URL）结构不对，缺少 Zone ID"
 
 # 自定义字体彩色，read 函数
 warning() { echo -e "\033[31m\033[01m$*\033[0m"; }  # 红色
@@ -429,17 +431,20 @@ create_argo_tunnel() {
 
   api_error() {
     local RESPONSE="$1"
+    local CHECK_ZONE_ID="$2"
+
     if grep -q '"code":9109,' <<< "$RESPONSE"; then
-      warning "$(text 122)" && sleep 2 && return 1
-    elif grep -q '"count":0,' <<< "$RESPONSE"; then
-      warning "$(text 123)" && sleep 2 && return 2
+      warning " $(text 122) " && sleep 2 && return 2
+    elif grep -q '"code":7003,' <<< "$RESPONSE"; then
+      warning " $(text 126) " && sleep 2 && return 3
+    elif grep -q 'check_zone_id' <<< "$CHECK_ZONE_ID" && grep -q '"count":0,' <<< "$RESPONSE"; then
+      warning " $(text 123) " && sleep 2 && return 4
     elif grep -q '"code":10000,' <<< "$RESPONSE"; then
-      warning "$(text 124)" && sleep 2 && return 3
+      warning " $(text 124) " && sleep 2 && return 1
     elif grep -q '"success":true' <<< "$RESPONSE"; then
       return 0
     else
-      warning "$(text 125)" && sleep 2 && return 3
-      return 4
+      warning " $(text 125) " && sleep 2 && return 5
     fi
   }
 
@@ -449,10 +454,10 @@ create_argo_tunnel() {
     --header="Content-Type: application/json" \
     "https://api.cloudflare.com/client/v4/zones?name=${ROOT_DOMAIN}")
 
-  api_error "$ZONE_RESPONSE" || return $?
+  api_error "$ZONE_RESPONSE" 'check_zone_id' || return $?
 
   [[ "$ZONE_RESPONSE" =~ \"id\":\"([^\"]+)\".*\"account\":\{\"id\":\"([^\"]+)\" ]] && local ZONE_ID="${BASH_REMATCH[1]}" ACCOUNT_ID="${BASH_REMATCH[2]}" || \
-  return 4
+  return 5
 
   # 步骤 2: 查询并处理现有 Tunnel
   local TUNNEL_LIST=$(wget --no-check-certificate -qO- --content-on-error \
@@ -462,7 +467,7 @@ create_argo_tunnel() {
 
   api_error "$TUNNEL_LIST" || return $?
 
-  TUNNEL_LIST_SPLIT=$(awk 'BEGIN{RS="";FS=""}{s=substr($0,index($0,"\"result\":[")+10);d=0;b="";for(i=1;i<=length(s);i++){c=substr(s,i,1);if(c=="{")d++;if(d>0)b=b c;if(c=="}"){d--;if(d==0){print b;b=""}}}}' <<< "$TUNNEL_LIST")
+  local TUNNEL_LIST_SPLIT=$(awk 'BEGIN{RS="";FS=""}{s=substr($0,index($0,"\"result\":[")+10);d=0;b="";for(i=1;i<=length(s);i++){c=substr(s,i,1);if(c=="{")d++;if(d>0)b=b c;if(c=="}"){d--;if(d==0){print b;b=""}}}}' <<< "$TUNNEL_LIST")
 
   # 检查是否存在同名 Tunnel
   while true; do
@@ -479,7 +484,7 @@ create_argo_tunnel() {
         reading "\n $(text 87) " ARGO_DOMAIN
 
         # 用户直接回车，使用临时域名，退出当前流程
-        ! grep -q '\.' <<< "$ARGO_DOMAIN" && return 4
+        ! grep -q '\.' <<< "$ARGO_DOMAIN" && return 5
 
         # 更新TUNNEL_NAME和ROOT_DOMAIN，循环会自动检查新名称
         TUNNEL_NAME=${ARGO_DOMAIN%%.*}
@@ -515,7 +520,7 @@ create_argo_tunnel() {
 
     [[ $CREATE_RESPONSE =~ \"id\":\"([^\"]+)\".*\"token\":\"([^\"]+)\" ]] && \
     local TUNNEL_ID=${BASH_REMATCH[1]} TUNNEL_TOKEN=${BASH_REMATCH[2]} || \
-    return 4
+    return 5
   else
     # 如果有同名 Tunnel (EXISTING_TUNNEL_ID 非空），则获取其 TOKEN
     local EXISTING_TUNNEL_TOKEN=$(wget -qO- --content-on-error \
@@ -528,7 +533,7 @@ create_argo_tunnel() {
     local TUNNEL_ID=$EXISTING_TUNNEL_ID \
     TUNNEL_TOKEN=$(sed -n 's/.*"result":"\([^"]\+\)".*/\1/p' <<< "$EXISTING_TUNNEL_TOKEN") && \
     TUNNEL_SECRET=$(base64 -d <<< "$TUNNEL_TOKEN" | sed 's/.*"s":"\([^"]\+\)".*/\1/') || \
-    return 4
+    return 5
   fi
 
   # 步骤 3: 配置 Tunnel ingress 规则... 不管原来的规则，一率覆盖处理
