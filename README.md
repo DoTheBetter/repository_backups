@@ -32,7 +32,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2025.12.16 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.12.16 | OpenClash自定义 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2025.12.17 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2025.12.13 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2025.12.16 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2025.09.13 | Sing-box代理工具 |
