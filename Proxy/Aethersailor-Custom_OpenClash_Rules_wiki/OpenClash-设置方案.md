@@ -19,7 +19,11 @@ OpenClash 作为 OpenWrt 下最强大的透明代理插件，其功能并非仅�
 
 * **本项目维护者不建议部署所谓的“旁路由”网络架构，本项目所有教程均以主路由环境为例，仅对旁路由网络架构下的设置差异作简单提示。“旁路由”用户请自行融会贯通举一反三，出了问题也不要提问，谁教你用旁路由的你去找谁，感谢合作。**  
 
+* **本项目没有任何 YouTube 频道，也未在 YouTube 上传任何"教学视频"。**  
+
 * Wiki 页面右边有目录  
+
+***
 
 ## 本方案所实现的效果  
 
@@ -61,6 +65,8 @@ OpenClash 作为 OpenWrt 下最强大的透明代理插件，其功能并非仅�
 * **增加若干冷门域名规则。**  
 增加了一些小众网站的直连规则，可以自己 PR 提交域名参与完善规则。  
 
+***
+
 ## 0. 使用前的一些提醒
 
 ### 0.1. 关于推荐固件  
@@ -68,6 +74,8 @@ OpenClash 作为 OpenWrt 下最强大的透明代理插件，其功能并非仅�
 推荐使用 ImmortalWrt 官方编译固件，备选 OpenWrt 官方编译固件。  
 
 详细内容：[关于推荐固件](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%95%85%E9%9A%9C%E6%8E%92%E9%99%A4#%E6%8E%A8%E8%8D%90%E5%9B%BA%E4%BB%B6)  
+
+***
 
 ### 0.2. 关于旁路由  
 
@@ -83,6 +91,8 @@ OpenClash 作为 OpenWrt 下最强大的透明代理插件，其功能并非仅�
 
 项目维护者部署的所有设备都是主路由以做到网路环境尽量从简，所以任何关于旁路由下的设置出现的问题，要么不予解答要么就是凭经验和猜测解答，不对结果负责。  
 
+***
+
 ### 0.3. 关于 IPv6  
 
 在确保你的宽带运营商提供了 IPv6 服务，且节点支持 IPv6 出站的情况下，搭配本项目另一个方案实现 OpenClash 和 IPv6 的完美兼容  
@@ -90,6 +100,8 @@ OpenClash 作为 OpenWrt 下最强大的透明代理插件，其功能并非仅�
 https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenWrt-IPv6-设置方案  
 
 不清楚自己的节点是否支持 IPv6 的话，可以向机场客服发工单来确定，或者按照方案内容进行设置后测试节点如果不具备 IPv6 出站能力再关闭 OpenClash 的 IPv6 功能  
+
+***
 
 ### 0.4. 关于 DNS  
 
@@ -126,6 +138,8 @@ https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenWrt-IPv6-设置�
 
 > 2025.7.22：部分地区，特别是部分地区的联通/移动用户反映运营商服务器存在问题，如遇国内访问不畅，建议切换国内 DOH 服务器来避免运营商的影响。
 
+***
+
 ### 0.5. 关于“套娃”设置  
 
 MosDNS、SmartDNS、AdGuardHome 本身都是非常优秀的工具，但是有些时候并不是 1+1=2 那么简单，错误的设置反而会起到反作用  
@@ -151,9 +165,14 @@ MosDNS、SmartDNS、AdGuardHome 本身都是非常优秀的工具，但是有些
 完全无副作用。
 ```
 
+***
+
 ### 0.6. 关于广告过滤  
 
-> 偏门实现方式，目前已不推荐，建议搭配使用 luci-app-adblock-fast 插件
+> 偏门实现方式，目前已不推荐，建议搭配使用 luci-app-adblock-fast 插件  
+
+<details>
+<summary>点击查看已废弃的广告过滤说明</summary>
 
 按照本项目方案，只使用 OpenClash 一个插件，且中国大陆域名均绕过了 OpenClash 内核，因此无法依靠 OpenClash 的规则来完成广告过滤。  
 
@@ -163,7 +182,11 @@ MosDNS、SmartDNS、AdGuardHome 本身都是非常优秀的工具，但是有些
 
 [广告拦截设置方法](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%97%A0%E6%8F%92%E4%BB%B6%E5%B9%BF%E5%91%8A%E6%8B%A6%E6%88%AA%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)  
 
+</details>
+
 **注意：任何 DNS 广告过滤规则的过滤效果都比不上浏览器插件的过滤效果。**  
+
+***
 
 ### 0.7. 为何不提供 uci 一键设置脚本  
 
@@ -176,6 +199,8 @@ uci 一键设置脚本可以实现一键应用本方案的设置内容至 OpenCl
 (主要还是我懒，给自己找个理由)  
 
 2025.8.26：OpenClash 覆写模块大更新，已支持远程订阅覆写文件，uci 一键脚本已无任何存在必要。
+
+***
 
 ### 0.8. 关于 yaml 文件  
 
@@ -190,16 +215,20 @@ https://github.com/Giveupmoon/OpenClash_Overwrite
 
 本项目**不推荐**所谓的手搓 yaml 的配置方法，因为 99% 的用户，特别是新手小白，搓出的都是残废 yaml，功能和规则科学性完全不如订阅转换+覆写后生成的 yaml。
 
-如果你搓出的 yaml 比订阅转换+覆写设置自动生成的 yaml 还简陋，那你非要迷信手搓 yaml 的意义在哪里？ 你能来到这里，阅读这篇教程，说明你根本没有手搓的水平
+如果你搓出的 yaml 比订阅转换+覆写设置自动生成的 yaml 还简陋，那你非要迷信手搓 yaml 的意义在哪里？ 你能来到这里，阅读这篇教程，说明你根本没有手搓的水平。  
 
-特别是油管上的各种 Up 主的 yaml，除了个别头部 UP 主的配置文件尚可，其他的简直惨不忍睹
+特别是油管上的各种 Up 主的 yaml，除了个别头部 UP 主的配置文件尚可，其他的简直惨不忍睹。
 
 非要自己折腾 yaml 的，提供本项目相关的 yaml 文件共自行研究：  
-https://github.com/Aethersailor/Custom_OpenClash_Rules/tree/main/cfg/yaml 
+https://github.com/Aethersailor/Custom_OpenClash_Rules/tree/main/cfg/yaml  
+结合本设置方案，效果等同于订阅转换部署。配置文件已经包含完整注释，方便新手学习。  
 
-本项目的 yaml 文件的规则和功能与本教程保持一致，结合本教程部署后，效果等同于订阅转换部署。  
+另外推荐参考 mihomo 官方的配置完整示例：  
+https://github.com/MetaCubeX/mihomo/blob/Meta/docs/config.yaml  
+以及 mihomo 官方文档：  
+https://wiki.metacubex.one/config/  
 
-PS：配置文件是写给人类看的，只是恰好内核可以运行而已。所以本项目的 yaml 文件格式全部和 mihomo 官方配置范例保持一致。  
+PS：配置文件是写给人类看的，只是恰好内核可以运行而已。所以本项目的 yaml 文件格式全部和 mihomo 官方完整示例保持一致。  
 
 若使用其他配置文件，仅推荐 666 大佬的配置：[666OS/YYDS](https://github.com/666OS/YYDS)  
 
@@ -227,6 +256,8 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 > 如果你有个性化需求，先通过本方案搞明白设置，后续 fork 本项目自己修改模板即可  
 
+***
+
 ## 1. 准备工作  
 
 ### 1.1. 查看运行商通告的 DNS  
@@ -241,6 +272,8 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 
 ![](doc/openclash/pics/wan-dns.png)    
 
+***
+
 ### 1.2. 关闭 DNS 重定向功能  
 
 该功能位于 网络 > DHCP/DNS 页面中，务必关闭  
@@ -250,6 +283,8 @@ OpenWrt 做主路由和旁路由时的设置差异，相关的步骤中会提及
 某些固件中可能没有这个选项，忽略该步骤即可。  
 
 ![](doc/openclash/pics/Redirect.png)  
+
+***
 
 ### 1.3. 确保 OpenWrt 可以正常访问 GitHub 或加速 CDN
 
@@ -296,6 +331,8 @@ Fake-IP（增强）模式可以提供最佳的性能，如果出现了 NAT 问�
 
 ![](doc/openclash/pics/1.png)  
 
+***
+
 ### 2.2. 流量控制  
 
 按照图中设置进行设置，务必`启用`“绕过中国大陆”功能来提升访问和下载性能。  
@@ -316,6 +353,7 @@ clientservices.googleapis.com
 
 ![](doc/openclash/pics/blacklist-ipv4.png)  
 
+***
 
 ### 2.3. DNS 设置
 
@@ -333,6 +371,7 @@ clientservices.googleapis.com
 
 [](doc/openclash/pics/3.png)  
 
+***
 
 ### 2.4. 流媒体增强（可选）  
 
@@ -356,6 +395,7 @@ clientservices.googleapis.com
 
 ![](doc/openclash/pics/stream.png)  
 
+***
 
 ### 2.5. IPv6 设置  
 
@@ -382,6 +422,7 @@ clientservices.googleapis.com
 
 ![](doc/openclash/pics/blacklist-ipv6.png)  
 
+***
 
 ### 2.6. GEO 数据库订阅  
 
@@ -399,6 +440,7 @@ clientservices.googleapis.com
 
 ![](doc/openclash/pics/5.png)  
 
+***
 
 ### 2.7. 大陆白名单订阅  
 
@@ -414,6 +456,7 @@ OpenClash 绕过中国大陆功能使用的 IP 分流名单，必须保持更新
 
 ![](doc/openclash/pics/6.png)  
 
+***
 
 ### 2.8. 版本更新  
 
@@ -498,12 +541,16 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 ![](doc/openclash/pics/dns2.png)  
 
+***
+
 ### 3.2. Meta 设置  
 
 按照图中内容，对红框中的选项进行设置。  
 注意，务必开启`启用 GeoIP Dat 版数据库`选项。  
 
 ![](doc/openclash/pics/8.png)  
+
+***
 
 ### 3.3. Smart 设置
 
@@ -514,6 +561,8 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 如无特殊需求按照图中设置使用插件作者提供的模型即可。如需自己收集训练数据，则启用收集训练数据，此处不做赘述。  
 
 ![](doc/openclash/pics/smart.png)  
+
+***
 
 ### 3.4. 规则设置  
 
@@ -533,6 +582,7 @@ SmartDNS 自身的设置中，务必关闭 DNS 劫持，且只需要保留第一
 
 [如何添加自定义规则](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%84%E5%88%99)  
 
+***
 
 ### 3.5. 开发者选项  
 
@@ -563,6 +613,7 @@ OpenClash 在更新订阅的过程中会短暂重启，所以建议设置在不�
 个人经验：OpenClash 下拉列表里的几个订阅转换服务，偶尔会出现掉链子的情况，请根据自己的实际网络情况进行测试和选择。  
 
 ***
+
 在订阅转换模板中，直接下拉选择本项目的模板。
 如果你的下拉列表中没有本项目的订阅转换模板，请更新 OpenClash 至最新版本
 
@@ -645,6 +696,7 @@ https://api.asailor.org/sub
 
 ![](doc/openclash/pics/start.png)  
 
+***
 
 ### 5.2. 观察运行日志  
 
@@ -654,6 +706,7 @@ https://api.asailor.org/sub
 
 ![](doc/openclash/pics/ok.png)  
 
+***
 
 ### 5.3. 切换策略组 
 
@@ -701,6 +754,8 @@ https://ipleak.net/
 
 某些 DNS 泄漏检测网站（例如 https://www.browserscan.net/zh/dns-leak ） 的检测服务器使用了某些 DDNS 机构的域名，为了确保 DDNS 服务不受影响，DDNS 类域名在本项目的规则中是强制直连并使用国内服务器进行解析，因此这类 DNS 泄漏检测网站会显示泄漏，属于正常现象，忽略即可。  
 
+***
+
 ### 6.2. 检查 IPv6 分流情况  
 
 仅限使用了支持 IPv6 出站的节点。
@@ -724,7 +779,6 @@ https://ipleak.net/
 
 ![](doc/openclash/pics/ipv61.png)  
 
-
   - 国外 IPv6 测试  
 
 国外站点：http://test-ipv6.com/  
@@ -736,6 +790,8 @@ https://ipleak.net/
 如果以上两个网站测试均通过，即为 IPv6 已经完美分流  
 
 **至此，你的 OpenWrt 上已经拥有了绝对完美、秒杀全网一切教程的 OpenClash 完美设置，且所有的细节设置都已经尽力为性能、安全和效率而优化，尽情享受吧！**  
+
+***
 
 ### 6.3. 访问不正常？  
 
