@@ -172,7 +172,7 @@
 
 ---
 
-### 🌐关于 IPv6
+### 🌐 关于 IPv6
 
 通过正确设置 OpenWrt 的 IPv6 功能以及 OpenClash，即可实现 OpenWrt 主路由下的 IPv6 和 OpenClash 的完美兼容。在实现 IPv6 国内外分流代理的同时，还能完美通过 IPv6-Test 的国内和国外镜像站点测试。
 
@@ -233,13 +233,10 @@ https://api.asailor.org/sub
 - 🔄 部分节点支持 FullCone 全锥形 NAT
 - 🎮 支持 UDP 转发和游戏加速
 - 🆓 支持试用
-- 💬 工单支持简体中文沟通且客服反应迅速
 
 注册链接：[SSRDOG 注册](https://st1.hosbb.com/#/register?code=FnSb4oWM)  (链接包含 aff 代码，感谢支持！介意 aff 可自行去除代码)
 ```
 优惠码：Custom_OpenClash_Rules
-使用范畴：轻度，标准，企业（月，季，半年，1年）
-使用须知：每帐号仅1次使用机会
 ```
 本项目订阅模板的节点地区分类即参考了该机场的节点地区进行分类。
 
@@ -258,7 +255,7 @@ Traffic、GB、Expire
 ## 🤝 贡献者
 
 <a href="https://github.com/Aethersailor/Custom_OpenClash_Rules/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Aethersailor/Custom_OpenClash_Rules" />
+  <img src="https://contrib.rocks/image?repo=Aethersailor/Custom_OpenClash_Rules&anon=1" />
 </a>
 
 ---
@@ -275,9 +272,12 @@ Traffic、GB、Expire
 ### 🧩 内核
 - [MetaCubeX/mihomo](https://github.com/MetaCubeX/mihomo)
 
-### 🗂 模板
+### 🗂 订阅转换模板
 - [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [TraderWukong/demo](https://github.com/TraderWukong/demo)
+
+### ⚙️ 远程覆写配置
+- [Giveupmoon/OpenClash_Overwrite](https://github.com/Giveupmoon/OpenClash_Overwrite)
 
 ### 🛣 分流规则
 - [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)
