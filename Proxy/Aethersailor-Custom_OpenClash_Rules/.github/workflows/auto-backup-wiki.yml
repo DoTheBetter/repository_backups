@@ -1,9 +1,12 @@
-name: Backup Wiki
+name: Auto backup Wiki
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
 
 jobs:
   backup-wiki-root:

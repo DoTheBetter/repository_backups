@@ -9,6 +9,11 @@ on:
       - 'rule/**'
       - 'game_rule/**'
       - 'shell/**'
+      - 'overwrite/**'
+      - '!**/archived/**'
+      - '!**/README.md'
+      - '!README.md'
+
 
   workflow_dispatch:  # 支持手动触发
 

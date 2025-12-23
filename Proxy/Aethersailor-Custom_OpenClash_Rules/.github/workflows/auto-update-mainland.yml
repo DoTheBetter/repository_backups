@@ -1,10 +1,13 @@
-name: Update Custom_Clash_Mainland.ini
+name: Auto update mainland config
 
 on:
   push:
     paths:
       - cfg/Custom_Clash.ini
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update-mainland:
