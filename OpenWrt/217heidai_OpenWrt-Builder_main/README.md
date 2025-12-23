@@ -2,6 +2,7 @@
 基于 [ImmortalWrt](https://github.com/immortalwrt/immortalwrt) 定制编译的主路由、旁路网关，跟随 ImmortalWrt 代码更新自动编译。
 
 ## 支持的 ImmortalWrt 版本
+* [ ] ImmortalWrt-25.12
 * [x] ImmortalWrt-24.10
 * [x] ImmortalWrt-23.05
 
@@ -41,7 +42,7 @@
 本着够用原则，非必要组件全部精简。
 1. 精简 block-mount、automount 磁盘挂载相关组件。
 2. 精简全部实体网卡组件，仅保留 e1000、e1000e、vmxnet3 虚拟网卡组件。
-3. 精简 ppp 拨号组建。旁路网关不负责拨号。
+3. 精简 ppp 拨号组件。旁路网关不负责拨号。
 3. 精简全部音频组件。
 4. 精简全部 usb 组件。
 
