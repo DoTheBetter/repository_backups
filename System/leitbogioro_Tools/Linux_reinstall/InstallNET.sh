@@ -1023,6 +1023,7 @@ function getUserTimeZone() {
 		# because the "Sent-Q" can record the data packs which IP is active for current ssh user.
 		# The same as for IPv6s.
 		GuestIP=$(netstat -naputeoW | grep -i 'established' | grep -i 'sshd: '$loginUser'' | grep -iw '^tcp\|udp' | awk '{print $3,$5}' | sort -t ' ' -k 1 -rn | awk '{print $2}' | head -n 1 | cut -d':' -f'1')
+		[[ -z "$GuestIP" ]] && GuestIP=$(netstat -naputeoW | grep -i 'established' | grep -i "sshd-session" | grep -i "on" | grep -iw '^tcp\|udp' | awk '{print $3,$5}' | sort -t ' ' -k 1 -rn | awk '{print $2}' | head -n 1 | cut -d':' -f'1')
 		if [[ ! -z "$GuestIP" ]]; then
 			checkIfIpv4AndIpv6IsLocalOrPublic "$GuestIP" ""
 			# If some users are connecting to ssh service via private IPs, the actual location of this server may be the same as the public IP of this server like:
@@ -1033,6 +1034,7 @@ function getUserTimeZone() {
 			}
 		else
 			GuestIP=$(netstat -naputeoW | grep -i 'established' | grep -i 'sshd: '$loginUser'' | grep -iw '^tcp6\|udp6' | awk '{print $3,$5}' | sort -t ' ' -k 1 -rn | awk '{print $2}' | head -n 1 | awk -F':' '{for (i=1;i<=NF-1;i++)printf("%s:", $i);print ""}' | sed 's/.$//')
+			[[ -z "$GuestIP" ]] && GuestIP=$(netstat -naputeoW | grep -i 'established' | grep -i "sshd-session" | grep -i "on" | grep -iw '^tcp6\|udp6' | awk '{print $3,$5}' | sort -t ' ' -k 1 -rn | awk '{print $2}' | head -n 1 | awk -F':' '{for (i=1;i<=NF-1;i++)printf("%s:", $i);print ""}' | sed 's/.$//')
 			checkIfIpv4AndIpv6IsLocalOrPublic "" "$GuestIP"
 			[[ "$ipv6LocalOrPublicStatus" == '1' ]] && {
 				GuestIP=$(timeout 0.3s dig -6 TXT +short o-o.myaddr.l.google.com @ns3.google.com | sed 's/\"//g')
@@ -1348,10 +1350,13 @@ function checkSys() {
 	sed -i 's/^\(deb.*security.debian.org\/\)\(.*\)\/updates/\1debian-security\2-security/g' /etc/apt/sources.list
 
 	CurrentOSVer=$(cat /etc/os-release | grep -w "VERSION_ID=*" | awk -F '=' '{print $2}' | sed 's/\"//g' | cut -d'.' -f 1)
-
+	DebianRelease=""
+	IsUbuntu=$(uname -a | grep -i "ubuntu")
+	IsDebian=$(uname -a | grep -i "debian")
+	IsKali=$(uname -a | grep -i "kali")
 	apt update -y
 	# Try to fix error of connecting to current mirror for Debian.
-	if [[ $? -ne 0 ]]; then
+	if [[ "$CurrentOSVer" -ne 0 ]]; then
 		apt update -y >/root/apt_execute.log
 		if [[ $(grep -i "debian" /root/apt_execute.log) ]] && [[ $(grep -i "err:[0-9]" /root/apt_execute.log) || $(grep -i "404  not found" /root/apt_execute.log) ]]; then
 			currentDebianMirror=$(sed -n '/^deb /'p /etc/apt/sources.list | head -n 1 | awk '{print $2}' | sed -e 's|^[^/]*//||' -e 's|/.*$||')
@@ -1364,6 +1369,11 @@ function checkSys() {
 			fi
 			# Disable get security update.
 			sed -ri 's/^deb-src/# deb-src/g' /etc/apt/sources.list
+			apt update -y
+		fi
+		# Fix security signature check failure of Kali.
+		if [[ "$IsKali" ]] && [[ $(grep -i "public key is not available" /root/apt_execute.log) || $(grep -i "an error occurred during the signature verification" /root/apt_execute.log) || $(grep -i "the following signatures couldn't be verified" /root/apt_execute.log) ]]; then
+			wget https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
 			apt update -y
 		fi
 		rm -rf /root/apt_execute.log
@@ -1383,10 +1393,6 @@ function checkSys() {
 		[[ -n "$Count" ]] && RedHatRelease=$(echo -e "$Count")"$RedHatRelease"
 	done
 
-	DebianRelease=""
-	IsUbuntu=$(uname -a | grep -i "ubuntu")
-	IsDebian=$(uname -a | grep -i "debian")
-	IsKali=$(uname -a | grep -i "kali")
 	for Count in $(cat /etc/os-release | grep -w "ID=*" | awk -F '=' '{print $2}') $(cat /etc/issue | awk '{print $1}') "$OsLsb"; do
 		[[ -n "$Count" ]] && DebianRelease=$(echo -e "$Count")"$DebianRelease"
 	done
