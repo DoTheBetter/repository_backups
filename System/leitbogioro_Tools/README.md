@@ -40,7 +40,7 @@ Servers in mainland of China:
 
 ## Quickly start
 If you need to add other parameters, a certain name of distributions must be assigned!
-### Debian 12
+### Debian 13
 <pre><code>bash InstallNET.sh -debian</code></pre>
 ### Kali Rolling
 <pre><code>bash InstallNET.sh -kali</code></pre>
@@ -53,7 +53,7 @@ If you need to add other parameters, a certain name of distributions must be ass
 <pre><code>bash InstallNET.sh -almalinux</code></pre>
 ### RockyLinux 9
 <pre><code>bash InstallNET.sh -rockylinux</code></pre>
-### Fedora 39
+### Fedora 43
 <pre><code>bash InstallNET.sh -fedora</code></pre>
 ### Ubuntu 22.04
 <pre><code>bash InstallNET.sh -ubuntu</code></pre>
@@ -84,7 +84,7 @@ For Windows: 3389
 <br />
 
 ## Parameters detail descriptions
-**-debian 7-12** : Debian 7 and later
+**-debian 7-13** : Debian 7 and later
 <br />
 <br />
 
@@ -108,11 +108,11 @@ For Windows: 3389
 <br />
 <br />
 
-**-fedora 38/39**: Fedora 38 and later
+**-fedora 42/43**: Fedora 42 and later
 <br />
 <br />
 
-**-ubuntu 20.04/22.04/24.04(testing, not stable, do not install it in the production environment!)**: Ubuntu from 20.04 and later
+**-ubuntu 20.04/22.04/24.04**: Ubuntu from 20.04 and later
 <br />
 <br />
 
@@ -218,44 +218,92 @@ Wait until downloading and unpackaging are all finished, change netboot to forma
 <br />
 
 **--bbr**: Enable BBR(Bottleneck Bandwidth and Round-trip propagation time) for current kernel by adding parameters and values to "/etc/sysctl.d/99-sysctl.conf" including:
-<pre><code>net.core.default_qdisc = fq
+<pre><code># --- Core: BBR + fq ---
+net.core.default_qdisc = fq
 net.ipv4.tcp_congestion_control = bbr
-net.ipv4.tcp_rmem = 8192 262144 536870912
-net.ipv4.tcp_wmem = 4096 16384 536870912
-net.ipv4.tcp_adv_win_scale = -2
-net.ipv4.tcp_collapse_max_bytes = 6291456
-net.ipv4.tcp_notsent_lowat = 131072
-net.ipv4.ip_local_port_range = 1024 65535
-net.core.rmem_max = 536870912
-net.core.wmem_max = 536870912
-net.core.somaxconn = 32768
-net.core.netdev_max_backlog = 32768
-net.ipv4.tcp_max_tw_buckets = 65536
-net.ipv4.tcp_abort_on_overflow = 1
+
+# PMTU blackhole tolerance (common with tunnels / some WAN paths)
+net.ipv4.tcp_mtu_probing = 1
+
+# avoid slow-start penalty after idle (often helps proxy patterns)
 net.ipv4.tcp_slow_start_after_idle = 0
-net.ipv4.tcp_timestamps = 1
-net.ipv4.tcp_syncookies = 0
-net.ipv4.tcp_syn_retries = 3
-net.ipv4.tcp_synack_retries = 3
-net.ipv4.tcp_max_syn_backlog = 32768
-net.ipv4.tcp_fin_timeout = 15
-net.ipv4.tcp_keepalive_intvl = 3
-net.ipv4.tcp_keepalive_probes = 5
-net.ipv4.tcp_keepalive_time = 600
-net.ipv4.tcp_retries1 = 3
-net.ipv4.tcp_retries2 = 5
-net.ipv4.tcp_no_metrics_save = 1
-net.ipv4.ip_forward = 1
-fs.file-max = 104857600
-fs.inotify.max_user_instances = 8192
-fs.nr_open = 1048576
 </code></pre>
 to optimize the network environments of high latency and low bandwidth, only valid for Debian 11 and later.
 <br />
-Note: Module "tcp_collapse_max_bytes" is a self completion of Cloudflare, you need to download and apply patches by yourself otherwise this module will not be in effect:
-https://github.com/cloudflare/linux/tree/master/patches
 <br />
-<br />
+A typical sysctl optimize template for proxy relay server(including BBR optimization of above).
+<pre><code># --- Core: BBR + fq ---
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+
+# PMTU blackhole tolerance (common with tunnels / some WAN paths)
+net.ipv4.tcp_mtu_probing = 1
+
+# avoid slow-start penalty after idle (often helps proxy patterns)
+net.ipv4.tcp_slow_start_after_idle = 0
+
+# SYN cookies protect against SYN flood. Debian usually defaults to 1; keep it enabled.
+net.ipv4.tcp_syncookies = 1
+
+# --- Stability for long-lived TCP through NAT/CGNAT/WAN ---
+# Keepalive helps detect half-dead connections through NAT/WAN.
+# Too aggressive values may increase overhead and cause false disconnects under packet loss.
+net.ipv4.tcp_keepalive_time = 180
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_probes = 5
+
+# many outbound connections (proxy relay)
+net.ipv4.ip_local_port_range = 10000 65535
+
+# burst handling (web/proxy both benefit)
+net.core.somaxconn = 8192
+net.ipv4.tcp_max_syn_backlog = 8192
+net.core.netdev_max_backlog = 16384
+
+# moderate buffers (fits 200–500M@50ms and 30M@200ms; avoids "big buffet" configs)
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+</code></pre>
+A typical sysctl optimize template for web server(including BBR optimization of above).
+<pre><code># --- Core: BBR + fq ---
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+
+# -----------------------------
+# 2) Public server safety baseline
+# -----------------------------
+# Enable MTU probing to tolerate PMTU blackholes (common on some WAN/tunnel paths).
+# Low risk; can reduce mysterious stalls/handshake issues in some networks.
+net.ipv4.tcp_mtu_probing = 1
+
+# Avoid slow-start penalty after an idle period; often helps keep throughput stable for intermittent flows.
+net.ipv4.tcp_slow_start_after_idle = 0
+
+# SYN cookies protect against SYN flood. Debian usually defaults to 1; keep it enabled.
+net.ipv4.tcp_syncookies = 1
+
+# burst handling (web/proxy both benefit)
+net.core.somaxconn = 8192
+net.ipv4.tcp_max_syn_backlog = 8192
+net.core.netdev_max_backlog = 16384
+
+# -----------------------------
+# 3) Moderate TCP socket buffers (32MB)
+# -----------------------------
+# Recommended when:
+# - Bandwidth is relatively high (e.g., >= 500Mbps), and/or
+# - RTT is higher (cross-region/cross-border), and you want better single-flow throughput.
+# Notes:
+# - These are MAX values; they don't mean every connection will always allocate 32MB.
+# - For very high concurrency on small-memory VPS, consider 16MB instead.
+net.core.rmem_max = 33554432
+net.core.wmem_max = 33554432
+net.ipv4.tcp_rmem = 4096 87380 33554432
+net.ipv4.tcp_wmem = 4096 65536 33554432
+</code></pre>
+
 #### Little tutorial: Installing XanMod on Debian
 Introduce: XanMod series is an excellent third part mod for Linux kernel to improve network connectivity including applicating the patches of Cloudflare which we known on above, enhanced hardware compatibility etc. only for amd64 architecture CPUs .
 <br />
