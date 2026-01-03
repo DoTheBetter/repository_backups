@@ -2466,12 +2466,13 @@ function getInterface() {
 				NetCfgDir="$Count""/"
 				# If "NetworkManager" replaced "network-scripts", there is a file called "readme-ifcfg-rh.txt" in dir: /etc/sysconfig/network-scripts/
 				# NetCfgFile=`ls -Sl $NetCfgDir 2>/dev/null | awk -F' ' '{print $NF}' | grep -iv 'lo\|sit\|stf\|gif\|dummy\|vmnet\|vir\|gre\|ipip\|ppp\|bond\|tun\|tap\|ip6gre\|ip6tnl\|teql\|ocserv\|vpn\|readme' | grep -s "$interface" | head -n 1`
+				# Only filter files similar as "lo.nmconnections".
 				# Condition of "grep -iv 'lo\|sit\|stf..." has been deperated because the config file name of "NetworkManager" which initiated by "cloud init" is like "cloud-init-eth0.nmconnection".
 				# Different from command "grep", command "ls" can only show file name but not full file direction.
 				# There are 3 files named "ifcfg-ens18  ifcfg-eth0  ifcfg-eth1" in dir "/etc/sysconfig/network-scripts/" of Almalinux 8 of Bandwagonhosts template.
 				# We should select the correct one by adjust whether includes interface name and file size.
 				# Files in "/etc/sysconfig/network-scripts/", reference: https://zetawiki.com/wiki/%EB%B6%84%EB%A5%98:/etc/sysconfig/network-scripts
-				NetCfgFiles=$(ls -Sl $NetCfgDir 2>/dev/null | awk -F' ' '{print $NF}' | grep -iv 'readme-\|ifcfg-lo\|ifcfg-bond\|ifup\|ifdown\|vpn\|init.ipv6-global\|network-functions\|lo.' | grep -s "ifcfg\|nmconnection")
+				NetCfgFiles=$(ls -Sl $NetCfgDir 2>/dev/null | grep -v '^total ' | awk -F' ' '{print $NF}' | grep -iv 'readme-\|ifcfg-lo\|ifcfg-bond\|ifup\|ifdown\|vpn\|init.ipv6-global\|network-functions\|lo\.' | grep -s "ifcfg\|nmconnection")
 				for Files in $NetCfgFiles; do
 					if [[ $(grep -w "$interface4\|$interface6" "$NetCfgDir$Files") != "" ]]; then
 						tmpNetCfgFiles+=$(echo -e "\n""$NetCfgDir$Files")
@@ -2663,6 +2664,10 @@ function ipv6ForRedhatGrub() {
 # $1 is $CurrentOS, $2 is $CurrentOSVer, $3 is $IPStackType
 function checkDHCP() {
 	getInterface "$1"
+	IPv4DhcpStatus=$(ip -4 -o addr show dev $interface4 | grep -w "inet" | grep -wv "lo\|host" | grep -w "scope global*\|link*" | grep -i "dynamic" | head -n1)
+	# IPv6 DHCPv6 can’t be reliably by detecting via `ip -6 addr show`: the `dynamic` flag is common for SLAAC/temporary privacy addresses,
+	# and many networks use SLAAC for addressing while DHCPv6 only provides options (e.g., DNS), so the presence of an IPv6 address doesn’t prove DHCPv6 is in use.
+	IPv6DhcpStatus=$(ss -uapn 2>/dev/null | grep -w $interface6 | awk '/:546[[:space:]]/{print $NF}' | sed -n 's/.*pid=\([0-9]\+\).*/\1/p' | head -n1)
 	[[ -z "$tmpDHCP" ]] && {
 		if [[ "$1" == 'CentOS' || "$1" == 'AlmaLinux' || "$1" == 'RockyLinux' || "$1" == 'Fedora' || "$1" == 'Vzlinux' || "$1" == 'OracleLinux' || "$1" == 'OpenCloudOS' || "$1" == 'AlibabaCloudLinux' || "$1" == 'ScientificLinux' || "$1" == 'AmazonLinux' || "$1" == 'RedHatEnterpriseLinux' || "$1" == 'OpenAnolis' || "$1" == 'CloudLinux' ]]; then
 			# RedHat like linux system 8 and before network config name is "ifcfg-interface", deposited in /etc/sysconfig/network-scripts/
@@ -2758,6 +2763,8 @@ function checkDHCP() {
 		fi
 		rm -rf "$tmpNetcfgDir"
 	}
+	[[ -z "$IPv4DhcpStatus" ]] && Network4Config="isStatic"
+	[[ -z "$IPv6DhcpStatus" ]] && Network6Config="isStatic"
 	[[ "$Network4Config" == "" ]] && Network4Config="isStatic"
 	[[ "$Network6Config" == "" ]] && Network6Config="isStatic"
 }
