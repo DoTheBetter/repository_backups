@@ -132,7 +132,6 @@ ip6tables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 5353
 ip6tables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 5353
 # 添加开机启动
 cat <<EOF >> /data/auto_ssh/auto_ssh.sh
-
 sleep 10s
 /data/AdGuardHome/AdGuardHome -s install
 /data/AdGuardHome/AdGuardHome -s start
