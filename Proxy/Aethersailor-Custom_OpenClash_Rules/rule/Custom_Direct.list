@@ -121,6 +121,8 @@ DOMAIN-SUFFIX,plushk2.younoyes.com
 DOMAIN-SUFFIX,plushk3.younoyes.com
 # 视频网站 / add by Telegram user: jiro / Date:2025-07-22 12:04:55
 DOMAIN-SUFFIX,dushe1.app
+# Mursor IPTV 直播源
+DOMAIN-SUFFIX,ottiptv.cc
 
 # 游戏类规则
 # 红警重聚 Reunion 2023
@@ -233,6 +235,8 @@ DOMAIN-SUFFIX,timbrd.com
 DOMAIN-SUFFIX,anyrouter.top
 # 社区 / add by Telegram user: 哈Lay / Date: 2025-12-29 12:54:22
 DOMAIN-SUFFIX,a0d.top
+# 微信小程序
+DOMAIN-SUFFIX,wxdw.top
 
 # =======================================
 # 以下是应当直连的冷门国内域名规则
@@ -242,6 +246,10 @@ DOMAIN-SUFFIX,a0d.top
 # 以下是准备向 GeoSite 上游仓库提交 PR 的国内冷门域名，收录后会注释对应内容
 # ---------------------------------------
 # 以下域名待提交 PR
+# add by Telegram user: Aethersailor / Date: 2026-01-18 06:19:29
+DOMAIN-SUFFIX,ahqian.com
+# add by Telegram user: Aethersailor / Date: 2026-01-18 06:19:11
+DOMAIN-SUFFIX,17vin.com
 # add by Telegram user: 哈Lay / Date: 2026-01-14 18:11:07
 DOMAIN-SUFFIX,rayws.top
 # dnshe免费域名 / add by Telegram user: r / Date: 2026-01-14 17:48:56

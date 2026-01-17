@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 428
+# TOTAL: 432
 
 payload:
   - '*m-team*'
@@ -10,6 +10,7 @@ payload:
   - '+.03241119.xyz'
   - '+.112114.xyz'
   - '+.115cdn.de'
+  - '+.17vin.com'
   - '+.1996999.xyz'
   - '+.204cloud.com'
   - '+.3d-apollo.com'
@@ -38,6 +39,7 @@ payload:
   - '+.adobe.com'
   - '+.afeica.com'
   - '+.afuns.me'
+  - '+.ahqian.com'
   - '+.aichangbaishan.com'
   - '+.aidien.fun'
   - '+.aigodlike.com'
@@ -281,6 +283,7 @@ payload:
   - '+.onebuygz.com'
   - '+.opentrust.net'
   - '+.ottai.com'
+  - '+.ottiptv.cc'
   - '+.ourschool.cc'
   - '+.p01.epsonconnect.com'
   - '+.paperang.com'
@@ -385,6 +388,7 @@ payload:
   - '+.wlcdn88.com'
   - '+.wpurl.cc'
   - '+.wwwh.eu.org'
+  - '+.wxdw.top'
   - '+.x86pi.com'
   - '+.xbcloudprint.com'
   - '+.xbgjw.com'
