@@ -34,7 +34,7 @@ check_latest_sing-box() {
 
   # 获取最终版本号
   local VERSION=$(wget --no-check-certificate --tries=2 --timeout=3 -qO- https://api.github.com/repos/SagerNet/sing-box/releases | awk -F '["v]' -v var="tag_name.*$FORCE_VERSION" '$0 ~ var {print $5; exit}')
-  VERSION=${VERSION:-'1.13.0-alpha.33'}
+  VERSION=${VERSION:-'1.13.0-beta.7'}
 
   echo "$VERSION"
 }
@@ -901,9 +901,8 @@ EOF
       default                    /;                # 默认路径
       ~*v2rayN|Neko|Throne       /base64;          # 匹配 V2rayN / NekoBox / Throne 客户端
       ~*clash                    /clash;           # 匹配 Clash 客户端
-      ~*ShadowRocket             /shadowrocket;    # 匹配 ShadowRocket  客户端
-      ~*SFM                      /sing-box-pc;     # 匹配 Sing-box pc 客户端
-      ~*SFI|SFA                  /sing-box-phone;  # 匹配 Sing-box phone 客户端
+      ~*ShadowRocket             /shadowrocket;    # 匹配 ShadowRocket 客户端
+      ~*SFM|SFI|SFA              /sing-box;        # 匹配 Sing-box 官方客户端
    #   ~*Chrome|Firefox|Mozilla  /;                # 添加更多的分流规则
     }
 
@@ -1278,11 +1277,9 @@ anytls://${UUID}@${SERVER_IP_1}:${PORT_ANYTLS}?security=tls&sni=addons.mozilla.o
   local NODE_REPLACE+="\"${NODE_NAME} anytls\","
 
   # 模板
-  local SING_BOX_JSON1=$(wget -qO- --tries=3 --timeout=2 ${SUBSCRIBE_TEMPLATE}/sing-box1)
+  local SING_BOX_JSON=$(wget -qO- --tries=3 --timeout=2 ${SUBSCRIBE_TEMPLATE}/sing-box1)
 
-  echo $SING_BOX_JSON1 | sed 's#, {[^}]\+"tun-in"[^}]\+}##' | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box-pc
-
-  echo $SING_BOX_JSON1 | sed 's# {[^}]\+"mixed"[^}]\+},##; s#, "auto_detect_interface": true##' | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box-phone
+  echo $SING_BOX_JSON | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box
 
   # 生成二维码 url 文件
   cat > ${WORK_DIR}/subscribe/qr << EOF
@@ -1366,11 +1363,8 @@ https://${ARGO_DOMAIN}/${UUID}/neko")
 $(hint "Clash 订阅:
 https://${ARGO_DOMAIN}/${UUID}/clash
 
-sing-box for pc 订阅:
-https://${ARGO_DOMAIN}/${UUID}/sing-box-pc
-
-sing-box for cellphone 订阅:
-https://${ARGO_DOMAIN}/${UUID}/sing-box-phone
+sing-box 订阅:
+https://${ARGO_DOMAIN}/${UUID}/sing-box
 
 ShadowRocket 订阅:
 https://${ARGO_DOMAIN}/${UUID}/shadowrocket")

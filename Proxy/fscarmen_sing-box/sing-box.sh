@@ -20,7 +20,7 @@ NODE_TAG=("xtls-reality" "hysteria2" "tuic" "ShadowTLS" "shadowsocks" "trojan" "
 CONSECUTIVE_PORTS=${#PROTOCOL_LIST[@]}
 CDN_DOMAIN=("skk.moe" "ip.sb" "time.is" "cfip.xxxxxxxx.tk" "bestcf.top" "cdn.2020111.xyz" "xn--b6gac.eu.org" "cf.090227.xyz")
 SUBSCRIBE_TEMPLATE="https://raw.githubusercontent.com/fscarmen/client_template/main"
-DEFAULT_NEWEST_VERSION='1.13.0-alpha.33'
+DEFAULT_NEWEST_VERSION='1.13.0-beta.7'
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -1561,8 +1561,7 @@ http {
     ~*clash                    /clash;          # 匹配 Clash 客户端
     ~*Neko|Throne              /neko;           # 匹配 Neko / Throne 客户端
     ~*ShadowRocket             /shadowrocket;   # 匹配 ShadowRocket 客户端
-    ~*SFM                      /sing-box-pc;    # 匹配 Sing-box pc 客户端
-    ~*SFI|SFA                  /sing-box-phone; # 匹配 Sing-box phone 客户端
+    ~*SFM|SFI|SFA              /sing-box;       # 匹配 Sing-box 官方客户端
 #   ~*Chrome|Firefox|Mozilla   /;               # 添加更多的分流规则
   }
   map \$http_user_agent \$path2 {
@@ -1571,7 +1570,7 @@ http {
     ~*clash                    /clash2;         # 匹配 Clash 客户端
     ~*Neko|Throne              /neko;           # 匹配 Neko 客户端
     ~*ShadowRocket             /shadowrocket;   # 匹配 ShadowRocket 客户端
-    ~*SFM|SFI|SFA              /sing-box2;      # 匹配 Sing-box pc 和 phone 客户端
+    ~*SFM|SFI|SFA              /sing-box;       # 匹配 Sing-box 官方客户端
 #   ~*Chrome|Firefox|Mozilla   /;               # 添加更多的分流规则
   }"
 
@@ -2772,9 +2771,9 @@ export_list() {
     wget --no-check-certificate -qO- --tries=3 --timeout=2 ${GH_PROXY}${SUBSCRIBE_TEMPLATE}/clash | sed "s#NODE_NAME#${NODE_NAME_CONFIRM}#g; s#PROXY_PROVIDERS_URL#$SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/proxies#" > ${WORK_DIR}/subscribe/clash
 
     # 模板2: 不使用 proxy providers
-    CLASH2_PORT=("$PORT_XTLS_REALITY" "$PORT_HYSTERIA2" "$PORT_TUIC" "$PORT_SHADOWTLS" "$PORT_SHADOWSOCKS" "$PORT_TROJAN" "$PORT_VMESS_WS" "$PORT_VLESS_WS" "$PORT_GRPC_REALITY")
-    CLASH2_PROXY_INSERT=("$CLASH_XTLS_REALITY" "$CLASH_HYSTERIA2" "$CLASH_TUIC" "$CLASH_SHADOWTLS" "$CLASH_SHADOWSOCKS" "$CLASH_TROJAN" "$CLASH_VMESS_WS" "$CLASH_VLESS_WS" "$CLASH_GRPC_REALITY")
-    CLASH2_PROXY_GROUPS_INSERT=("- ${NODE_NAME[11]} ${NODE_TAG[0]}" "- ${NODE_NAME[12]} ${NODE_TAG[1]}" "- ${NODE_NAME[13]} ${NODE_TAG[2]}" "- ${NODE_NAME[14]} ${NODE_TAG[3]}" "- ${NODE_NAME[15]} ${NODE_TAG[4]}" "- ${NODE_NAME[16]} ${NODE_TAG[5]}" "- ${NODE_NAME[17]} ${NODE_TAG[6]}" "- ${NODE_NAME[18]} ${NODE_TAG[7]}" "- ${NODE_NAME[20]} ${NODE_TAG[9]}")
+    CLASH2_PORT=("$PORT_XTLS_REALITY" "$PORT_HYSTERIA2" "$PORT_TUIC" "$PORT_SHADOWTLS" "$PORT_SHADOWSOCKS" "$PORT_TROJAN" "$PORT_VMESS_WS" "$PORT_VLESS_WS" "$PORT_GRPC_REALITY" "$PORT_ANYTLS")
+    CLASH2_PROXY_INSERT=("$CLASH_XTLS_REALITY" "$CLASH_HYSTERIA2" "$CLASH_TUIC" "$CLASH_SHADOWTLS" "$CLASH_SHADOWSOCKS" "$CLASH_TROJAN" "$CLASH_VMESS_WS" "$CLASH_VLESS_WS" "$CLASH_GRPC_REALITY" "$CLASH_ANYTLS")
+    CLASH2_PROXY_GROUPS_INSERT=("- ${NODE_NAME[11]} ${NODE_TAG[0]}" "- ${NODE_NAME[12]} ${NODE_TAG[1]}" "- ${NODE_NAME[13]} ${NODE_TAG[2]}" "- ${NODE_NAME[14]} ${NODE_TAG[3]}" "- ${NODE_NAME[15]} ${NODE_TAG[4]}" "- ${NODE_NAME[16]} ${NODE_TAG[5]}" "- ${NODE_NAME[17]} ${NODE_TAG[6]}" "- ${NODE_NAME[18]} ${NODE_TAG[7]}" "- ${NODE_NAME[20]} ${NODE_TAG[9]}" "- ${NODE_NAME[21]} ${NODE_TAG[10]}")
 
     CLASH2_YAML=$(wget --no-check-certificate -qO- --tries=3 --timeout=2 ${GH_PROXY}${SUBSCRIBE_TEMPLATE}/clash2)
     for x in ${!CLASH2_PORT[@]}; do
@@ -3133,14 +3132,9 @@ anytls://${UUID[21]}@${SERVER_IP_1}:${PORT_ANYTLS}?security=tls&sni=${TLS_SERVER
   local NODE_REPLACE+="\"${NODE_NAME[21]} ${NODE_TAG[10]}\","
 
   {
-    # 模板1
-    local SING_BOX_JSON1=$(wget --no-check-certificate -qO- --tries=3 --timeout=2 ${GH_PROXY}${SUBSCRIBE_TEMPLATE}/sing-box1)
-    echo $SING_BOX_JSON1 | sed 's#, {[^}]\+"tun-in"[^}]\+}##' | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box-pc
-    echo $SING_BOX_JSON1 | sed 's# {[^}]\+"mixed"[^}]\+},##; s#, "auto_detect_interface": true##' | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box-phone
-
-    # 模板2
-    local SING_BOX_JSON2=$(wget --no-check-certificate -qO- --tries=3 --timeout=2 ${GH_PROXY}${SUBSCRIBE_TEMPLATE}/sing-box2)
-    echo $SING_BOX_JSON2 | sed "s#\"<INBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box2
+    # sing-box SFM SFA 模板
+    local SING_BOX_JSON=$(wget --no-check-certificate -qO- --tries=3 --timeout=2 ${GH_PROXY}${SUBSCRIBE_TEMPLATE}/sing-box)
+    echo $SING_BOX_JSON | sed "s#\"<OUTBOUND_REPLACE>\",#$INBOUND_REPLACE#; s#\"<NODE_REPLACE>\"#${NODE_REPLACE%,}#g" | ${WORK_DIR}/jq > ${WORK_DIR}/subscribe/sing-box
   } &>/dev/null
 
   # 生成二维码 url 文件
@@ -3237,14 +3231,8 @@ $(hint "Clash $(text 80):
 $SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/clash
 $SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/clash2
 
-sing-box for pc $(text 80):
-$SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/sing-box-pc
-
-sing-box for cellphone $(text 80):
-$SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/sing-box-phone
-
 SFI / SFA / SFM $(text 80):
-$SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/sing-box2
+$SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/sing-box
 
 ShadowRocket $(text 80):
 $SUBSCRIBE_ADDRESS/${UUID_CONFIRM}/shadowrocket")
