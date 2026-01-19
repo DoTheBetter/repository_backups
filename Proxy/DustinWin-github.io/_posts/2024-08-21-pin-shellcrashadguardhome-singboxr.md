@@ -419,20 +419,8 @@ echo -e '12345678\n12345678' | passwd root
 
     <img src="/assets/img/pin/adguardhome-up-dns.png" alt="AdGuard Home 配置 1" width="60%" />
 
-  - ➋ “后备 DNS 服务器”设置为：
-
-    ```text
-    quic://dns.alidns.com:853
-    https://doh.pub/dns-query
-    ```
-
-  - ➌ “Bootstrap DNS 服务器”设置为：
-
-    ```text
-    223.5.5.5
-    119.29.29.29
-    ```
-
+  - ➋ “后备 DNS 服务器”设置为 `https://doh.pub/dns-query`
+  - ➌ “Bootstrap DNS 服务器”设置为 `119.29.29.29`
   - ➍ 直接点击“应用”即可  
     <img src="/assets/img/pin/adguardhome-dns.png" alt="AdGuard Home 配置 2" width="60%" />
 
