@@ -77,8 +77,20 @@ jobs:
         run: cd openwrt && ./scripts/feeds install -a
 
       - name: Generate default configuration
-        run: cd openwrt && make defconfig
+        run: |
+          cd openwrt
+          echo "CONFIG_TARGET_x86=y" >> .config
+          echo "CONFIG_TARGET_x86_64=y" >> .config
+          make defconfig
+          cp .config ${{fromJSON(matrix.info).TYPE}}.config
       
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{fromJSON(matrix.info).TYPE}}.config
+          include-hidden-files: true
+          path: openwrt/${{fromJSON(matrix.info).TYPE}}.config
+            
       - name: Load custom configuration
         run: |
           chmod +x ${{fromJSON(matrix.info).DIY_P2_SH}}
