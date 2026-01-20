@@ -353,7 +353,7 @@ dns:
 
 ## 五、 ShellCrash 设置
 1. 设置可参考《[ShellCrash 搭载 mihomo 内核的配置-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/toolsettings-shellcrash-mihomo-ruleset)》，此处只列举配置的不同之处
-2. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 7 DNS 劫持端口，设置为 `5353`（AdGuard Home 的“DNS 服务器端口”须设置为 `5353`）
+2. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 7 DNS 劫持端口，设置为 `5353`（须完成《[六](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-mihomo-ruleset/#%E5%85%AD-%E5%AE%89%E8%A3%85-adguard-home)》后才可设置）
 3. 进入 2 DNS 设置 → 9 修改 DNS 服务器，设置如下：  
 <img src="/assets/img/dns/dns-null.png" alt="ShellCrash 设置 2" width="60%" />
 

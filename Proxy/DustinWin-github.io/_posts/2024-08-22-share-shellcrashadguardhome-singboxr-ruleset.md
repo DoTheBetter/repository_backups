@@ -380,12 +380,11 @@ sc
 
 ## 六、 ShellCrash 设置
 1. 设置可参考《[ShellCrash 搭载 sing-boxr 内核的配置-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/toolsettings-shellcrash-singboxr-ruleset)》，此处只列举配置的不同之处
-2. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 7 DNS 劫持端口，设置为 `5353`（AdGuard Home 的“DNS 服务器端口”须设置为 `5353`）
+2. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 7 DNS 劫持端口，设置为 `5353`（须完成《[七](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-singboxr-ruleset/#%E4%B8%83-%E5%AE%89%E8%A3%85-adguard-home)》后才可设置）
 3. 进入 2 DNS 设置 → 9 修改 DNS 服务器，设置如下：  
 <img src="/assets/img/dns/dns-null.png" alt="设置部分 2" width="60%" />
 
-4. 进入 2 功能设置，选择 5 启用域名嗅探
-5. 进入主菜单 → 6 管理配置文件 → 2 在线获取配置文件，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-singboxr-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-json-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .json 文件直链，启动服务即可
+4. 进入主菜单 → 6 管理配置文件 → 2 在线获取配置文件，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-singboxr-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-json-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .json 文件直链，启动服务即可
 
 ## 七、 安装 AdGuard Home
 连接 SSH 后执行如下命令：

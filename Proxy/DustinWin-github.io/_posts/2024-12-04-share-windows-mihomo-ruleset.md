@@ -324,6 +324,7 @@ dns:
     - 'https://dns11.quad9.net/dns-query#ecs=202.103.17.0/24'
   proxy-server-nameserver: [system]
   direct-nameserver: [system]
+  nameserver-policy: {'rule-set:ads': [rcode://success]}
 ```
 
 ----
