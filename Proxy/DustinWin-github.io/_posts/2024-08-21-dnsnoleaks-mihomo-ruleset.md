@@ -50,7 +50,7 @@ rule-providers:
 ## 三、 DNS 防泄漏配置
 ### 1. DNS 模式为 `mix`（推荐）
 连接 SSH 后执行 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：
->推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns) 查询）的 IP 段，如默认 DNS 为 `211.137.64.163`，可设置为 `211.137.58.0/24`
+>推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
 {: .prompt-info }
 
 ```yaml
@@ -110,7 +110,7 @@ dns:
 
 ### 3. DNS 模式为 `redir-host`
 连接 SSH 后执行 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：
->推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns) 查询）的 IP 段，如默认 DNS 为 `211.137.64.163`，可设置为 `211.137.58.0/24`
+>推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
 {: .prompt-info }
 
 ```yaml

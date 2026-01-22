@@ -54,7 +54,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 ### 1. DNS 模式为 `mix`（推荐）
 - ① 连接 SSH 后执行命令 `vi $CRASHDIR/jsons/dns.json`，按一下 Ins 键（Insert 键），修改为如下内容：
   
-  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns) 查询）的 IP 段，如默认 DNS 为 `211.137.64.163`，可设置为 `211.137.58.0/24`
+  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
   {: .prompt-info }
 
   ```json
@@ -101,7 +101,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 ### 2. DNS 模式为 `fakeip`（不推荐）
 - ① 连接 SSH 后执行命令 `vi $CRASHDIR/jsons/dns.json`，按一下 Ins 键（Insert 键），修改为如下内容：
   
-  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns) 查询）的 IP 段，如默认 DNS 为 `211.137.64.163`，可设置为 `211.137.58.0/24`
+  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
   {: .prompt-info }
 
   ```json
@@ -147,7 +147,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 ### 3. DNS 模式为 `redirhost`
 - ① 连接 SSH 后执行命令 `vi $CRASHDIR/jsons/dns.json`，按一下 Ins 键（Insert 键），修改为如下内容：
   
-  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns) 查询）的 IP 段，如默认 DNS 为 `211.137.64.163`，可设置为 `211.137.58.0/24`
+  >推荐将 `client_subnet` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
   {: .prompt-info }
 
   ```json
