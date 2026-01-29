@@ -12,6 +12,7 @@ tags: [Clash, mihomo, ShellCrash, geodata, geosite, 分享, Router]
 2. 此方案适用于 [ShellCrash](https://github.com/juewuy/ShellCrash)（以 arm64 架构为例，且安装路径为 `/data/ShellCrash`{: .filepath}）
 3. 本方案绕过了 CNIP 且不搭配 [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome)，在 DNS 层拦截广告
 4. 本人将路由器设置了每天早上 6 点重启，使得《[五](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrash-mihomo-geodata/#%E4%BA%94-%E6%B7%BB%E5%8A%A0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1)》中设置的定时任务生效
+5. 若 `谷歌服务` 出现错误如 [Google Chrome](https://www.google.com/chrome/) 检查更新失败，请删除 `nameserver` 相关配置项里的所有[阿里云公共 DNS](https://help.aliyun.com/zh/dns/what-is-alibaba-cloud-public-dns)
 
 ## 一、 生成配置文件 .yaml 文件直链
 具体方法此处不再赘述，请看《[生成带有自定义策略组和规则的 mihomo 配置文件直链-geodata 方案](https://proxy-tutorials.dustinwin.us.kg/posts/link-mihomo-geodata)》，贴一下我使用的配置：
@@ -170,9 +171,9 @@ profile: {store-selected: true, store-fake-ip: true}
 geodata-mode: true
 
 hosts:
-  dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
-  doh.pub: [1.12.12.12, 1.12.12.21, 120.53.53.53]
   miwifi.com: [192.168.31.1, 127.0.0.1]
+  doh.pub: [1.12.12.21, 120.53.53.53, 2402:4e00::]
+  dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
   services.googleapis.cn: [services.googleapis.com]
 
 dns:
@@ -185,8 +186,8 @@ dns:
   fake-ip-range6: fc00::/16
   fake-ip-filter: ['geosite:trackerslist,private,cn']
   nameserver:
-    - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
+    - quic://dns.alidns.com:853
   nameserver-policy: {'geosite:ads': [rcode://success]}
 ```
 
@@ -200,7 +201,12 @@ dns:
 - 2. 推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS（可进入光猫或路由器拨号页面查看，或者前往[公共 DNS 大全](https://toolb.cn/publicdns)查询）的 IP 段，如默认 DNS 为 `211.137.58.20`，可设置为 `211.137.58.0/24`
 
 ```yaml
-hosts: {miwifi.com: [192.168.31.1, 127.0.0.1]}
+hosts:
+  miwifi.com: [192.168.31.1, 127.0.0.1]
+  doh.pub: [1.12.12.21, 120.53.53.53, 2402:4e00::]
+  dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
+  dns.google: [8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844]
+  dns11.quad9.net: [9.9.9.11, 149.112.112.11, 2620:fe::11, 2620:fe::fe:11]
 
 dns:
   enable: true
@@ -216,8 +222,12 @@ dns:
     # 推荐将 `ecs` 设置为当前宽带运营商分配的默认 DNS 的 IP 段
     - 'https://dns.google/dns-query#ecs=211.137.58.0/24'
     - 'https://dns11.quad9.net/dns-query#ecs=211.137.58.0/24'
-  proxy-server-nameserver: [system]
-  direct-nameserver: [system]
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+    - quic://dns.alidns.com:853
+  direct-nameserver:
+    - https://doh.pub/dns-query
+    - quic://dns.alidns.com:853
   nameserver-policy: {'geosite:ads': [rcode://success]}
 ```
 
@@ -233,15 +243,17 @@ dns:
 ```
 
 2. 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
-3. 执行 `sc`，进入 ShellCrash 配置脚本 → 5 设置自动任务 → 1 添加自动任务，可以看到末尾就有添加的定时任务，输入对应的数字并回车后可设置执行条件  
+3. 执行 `sc`，进入 ShellCrash 配置脚本 → 5) 自动任务 → 1) 添加自动任务，可以看到末尾就有添加的定时任务，输入对应的数字并回车后可设置执行条件  
 <img src="/assets/img/share/task-mihomo-geodata.png" alt="添加定时任务" width="60%" />
 
 ## 六、 设置部分
 1. 设置可参考《[ShellCrash 搭载 mihomo 内核的配置-geodata 方案](https://proxy-tutorials.dustinwin.us.kg/posts/toolsettings-shellcrash-mihomo-geodata)》，此处只列举配置的不同之处
-2. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 9 修改 DNS 服务器，设置如下：  
+2. 进入 ShellCrash 配置脚本 → 2) 功能设置 → 2) DNS 设置 → 9) 修改 DNS 服务器，设置如下：  
 <img src="/assets/img/dns/dns-null.png" alt="设置部分 2" width="60%" />
 
-3. 进入主菜单 → 6 管理配置文件 → 2 在线获取配置文件，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrash-mihomo-geodata/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-yaml-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的配置文件 .yaml 文件直链，启动服务即可
+3. 进入主菜单 → 6) 配置文件管理 → a) 添加提供者 → 1) 设置名称或代号，如输入“mihomo”；后进入 2) 设置链接或路径，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrash-mihomo-geodata/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-yaml-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的 .yaml 配置文件直链，选择“a) 保存此提供者”
+4. 进入 6) 配置文件管理 → c) 在线生成配置文件 → 6) 自定义浏览器 UA，选择“2) 不使用 UA”
+5. 进入 6) 配置文件管理 → 1) mihomo，选择选择“e) 从此订阅链接直接拉取配置文件”，启动服务即可
 
 ## 七、 访问 Dashboard 面板
 打开 <http://miwifi.com:9999/ui/> 后，“主机”输入 `192.168.31.1`，“端口”输入 `9999`，点击“提交”即可访问 Dashboard 面板

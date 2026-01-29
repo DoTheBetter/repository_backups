@@ -18,12 +18,16 @@ tags: [Clash, mihomo, 进阶, DNS, DNS 分流]
 geosite.dat 文件须包含 `fakeip-filter`、`cn` 和 `proxy`，推荐导入我定制的[路由规则文件](https://github.com/DustinWin/ruleset_geodata?tab=readme-ov-file#%E4%B8%80-geodata-%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E)
 
 ## 二、 DNS 分流配置
-1. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 9 DNS 进阶设置，将“当前基础 DNS”、“PROXY-DNS”和“解析 DNS”都设置为 `null`  
+1. 进入 ShellCrash 配置脚本 → 2) 功能设置 → 2) DNS 设置 → 9) 修改 DNS 服务器，将“DIRECT-DNS”、“PROXY-DNS”和“DEFAULT-DNS”都设置为 `null`  
 <img src="/assets/img/dns/dns-null.png" alt="ShellCrash DNS 进阶设置" width="60%" />
 
 2. 连接 SSH 后执行命令 `vi $CRASHDIR/yamls/user.yaml`，按一下 Ins 键（Insert 键），粘贴如下内容：
 
 ```yaml
+hosts:
+  doh.pub: [1.12.12.21, 120.53.53.53, 2402:4e00::]
+  dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
+
 dns:
   enable: true
   prefer-h3: true
@@ -38,7 +42,9 @@ dns:
     - GEOSITE,proxy,fake-ip
     - GEOSITE,cn,real-ip  # 此条仅演示，可删除
     - MATCH,real-ip
-  nameserver: [system]
+  nameserver:
+    - https://dns.pub/dns-query
+    - quic://dns.alidns.com:853
 ```
 
 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车

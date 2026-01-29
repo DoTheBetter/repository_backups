@@ -48,7 +48,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 分�
 ```
 
 ## 二、 DNS 分流配置
-1. 进入 ShellCrash 配置脚本 → 2 功能设置 → 2 DNS 设置 → 9 DNS 进阶设置，将“当前基础 DNS”、“PROXY-DNS”和“解析 DNS”都设置为 `null`  
+1. 进入 ShellCrash 配置脚本 → 2) 功能设置 → 2) DNS 设置 → 9) 修改 DNS 服务器，将“DIRECT-DNS”、“PROXY-DNS”和“DEFAULT-DNS”都设置为 `null`  
 <img src="/assets/img/dns/dns-null.png" alt="ShellCrash 设置" width="60%" />
 
 2. 连接 SSH 后执行命令 `vi $CRASHDIR/jsons/dns.json`，按一下 Ins 键（Insert 键），粘贴如下内容：
@@ -57,9 +57,17 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 分�
 {
   "dns": {
     "servers": [
+      {
+        "tag": "dns_hosts",
+        "type": "hosts",
+        "predefined": {
+          "doh.pub": [ "1.12.12.21", "120.53.53.53", "2402:4e00::" ],
+          "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
+        }
+      },
       { "tag": "dns_resolver", "type": "local" },
-      { "tag": "dns_direct", "type": "https", "server": "doh.pub", "domain_resolver": "dns_resolver" },
-      { "tag": "dns_proxy", "type": "https", "server": "dns.google", "detour": "GLOBAL" },
+      { "tag": "dns_direct", "type": "https", "server": "doh.pub", "domain_resolver": "dns_hosts" },
+      { "tag": "dns_proxy", "type": "https", "server": "dns.google", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
       { "tag": "dns_fakeip", "type": "fakeip", "inet4_range": "28.0.0.0/8", "inet6_range": "fc00::/16" }
     ],
     "rules": [
