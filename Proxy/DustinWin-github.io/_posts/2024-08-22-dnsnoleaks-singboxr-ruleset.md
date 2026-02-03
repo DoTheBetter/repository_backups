@@ -65,7 +65,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
           "tag": "dns_hosts",
           "type": "hosts",
           "predefined": {
-            "doh.pub": [ "1.12.12.21", "120.53.53.53", "2402:4e00::" ],
+            "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
             "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
           }
         },
@@ -120,7 +120,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
           "tag": "dns_hosts",
           "type": "hosts",
           "predefined": {
-            "doh.pub": [ "1.12.12.21", "120.53.53.53", "2402:4e00::" ],
+            "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
             "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
           }
         },
@@ -174,7 +174,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
           "tag": "dns_hosts",
           "type": "hosts",
           "predefined": {
-            "doh.pub": [ "1.12.12.21", "120.53.53.53", "2402:4e00::" ],
+            "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
             "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
           }
         },

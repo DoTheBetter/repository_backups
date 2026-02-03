@@ -279,7 +279,7 @@ profile: {store-selected: true, store-fake-ip: true}
 
 hosts:
   miwifi.com: [192.168.31.1, 127.0.0.1]
-  doh.pub: [1.12.12.21, 120.53.53.53, 2402:4e00::]
+  doh.pub: [1.12.12.12, 120.53.53.53, 2402:4e00::]
   dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
   services.googleapis.cn: [services.googleapis.com]
 
@@ -309,7 +309,7 @@ dns:
 ```yaml
 hosts:
   miwifi.com: [192.168.31.1, 127.0.0.1]
-  doh.pub: [1.12.12.21, 120.53.53.53, 2402:4e00::]
+  doh.pub: [1.12.12.12, 120.53.53.53, 2402:4e00::]
   dns.alidns.com: [223.5.5.5, 223.6.6.6, 2400:3200::1, 2400:3200:baba::1]
   dns.google: [8.8.8.8, 8.8.4.4, 2001:4860:4860::8888, 2001:4860:4860::8844]
   dns11.quad9.net: [9.9.9.11, 149.112.112.11, 2620:fe::11, 2620:fe::fe:11]
@@ -362,7 +362,7 @@ dns:
 
 4. 进入主菜单 → 6) 配置文件管理 → a) 添加提供者 → 1) 设置名称或代号，如输入“mihomo”；后进入 2) 设置链接或路径，粘贴《[一](https://proxy-tutorials.dustinwin.us.kg/posts/share-shellcrashadguardhome-mihomo-ruleset/#%E4%B8%80-%E7%94%9F%E6%88%90%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6-yaml-%E6%96%87%E4%BB%B6%E7%9B%B4%E9%93%BE)》中生成的 .yaml 配置文件直链，选择“a) 保存此提供者”
 5. 进入 6) 配置文件管理 → c) 在线生成配置文件 → 6) 自定义浏览器 UA，选择“2) 不使用 UA”
-6. 进入 6) 配置文件管理 → 1) mihomo，选择选择“e) 从此订阅链接直接拉取配置文件”，启动服务即可
+6. 进入 6) 配置文件管理 → 1) mihomo，选择选择“e) 在线获取此配置文件”，启动服务即可
 
 ## 六、 安装 AdGuard Home
 连接 SSH 后执行如下命令：

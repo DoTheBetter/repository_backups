@@ -302,11 +302,6 @@ echo -e '12345678\n12345678' | passwd root
   - ➍ 进入 2) DNS 设置 → 9) 修改 DNS 服务器，选择“4) 一键配置加密 DNS”
     - 注：推荐设置 DNS 分流（单独使用 ShellCrash 以及 ShellCrash 搭配 AdGuard Home 都适用），请看《[搭载 sing-boxr 内核进行 DNS 分流教程-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/dnsbypass-singboxr-ruleset)》
 
-  - ➎ 进入 2) 功能设置 → 3) 透明路由流量过滤，根据需要启用“4) 过滤CN_IP(4/6)列表”（强烈建议启用）
-  - ➏ 进入 2) 功能设置 → 5) 启用域名嗅探，选择“1) 是”
-  - ➐ 进入 2) 功能设置 → 8) IPv6 设置，若机场节点支持 IPv6，可启用“1) IPv6 透明路由”  
-    <img src="/assets/img/pin/ipv6-setting.png" alt="ShellCrash 配置 2" width="60%" />
-
 - ④ 进入主菜单 → 4 启动设置，启用“1) 开机自启动”（若重启路由器后服务没有自动运行，可进入 3) 设置自启延时，设置为“30”秒，然后在《[六、 1. ⑥](https://proxy-tutorials.dustinwin.us.kg//posts/pin-shellcrashadguardhome-mihomo/#1-adguard-home-%E5%AE%89%E8%A3%85)》，将 `sleep 10s` 改为 `sleep 40s`）
 - ⑤ 进入主菜单 → 5) 自动任务 → 1) 添加自动任务，输入对应的数字并回车后可设置执行条件
 - ⑥ 进入主菜单 → 8) 工具与优化，选择“6) 小米设备软固化 SSH”（无需输入需要还原的 SSH 密码）
@@ -320,7 +315,7 @@ echo -e '12345678\n12345678' | passwd root
 - ⑧ 导入配置文件
   - ➊ 进入主菜单 → 6) 配置文件管理 → a) 添加提供者 → 1) 设置名称或代号，如输入“sing-boxr”；后进入 2) 设置链接或路径，粘贴你的订阅链接，选择“a) 保存此提供者”
   - ➋ 进入 6) 配置文件管理 → c) 在线生成配置文件 → 6) 自定义浏览器 UA，根据需要设置 UA（此处选择“2) 不使用 UA”）
-  - ➌ 进入 6) 配置文件管理 → 1) sing-boxr，根据需要选择“b) 本地生成仅包含此提供者的配置文件”或“c) 在线生成仅包含此提供者的配置文件”；选择“e) 从此订阅链接直接拉取配置文件”需要一定的 sing-boxr 知识储备，请查看《[生成带有自定义出站和规则的 sing-boxr 配置文件直链-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/link-singboxr-ruleset/)》
+  - ➌ 进入 6) 配置文件管理 → 1) sing-boxr，根据需要选择“b) 本地生成仅包含此提供者的配置文件”或“c) 在线生成仅包含此提供者的配置文件”；选择“e) 在线获取此配置文件”需要一定的 sing-boxr 知识储备，请查看《[生成带有自定义出站和规则的 sing-boxr 配置文件直链-ruleset 方案](https://proxy-tutorials.dustinwin.us.kg/posts/link-singboxr-ruleset/)》
 
   导入配置文件完成后，选择 1 启动/重启服务
 
