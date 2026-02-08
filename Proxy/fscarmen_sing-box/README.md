@@ -24,6 +24,8 @@
 
 * * *
 ## 1.更新信息
+2026.02.08 v1.3.4 Chore: upgrade SS encryption method to SS-2022 spec; 新装的 Shadowsocks 协议加密方式从 aes-128-gcm 改为 2022-blake3-aes-128-gcm
+
 2026.01.20 v1.3.3 1. Security: In v2rayN, add pinnedPeerCertSha256 for Hysteria2/Trojan to prevent MITM (replaces AllowInsecure); 2. Compatibility: Refactor SFM/SFI/SFA configs for sing-box v1.13.0+; 1. 安全增强：v2rayN 的 Hysteria2/Trojan 支持 pinnedPeerCertSha256 替代 跳过证书验证，防御 MITM 攻击; 2. 适配更新：重构 SFM/SFI/SFA 配置，支持 sing-box v1.13.0+
 
 2025.12.11 v1.3.2 Argo tunnel creation via API. Suitable for users with large-scale deployments, one Token for all. Automatically completed: Create tunnel > DNS configuration > Origin settings. Thanks to [zmlu] for providing the method: https://raw.githubusercontent.com/zmlu/sba/main/tunnel.sh; Argo 隧道新增通过 API 创建，适合大量部署的用户，一个 Token 走天下。自动完成：创建隧道 > DNS 配置 > 回源设置。感谢热心网友 [zmlu] 提供的方法: https://raw.githubusercontent.com/zmlu/sba/main/tunnel.sh
