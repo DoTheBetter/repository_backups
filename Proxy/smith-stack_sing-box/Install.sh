@@ -1077,8 +1077,8 @@ function get_api_email() {
 # 配置伪装网址
 function set_fake_domain() {
     while true; do
-        read -p "请输入伪装网址（默认: www.zcloudisk.com）: " fake_domain
-        fake_domain=${fake_domain:-"www.zcloudisk.com"}
+        read -p "请输入伪装网址（默认: www.icloud.com）: " fake_domain
+        fake_domain=${fake_domain:-"www.icloud.com"}
         
         if curl --output /dev/null --silent --head --fail "$fake_domain"; then
             echo "伪装网址: $fake_domain"
