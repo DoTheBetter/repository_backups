@@ -52,11 +52,17 @@ tags: [sing-box, sing-boxr, Android, ruleset, rule_set, 分享]
         "predefined": {
           "miwifi.com": [ "192.168.31.1", "127.0.0.1" ],
           "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
-          "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
+          "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
+          "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
+          "dns11.quad9.net": [ "9.9.9.11", "149.112.112.11", "2620:fe::11", "2620:fe::fe:11" ]
         }
       },
-      { "tag": "dns_direct", "type": "https", "server": "doh.pub", "domain_resolver": "dns_hosts" },
-      { "tag": "dns_proxy", "type": "https", "server": "dns.google", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "dns_hosts" },
+      { "tag": "dns_alidns", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "dns_hosts" },
+      { "tag": "dns_google", "type": "https", "server": "dns.google", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_quad9", "type": "https", "server": "dns11.quad9.net", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_direct", "type": "group", "servers": [ "dns_dnspod", "dns_alidns" ] },
+      { "tag": "dns_proxy", "type": "group", "servers": [ "dns_google", "dns_quad9" ] },
       { "tag": "dns_fakeip", "type": "fakeip", "inet4_range": "28.0.0.0/8", "inet6_range": "fc00::/16" }
     ],
     "rules": [
@@ -330,11 +336,17 @@ tags: [sing-box, sing-boxr, Android, ruleset, rule_set, 分享]
         "predefined": {
           "miwifi.com": [ "192.168.31.1", "127.0.0.1" ],
           "doh.pub": [ "1.12.12.12", "120.53.53.53", "2402:4e00::" ],
-          "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ]
+          "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
+          "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
+          "dns11.quad9.net": [ "9.9.9.11", "149.112.112.11", "2620:fe::11", "2620:fe::fe:11" ]
         }
       },
-      { "tag": "dns_direct", "type": "https", "server": "doh.pub", "domain_resolver": "dns_hosts" },
-      { "tag": "dns_proxy", "type": "https", "server": "dns.google", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "dns_hosts" },
+      { "tag": "dns_alidns", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "dns_hosts" },
+      { "tag": "dns_google", "type": "https", "server": "dns.google", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_quad9", "type": "https", "server": "dns11.quad9.net", "domain_resolver": "dns_hosts", "detour": "GLOBAL" },
+      { "tag": "dns_direct", "type": "group", "servers": [ "dns_dnspod", "dns_alidns" ] },
+      { "tag": "dns_proxy", "type": "group", "servers": [ "dns_google", "dns_quad9" ] },
       { "tag": "dns_fakeip", "type": "fakeip", "inet4_range": "28.0.0.0/8", "inet6_range": "fc00::/16" }
     ],
     "rules": [
