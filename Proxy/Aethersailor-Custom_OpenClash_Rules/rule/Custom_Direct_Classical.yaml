@@ -1,12 +1,13 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 528
+# TOTAL: 531
 
 payload:
   - DOMAIN-KEYWORD,m-team
   - DOMAIN-KEYWORD,quickconnect
   - DOMAIN-KEYWORD,synology
+  - DOMAIN-SUFFIX,00333118.com
   - DOMAIN-SUFFIX,0044696.com
   - DOMAIN-SUFFIX,03241119.xyz
   - DOMAIN-SUFFIX,112114.xyz
@@ -19,6 +20,7 @@ payload:
   - DOMAIN-SUFFIX,3dwhere.com
   - DOMAIN-SUFFIX,3gxk.net
   - DOMAIN-SUFFIX,4399zmxy.com
+  - DOMAIN-SUFFIX,4xiaoshuo.org
   - DOMAIN-SUFFIX,51tbox.com
   - DOMAIN-SUFFIX,51wanxue.com
   - DOMAIN-SUFFIX,51zmt.top
@@ -465,6 +467,7 @@ payload:
   - DOMAIN-SUFFIX,wologic.net
   - DOMAIN-SUFFIX,wpurl.cc
   - DOMAIN-SUFFIX,wwwh.eu.org
+  - DOMAIN-SUFFIX,wwwwqq.com
   - DOMAIN-SUFFIX,wxdw.top
   - DOMAIN-SUFFIX,x86pi.com
   - DOMAIN-SUFFIX,xbcloudprint.com

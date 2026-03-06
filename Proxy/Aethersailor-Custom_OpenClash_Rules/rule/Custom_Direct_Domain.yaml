@@ -1,12 +1,13 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 521
+# TOTAL: 524
 
 payload:
   - '*m-team*'
   - '*quickconnect*'
   - '*synology*'
+  - '+.00333118.com'
   - '+.0044696.com'
   - '+.03241119.xyz'
   - '+.112114.xyz'
@@ -19,6 +20,7 @@ payload:
   - '+.3dwhere.com'
   - '+.3gxk.net'
   - '+.4399zmxy.com'
+  - '+.4xiaoshuo.org'
   - '+.51tbox.com'
   - '+.51wanxue.com'
   - '+.51zmt.top'
@@ -465,6 +467,7 @@ payload:
   - '+.wologic.net'
   - '+.wpurl.cc'
   - '+.wwwh.eu.org'
+  - '+.wwwwqq.com'
   - '+.wxdw.top'
   - '+.x86pi.com'
   - '+.xbcloudprint.com'
