@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 551
+# TOTAL: 556
 
 payload:
   - DOMAIN-KEYWORD,m-team
@@ -107,6 +107,7 @@ payload:
   - DOMAIN-SUFFIX,chii.in
   - DOMAIN-SUFFIX,chinatle.com
   - DOMAIN-SUFFIX,chujingapp.com
+  - DOMAIN-SUFFIX,chushi.cool
   - DOMAIN-SUFFIX,clivia.fun
   - DOMAIN-SUFFIX,cmbc.run
   - DOMAIN-SUFFIX,cn-music.mefun.vip
@@ -237,6 +238,8 @@ payload:
   - DOMAIN-SUFFIX,hiwms.com
   - DOMAIN-SUFFIX,hkchat.app
   - DOMAIN-SUFFIX,hnxzctec.com
+  - DOMAIN-SUFFIX,hongxingdl.com
+  - DOMAIN-SUFFIX,hongxingdl.love
   - DOMAIN-SUFFIX,hsbc.com.hk
   - DOMAIN-SUFFIX,hstbroker.com
   - DOMAIN-SUFFIX,hszq6.com
@@ -290,6 +293,8 @@ payload:
   - DOMAIN-SUFFIX,kaihong.com
   - DOMAIN-SUFFIX,kaijiejinrong.com
   - DOMAIN-SUFFIX,kancaibao.com
+  - DOMAIN-SUFFIX,kaspersky-labs.com
+  - DOMAIN-SUFFIX,kaspersky.com
   - DOMAIN-SUFFIX,kcbd.top
   - DOMAIN-SUFFIX,kejiweixun.com
   - DOMAIN-SUFFIX,keyoo.com
@@ -297,7 +302,6 @@ payload:
   - DOMAIN-SUFFIX,kit327.com
   - DOMAIN-SUFFIX,kmeila.com
   - DOMAIN-SUFFIX,kuaicha888.com
-  - DOMAIN-SUFFIX,kyarucloud.moe
   - DOMAIN-SUFFIX,lanyun.net
   - DOMAIN-SUFFIX,laogongju.com
   - DOMAIN-SUFFIX,latexlive.com
@@ -532,6 +536,7 @@ payload:
   - DOMAIN-SUFFIX,zcloud.world
   - DOMAIN-SUFFIX,zctnet.top
   - DOMAIN-SUFFIX,zeekrline.com
+  - DOMAIN-SUFFIX,zhangleglobal.com
   - DOMAIN-SUFFIX,zhi10.com
   - DOMAIN-SUFFIX,zhituwujie.com
   - DOMAIN-SUFFIX,zhixingyunke.com

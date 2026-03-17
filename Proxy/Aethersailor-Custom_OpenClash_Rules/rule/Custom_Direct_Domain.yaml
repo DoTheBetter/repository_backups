@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 544
+# TOTAL: 549
 
 payload:
   - '*m-team*'
@@ -107,6 +107,7 @@ payload:
   - '+.chii.in'
   - '+.chinatle.com'
   - '+.chujingapp.com'
+  - '+.chushi.cool'
   - '+.clivia.fun'
   - '+.cmbc.run'
   - '+.cn-music.mefun.vip'
@@ -237,6 +238,8 @@ payload:
   - '+.hiwms.com'
   - '+.hkchat.app'
   - '+.hnxzctec.com'
+  - '+.hongxingdl.com'
+  - '+.hongxingdl.love'
   - '+.hsbc.com.hk'
   - '+.hstbroker.com'
   - '+.hszq6.com'
@@ -290,6 +293,8 @@ payload:
   - '+.kaihong.com'
   - '+.kaijiejinrong.com'
   - '+.kancaibao.com'
+  - '+.kaspersky-labs.com'
+  - '+.kaspersky.com'
   - '+.kcbd.top'
   - '+.kejiweixun.com'
   - '+.keyoo.com'
@@ -297,7 +302,6 @@ payload:
   - '+.kit327.com'
   - '+.kmeila.com'
   - '+.kuaicha888.com'
-  - '+.kyarucloud.moe'
   - '+.lanyun.net'
   - '+.laogongju.com'
   - '+.latexlive.com'
@@ -532,6 +536,7 @@ payload:
   - '+.zcloud.world'
   - '+.zctnet.top'
   - '+.zeekrline.com'
+  - '+.zhangleglobal.com'
   - '+.zhi10.com'
   - '+.zhituwujie.com'
   - '+.zhixingyunke.com'
