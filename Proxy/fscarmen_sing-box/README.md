@@ -24,6 +24,8 @@
 
 * * *
 ## 1.更新信息
+2026.03.22 v1.3.6 Refactor: Support modification after installation (CDN, Reality SNI, node name, UUID/password, server IP); 重构：支持安装后多项修改（CDN、Reality SNI、节点名、UUID/密码、服务器 IP）
+
 2026.03.14 v1.3.5 Performance: Optimize concurrent process execution to significantly accelerate script installation. 性能优化：优化并发进程执行，大幅提升脚本安装速度
 
 2026.02.08 v1.3.4 Chore: upgrade SS encryption method to SS-2022 spec; 新装的 Shadowsocks 协议加密方式从 aes-128-gcm 改为 2022-blake3-aes-128-gcm
