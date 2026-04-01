@@ -30,7 +30,6 @@ RUN mkdir -p /nestingdns/default/site && \
 # 下载 site 文件
 RUN curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-list.txt -o /nestingdns/default/site/direct-list.txt && \
     curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/apple-cn.txt -o /nestingdns/default/site/apple-cn.txt && \
-    curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/google-cn.txt -o /nestingdns/default/site/google-cn.txt && \
     curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/proxy-list.txt -o /nestingdns/default/site/proxy-list.txt && \
     curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/gfw.txt -o /nestingdns/default/site/gfw.txt && \
     curl -sSL https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/greatfire.txt -o /nestingdns/default/site/greatfire.txt && \
@@ -53,6 +52,12 @@ RUN sed -i "s/^DOMAIN-SUFFIX,/domain:/" /nestingdns/default/site/steam-cn.txt
 # 修正 gamedownload-cn.txt 格式
 RUN sed -i "s/^DOMAIN,/full:/" /nestingdns/default/site/gamedownload-cn.txt
 RUN sed -i "s/^DOMAIN-SUFFIX,/domain:/" /nestingdns/default/site/gamedownload-cn.txt
+# direct-list 移除 dl.google.com、clientservices.googleapis.com、fonts.googleapis.com、update.googleapis.com、tools.google.com
+RUN sed -i "/full:dl.google.com/d" /nestingdns/default/site/direct-list.txt
+RUN sed -i "/full:clientservices.googleapis.com/d" /nestingdns/default/site/direct-list.txt
+RUN sed -i "/full:fonts.googleapis.com/d" /nestingdns/default/site/direct-list.txt
+RUN sed -i "/full:update.googleapis.com/d" /nestingdns/default/site/direct-list.txt
+RUN sed -i "/full:tools.google.com/d" /nestingdns/default/site/direct-list.txt
 
 # 拷入文件
 COPY --from=smartdns-builder /usr/share/smartdns/wwwroot /nestingdns/www/smartdns

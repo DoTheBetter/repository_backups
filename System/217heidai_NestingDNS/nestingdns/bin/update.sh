@@ -37,7 +37,6 @@ mkdir -p /tmp/nestingdns
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] update site file'
 update_site direct-list.txt https://ghfast.top/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-list.txt
 update_site apple-cn.txt https://ghfast.top/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/apple-cn.txt
-update_site google-cn.txt https://ghfast.top/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/google-cn.txt
 
 update_site proxy-list.txt https://ghfast.top/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/proxy-list.txt
 update_site gfw.txt https://ghfast.top/https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/gfw.txt
@@ -65,6 +64,12 @@ sed -i "s/^DOMAIN-SUFFIX,/domain:/" /nestingdns/etc/site/steam-cn.txt
 # 修正 gamedownload-cn.txt 格式
 sed -i "s/^DOMAIN,/full:/" /nestingdns/etc/site/gamedownload-cn.txt
 sed -i "s/^DOMAIN-SUFFIX,/domain:/" /nestingdns/etc/site/gamedownload-cn.txt
+# direct-list 移除 dl.google.com、clientservices.googleapis.com、fonts.googleapis.com、update.googleapis.com、tools.google.com
+sed -i "/full:dl.google.com/d" /nestingdns/etc/site/direct-list.txt
+sed -i "/full:clientservices.googleapis.com/d" /nestingdns/etc/site/direct-list.txt
+sed -i "/full:fonts.googleapis.com/d" /nestingdns/etc/site/direct-list.txt
+sed -i "/full:update.googleapis.com/d" /nestingdns/etc/site/direct-list.txt
+sed -i "/full:tools.google.com/d" /nestingdns/etc/site/direct-list.txt
 
 # 重启 mosdns
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] restart mosdns: '`/nestingdns/bin/mosdns version`
