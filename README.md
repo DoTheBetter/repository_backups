@@ -34,7 +34,7 @@
 | https://github.com/DustinWin/dustinwin.github.io | main | 2026.04.23 | mihomo和sing-box教程合集 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.04.22 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.04.21 | OpenClash自定义Wiki |
-| https://github.com/fscarmen/sing-box | main | 2026.04.12 | Sing-box代理工具 |
+| https://github.com/fscarmen/sing-box | main | 2026.04.24 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2026.03.01 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.10.07 | PAC代理工具 |
 
