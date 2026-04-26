@@ -374,7 +374,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 | Key 大小写不敏感（Case Insensitive）| Value |
 | --------------- | ----------- |
 | --LANGUAGE | c=中文;  e=英文 |
-| --CHOOSE_PROTOCOLS | 可多选，如 bcdfk<br> a=全部<br> b=XTLS + reality<br> c=hysteria2<br> d=tuic<br> e=ShadowTLS<br> f=shadowsocks<br> g=trojan<br> h=vmess + ws<br> i=vless + ws + tls<br> j=H2 + reality<br> k=gRPC + reality<br> l=AnyTLS |
+| --CHOOSE_PROTOCOLS | 可多选，如 bcdfk<br> a=全部<br> b=XTLS + reality<br> c=hysteria2<br> d=tuic<br> e=ShadowTLS<br> f=shadowsocks<br> g=trojan<br> h=vmess + ws<br> i=vless + ws + tls<br> j=H2 + reality<br> k=gRPC + reality<br> l=AnyTLS<br> m=NaiveProxy |
 | --START_PORT | 100 - 65520 |
 | --PORT_NGINX | n=不需要订阅，或者 100 - 65520 |
 | --SERVER_IP | IPv4 或 IPv6 地址，不需要中括号 |
