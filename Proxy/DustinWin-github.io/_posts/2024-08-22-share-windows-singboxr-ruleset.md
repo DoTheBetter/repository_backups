@@ -60,6 +60,7 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
           "cloudflare-dns.com": [ "1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001" ]
         }
       },
+      { "tag": "dns_local", "type": "local" },
       { "tag": "dns_alidns", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "hosts" },
       { "tag": "dns_dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts" },
       { "tag": "dns_google", "type": "https", "server": "dns.google", "domain_resolver": "hosts", "detour": "GLOBAL" },
@@ -73,10 +74,11 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       { "match_response": true, "ip_accept_any": true, "action": "respond" },
       { "clash_mode": [ "Direct" ], "server": "dns_direct" },
       { "clash_mode": [ "Global" ], "server": "dns_proxy" },
+      { "rule_set": [ "private" ], "server": "dns_local" },
       { "rule_set": [ "ads" ], "action": "predefined" },
       { "rule_set": [ "trackerslist", "microsoft-cn", "apple-cn", "google-cn", "games-cn" ], "server": "dns_direct" },
       { "rule_set": [ "games", "ai", "proxy" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" },
-      { "rule_set": [ "private", "cn" ], "server": "dns_direct" },
+      { "rule_set": [ "cn" ], "server": "dns_direct" },
       { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
     ],
     "final": "dns_direct",
@@ -312,10 +314,11 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       { "match_response": true, "ip_accept_any": true, "action": "respond" },
       { "clash_mode": [ "Direct" ], "server": "dns_direct" },
       { "clash_mode": [ "Global" ], "server": "dns_proxy" },
+      { "rule_set": [ "private" ], "server": "dns_local" },
       { "rule_set": [ "ads" ], "action": "predefined" },
       { "rule_set": [ "trackerslist", "microsoft-cn", "apple-cn", "google-cn", "games-cn" ], "server": "dns_direct" },
       { "rule_set": [ "games", "ai", "proxy" ], "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" },
-      { "rule_set": [ "private", "cn" ], "server": "dns_direct" },
+      { "rule_set": [ "cn" ], "server": "dns_direct" },
       { "query_type": [ "A", "AAAA" ], "server": "dns_fakeip" }
     ],
     "final": "dns_proxy",
@@ -523,63 +526,61 @@ Windows Registry Editor Version 5.00
 
         echo "导入（更新）sing-boxr 配置文件"
         cd "$PROGRAMFILES"
-        if [ -f "./sing-box/sing-box.exe" ]; then
-          if [ -f "./sing-box/config.json" ]; then
-            echo "检测到 sing-boxr 配置文件，是否更新？（Y/n）"
-            while true; do
-              read -n1 -r choice
-              case $choice in
-                [Yy])
-                  echo
-                  echo "正在下载 sing-boxr 配置文件..."
-                  curl -sS -o "$USERPROFILE/Downloads/config.json" -L https://ghfast.top/{.json 配置文件直链}
-                  echo "下载 sing-boxr 配置文件成功"
+        if [[ -f "./sing-box/sing-box.exe" && -f "./sing-box/config.json" ]]; then
+          echo "检测到 sing-boxr 配置文件，是否更新？（Y/n）"
+          while true; do
+            read -n1 -r choice
+            case $choice in
+              [Yy])
+                echo
+                echo "正在下载 sing-boxr 配置文件..."
+                curl -sS -o "$USERPROFILE/Downloads/config.json" -L https://ghfast.top/{.json 配置文件直链}
+                echo "下载 sing-boxr 配置文件成功"
 
-                  echo "正在结束 sing-boxr 相关进程..."
-                  taskkill //f //t //im "sing-box*"
-                  echo "结束 sing-boxr 相关进程成功"
+                echo "正在结束 sing-boxr 相关进程..."
+                taskkill //f //t //im "sing-box*"
+                echo "结束 sing-boxr 相关进程成功"
 
-                  echo "正在更新 sing-boxr 配置文件..."
-                  mv -f "$USERPROFILE/Downloads/config.json" ./sing-box
-                  echo "更新 sing-boxr 配置文件成功，是否启动服务？（Y/n）"
-                  ask_run
-                  break
-                  ;;
-                [Nn])
-                  break
-                  ;;
-                *)
-                  echo
-                  echo "无效选择，请重新输入！"
-                  ;;
-              esac
-            done
-          else
-            echo "未检测到 sing-boxr 配置文件，是否导入？（Y/n）"
-            while true; do
-              read -n1 -r choice
-              case $choice in
-                [Yy])
-                  echo
-                  echo "正在导入 sing-boxr 配置文件..."
-                  curl -sS -o "$USERPROFILE/Downloads/config.json" -L https://ghfast.top/{.json 配置文件直链}
-                  mv -f "$USERPROFILE/Downloads/config.json" ./sing-box
-                  echo "导入 sing-boxr 配置文件成功，是否启动服务？（Y/n）"
-                  ask_run
-                  break
-                  ;;
-                [Nn])
-                  break
-                  ;;
-                *)
-                  echo
-                  echo "无效选择，请重新输入！"
-                  ;;
-              esac
-            done
-          fi
+                echo "正在更新 sing-boxr 配置文件..."
+                mv -f "$USERPROFILE/Downloads/config.json" ./sing-box
+                echo "更新 sing-boxr 配置文件成功，是否启动服务？（Y/n）"
+                ask_run
+                break
+                ;;
+              [Nn])
+                break
+                ;;
+              *)
+                echo
+                echo "无效选择，请重新输入！"
+                ;;
+            esac
+          done
+        elif [ ! -f "./sing-box/config.json" ]; then
+          echo "未检测到 sing-boxr 配置文件，是否导入？（Y/n）"
+          while true; do
+            read -n1 -r choice
+            case $choice in
+              [Yy])
+                echo
+                echo "正在导入 sing-boxr 配置文件..."
+                curl -sS -o "$USERPROFILE/Downloads/config.json" -L https://ghfast.top/{.json 配置文件直链}
+                mv -f "$USERPROFILE/Downloads/config.json" ./sing-box
+                echo "导入 sing-boxr 配置文件成功，是否启动服务？（Y/n）"
+                ask_run
+                break
+                ;;
+              [Nn])
+                break
+                ;;
+              *)
+                echo
+                echo "无效选择，请重新输入！"
+                ;;
+            esac
+          done
         else
-          read -n1 -r -p "未检测到 sing-boxr 内核，请返回菜单安装内核！按任意键返回菜单..."
+          read -n1 -r -p "未检测到 sing-boxr 内核，请先返回菜单安装内核！按任意键返回菜单..."
         fi
         ;;
       3)
@@ -608,7 +609,7 @@ Windows Registry Editor Version 5.00
         ;;
     esac
   done
-  
+
   ```
 
 - ② 另存为 .sh 文件，右击并选择“以管理员身份运行”
@@ -635,4 +636,4 @@ Windows Registry Editor Version 5.00
 > 推荐设置
 {: .prompt-tip }
 1. 进入 zashboard 面板 → 代理 → 代理设置 → 管理隐藏代理组，隐藏不必要显示的代理组
-2. 进入 zashboard 面板 → 设置 → 图标，设置“自定义图标”，可参考 [icon 文件](https://github.com/DustinWin/ruleset_geodata/releases/tag/icons)
+2. 进入 zashboard 面板 → 设置 → 代理设置 → 外观 → 自定义图标，设置“组名”和“URL”，“URL”可参考 [icon 文件](https://github.com/DustinWin/ruleset_geodata/releases/tag/icons)
