@@ -59,6 +59,9 @@ Requirements:
 
 ```sh
 docker run --rm -v `pwd`:/build abcfy2/musl-cross-toolchain-ubuntu:${CROSS_HOST} /build/build.sh
+
+# For x86_64-w64-mingw32 and i686-w64-mingw32 please use abcfy2/mingw-cross-toolchain-ubuntu instead:
+docker run --rm -v `pwd`:/build abcfy2/mingw-cross-toolchain-ubuntu:${CROSS_HOST} /build/build.sh
 ```
 
 > You can also use my GHCR image as alternative: [ghcr.io/abcfy2/musl-cross-toolchain-ubuntu](https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu/pkgs/container/musl-cross-toolchain-ubuntu)
@@ -85,7 +88,7 @@ Cached build dependencies (`downloads/`), `build_info.md` and `aria2c` will be f
 You can set more optional environment variables in `docker` command like:
 
 ```sh
-docker run --rm -v `pwd`:/build -e USE_ZLIB_NG=0 -e USE_LIBRESSL=1 abcfy2/muslcc-toolchain-ubuntu:${CROSS_HOST} /build/build.sh
+docker run --rm -v `pwd`:/build -e USE_ZLIB_NG=0 -e USE_LIBRESSL=1 abcfy2/musl-cross-toolchain-ubuntu:${CROSS_HOST} /build/build.sh
 ```
 
 Optional environment variables:

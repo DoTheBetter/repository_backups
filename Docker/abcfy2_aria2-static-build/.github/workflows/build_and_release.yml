@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Set current date as env variable
         run: echo "NOW=$(date --utc)" >> $GITHUB_ENV
       - name: Delete Continuous Release
@@ -56,8 +56,8 @@ jobs:
         # use_libressl: [0, 1]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-      - uses: actions/cache@v4
+        uses: actions/checkout@v6
+      - uses: actions/cache@v5
         id: cache
         with:
           path: downloads/
@@ -90,7 +90,7 @@ jobs:
         shell: bash
       - name: Prerelease assets
         if: github.event_name == 'push' || github.event_name == 'schedule'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: /tmp/${{ env.ARCHIVE_NAME }}
           prerelease: true
@@ -101,7 +101,7 @@ jobs:
           append_body: true
       - name: Upload Github Assets
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: /tmp/${{ env.ARCHIVE_NAME }}
           name: aria2 ${{ env.ARIA2_VER }} static release
@@ -119,8 +119,8 @@ jobs:
           - i686-w64-mingw32
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
-      - uses: actions/cache@v4
+        uses: actions/checkout@v6
+      - uses: actions/cache@v5
         id: cache
         with:
           path: downloads/
@@ -152,7 +152,7 @@ jobs:
         shell: bash
       - name: Prerelease assets
         if: github.event_name == 'push' || github.event_name == 'schedule'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: /tmp/${{ env.ARCHIVE_NAME }}
           prerelease: true
@@ -163,7 +163,7 @@ jobs:
           append_body: true
       - name: Upload Github Assets
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: /tmp/${{ env.ARCHIVE_NAME }}
           name: aria2 ${{ env.ARIA2_VER }} static release
