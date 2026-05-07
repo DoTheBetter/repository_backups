@@ -881,7 +881,7 @@ EOF
   # 获取自签证书指纹。argo 回源的是由 Google Trust Services（谷歌信任服务）作为中间 CA（CN=WE1）签发，受信任的证书（非自签名）
   local SELF_SIGNED_FINGERPRINT_SHA256=$(openssl x509 -fingerprint -noout -sha256 -in ${WORK_DIR}/cert/cert.pem | awk -F '=' '{print $NF}')
   local SELF_SIGNED_FINGERPRINT_BASE64=$(openssl x509 -in ${WORK_DIR}/cert/cert.pem -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64)
-  local CERT_URL=$(awk '{printf "%s,", $0}' ${WORK_DIR}/cert/cert.pem)
+  local CERT_URL=$(awk '{printf "%s\\r\\n", $0}' ${WORK_DIR}/cert/cert.pem)
 
   # 生成 nginx 配置文件
   local NGINX_CONF="user root;
@@ -1094,7 +1094,7 @@ hysteria2://${UUID}@${SERVER_IP_1}:${PORT_HYSTERIA2}?sni=addons.mozilla.org&alpn
 
   [ "${TUIC}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-tuic://${UUID}:${UUID}@${SERVER_IP_1}:${PORT_TUIC}?sni=addons.mozilla.org&alpn=h3&insecure=1&allowInsecure=1&congestion_control=bbr#${NODE_NAME// /%20}%20tuic"
+v2rayn://tuic/$(echo -n "{\"ConfigType\":8,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} tuic\",\"Address\":\"${SERVER_IP_1}\",\"Port\":${PORT_TUIC},\"Password\":\"${UUID}\",\"Username\":\"${UUID}\",\"StreamSecurity\":\"tls\",\"AllowInsecure\":\"false\",\"Sni\":\"addons.mozilla.org\",\"Alpn\":\"h3\",\"Cert\":\"${CERT_URL}\",\"ProtoExtraObj\":{\"CongestionControl\":\"bbr\"}}" | base64 -w0 | tr '+/' '-_' | tr -d '=')"
 
   [ "${SHADOWTLS}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
