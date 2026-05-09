@@ -59,7 +59,7 @@ tags: [sing-box, sing-boxr, ShellCrash, ruleset, rule_set, 进阶, DNS, DNS 泄�
 
 2. 连接 SSH 后执行如下命令：
 ```shell
-sed -i ':a;N;$!ba;s/{[[:space:]]*"ip_accept_any": true,[[:space:]]*"server": "hosts"[[:space:]]*}/{ "preferred_by": "hosts", "server": "hosts" }/' "$CRASHDIR/starts/singbox_modify.sh"
+sed -i ':a;N;$!ba;s/{[[:space:]]*"ip_accept_any": true,[[:space:]]*"server": "hosts"[[:space:]]*}/{ "preferred_by": [ "hosts" ], "server": "hosts" }/' "$CRASHDIR/starts/singbox_modify.sh"
 ```
 
 ## 三、 DNS 防泄漏配置
