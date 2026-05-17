@@ -84,7 +84,7 @@ tags: [sing-box, sing-boxr, Android, ruleset, rule_set, 分享]
     "optimistic": true,
     "reverse_mapping": true
   },
-  "http_clients": [ { "tag": "detour_proxy", "version": 3, "detour": "GLOBAL" } ],
+  "http_clients": [ { "tag": "detour_proxy", "detour": "GLOBAL" } ],
   "inbounds": [
     // 启动服务时如果出现 `tun-in` 报错，可新增 `"stack": "system"` 配置项
     { "tag": "tun-in", "type": "tun", "interface_name": "sing-box", "address": [ "172.18.0.1/30", "fdfe:dcba:9876::1/126" ], "auto_route": true, "strict_route": true }
