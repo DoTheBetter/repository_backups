@@ -16,8 +16,8 @@
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2026.05.15 | OpenWrt在线构建工具 |
-| https://github.com/217heidai/OpenWrt-Builder | main | 2026.05.16 | OpenWrt在线构建工具 |
+| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2026.05.20 | OpenWrt在线构建工具 |
+| https://github.com/217heidai/OpenWrt-Builder | main | 2026.05.20 | OpenWrt在线构建工具 |
 | https://github.com/P3TERX/Actions-OpenWrt | main | 2025.01.09 | OpenWrt在线构建工具 |
 
 ## Docker
@@ -25,7 +25,7 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu | main | 2026.05.08 | toolchain based on Ubuntu docker image |
 | https://github.com/abcfy2/aria2-static-build | main | 2026.05.11 | aria2-static-build |
-| https://github.com/gshang2017/docker | master | 2026.05.16 | Docker集合 |
+| https://github.com/gshang2017/docker | master | 2026.05.20 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2025.10.30 | Warp Docker镜像 |
 
 ## Proxy
