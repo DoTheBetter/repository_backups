@@ -1206,9 +1206,9 @@ tuic://${UUID}:${UUID}@${SERVER_IP_1}:${PORT_TUIC}?congestion_control=bbr&alpn=h
 
   [ "${SHADOWTLS}" = 'true' ] && local THRONE_SUBSCRIBE+="
 ----------------------------
-nekoray://custom#$(echo -n "{\"_v\":0,\"addr\":\"127.0.0.1\",\"cmd\":[\"\"],\"core\":\"internal\",\"cs\":\"{\n    \\\"password\\\": \\\"${UUID}\\\",\n    \\\"server\\\": \\\"${SERVER_IP_1}\\\",\n    \\\"server_port\\\": ${PORT_SHADOWTLS},\n    \\\"tag\\\": \\\"shadowtls-out\\\",\n    \\\"tls\\\": {\n        \\\"enabled\\\": true,\n        \\\"server_name\\\": \\\"addons.mozilla.org\\\"\n    },\n    \\\"type\\\": \\\"shadowtls\\\",\n    \\\"version\\\": 3\n}\n\",\"mapping_port\":0,\"name\":\"1-tls-not-use\",\"port\":1080,\"socks_port\":0}" | base64 -w0)
+shadowtls://:${UUID}@${SERVER_IP_1}:${PORT_SHADOWTLS}?version=3&security=tls&sni=addons.mozilla.org&fp=chrome#1-tls-not-use
 
-nekoray://shadowsocks#$(echo -n "{\"_v\":0,\"method\":\"${SIP022_METHOD}\",\"name\":\"2-ss-not-use\",\"pass\":\"${SIP022_PASSWORD}\",\"port\":0,\"stream\":{\"ed_len\":0,\"insecure\":false,\"mux_s\":0,\"net\":\"tcp\"},\"uot\":0}" | base64 -w0)"
+ss://${SIP022_METHOD}:${SIP022_PASSWORD}@127.0.0.1:0#2-ss-not-use"
 
   [ "${SHADOWSOCKS}" = 'true' ] && local THRONE_SUBSCRIBE+="
 ----------------------------
