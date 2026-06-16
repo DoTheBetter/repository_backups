@@ -11,7 +11,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/leitbogioro/Tools | master | 2026.01.04 | DD重装Linux系统 |
-| https://github.com/217heidai/NestingDNS | main | 2026.06.09 | DNS三合一Docker镜像 |
+| https://github.com/217heidai/NestingDNS | main | 2026.06.17 | DNS三合一Docker镜像 |
 
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
@@ -25,7 +25,7 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu | main | 2026.05.08 | toolchain based on Ubuntu docker image |
 | https://github.com/abcfy2/aria2-static-build | main | 2026.05.29 | aria2-static-build |
-| https://github.com/gshang2017/docker | master | 2026.06.13 | Docker集合 |
+| https://github.com/gshang2017/docker | master | 2026.06.17 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2025.10.30 | Warp Docker镜像 |
 
 ## Proxy
