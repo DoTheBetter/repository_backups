@@ -41,12 +41,12 @@ curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWi
 curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-alpha-linux-arm64.upx && sc
 # sing-box 内核 reF1nd-Stable 版
 curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-arm64.upx && sc
-# sing-box 内核 reF1nd-Test 版
-curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-test-linux-arm64.upx && sc
+# sing-box 内核 reF1nd-Testing 版
+curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-arm64.upx && sc
 # sing-box 内核 Stable 版
 curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-stable-linux-arm64.upx && sc
-# sing-box 内核 Test 版
-curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-test-linux-arm64.upx && sc
+# sing-box 内核 Testing 版
+curl -sS -o /tmp/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-testing-linux-arm64.upx && sc
 ```
 
 此时脚本会自动“发现可用的内核文件”，选择 1 加载，后选择对应的内核类型
@@ -61,27 +61,33 @@ curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/Dus
 curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-alpha-linux-arm64.upx && $CRASHDIR/start.sh restart
 # sing-box 内核 reF1nd-Stable 版
 curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-arm64.upx && $CRASHDIR/start.sh restart
-# sing-box 内核 reF1nd-Test 版
-curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-test-linux-arm64.upx && $CRASHDIR/start.sh restart
+# sing-box 内核 reF1nd-Testing 版
+curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-linux-arm64.upx && $CRASHDIR/start.sh restart
 # sing-box 内核 Stable 版
 curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-stable-linux-arm64.upx && $CRASHDIR/start.sh restart
-# sing-box 内核 Test 版
-curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-test-linux-arm64.upx && $CRASHDIR/start.sh restart
+# sing-box 内核 Testing 版
+curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-testing-linux-arm64.upx && $CRASHDIR/start.sh restart
 ```
 
 ## 三、 安装 Dashboard 面板
 **Dashboard 面板对应文件名和网址关系如下表：**
 
-| 面板名称        | 文件名              | 网址                                      |
-| --------------- | ------------------- | ----------------------------------------- |
-| Yacd-meta 面板  | `Yacd-meta.tar.gz`  | <https://yacd.metacubex.one>              |
-| metacubexd 面板 | `metacubexd.tar.gz` | <https://metacubex.github.io/metacubexd/> |
-| zashboard 面板  | `zashboard.tar.gz`  | <https://board.zash.run.place>            |
+| 面板名称              | 文件名                      | 网址                                      |
+| --------------------- | --------------------------- | ----------------------------------------- |
+| Yacd-meta             | `Yacd-meta.tar.gz`          | <https://yacd.metacubex.one>              |
+| metacubexd            | `metacubexd.tar.gz`         | <https://metacubex.github.io/metacubexd/> |
+| zashboard             | `zashboard.tar.gz`          | <https://board.zash.run.place>            |
+| zashboard sing-box 版 | `zashboard-sing-box.tar.gz` | <https://board.zash.run.place>            |
+| sing-box dashboard    | `sing-box-dashboard.tar.gz` | <https://sing-box-dashboard.sagernet.org> |
+
 
 连接 SSH 后执行如下命令：
 
 ```shell
+# zashboard
 curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard.tar.gz | tar -zx -C $CRASHDIR/ui/ && $CRASHDIR/start.sh restart
+# zashboard sing-box 版
+curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard-sing-box.tar.gz | tar -zx -C $CRASHDIR/dashboard/ && $CRASHDIR/start.sh restart
 ```
 
 - 注：若使用基于 [Chromium 项目](https://www.chromium.org/Home/)开发的浏览器打开网址去访问 Dashboard 面板时，以 [Chrome 浏览器](https://www.google.com/chrome/)为例，需要设置该网址域名“允许显示不安全内容”。方法如下：  
@@ -140,7 +146,7 @@ curl -sS -o /data/AdGuardHome/AdGuardHome -L https://ghfast.top/https://github.c
 201#curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/mihomo/mihomo-meta-linux-arm64.upx >/dev/null 2>&1#更新mihomo内核
 202#curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-stable-linux-arm64.upx >/dev/null 2>&1#更新sing-boxr内核
 203#curl -sS -o $CRASHDIR/CrashCore.upx -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-stable-linux-arm64.upx >/dev/null 2>&1#更新sing-box内核
-204#curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard.tar.gz | tar -zx -C $CRASHDIR/ui/ >/dev/null 2>&1#更新zashboard面板
+204#curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard.tar.gz | tar -zx -C $CRASHDIR/ui/ >/dev/null 2>&1#更新zashboard
 205#curl -sS -o /data/AdGuardHome/AdGuardHome -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/AdGuardHome/AdGuardHome_beta_linux_arm64 >/dev/null 2>&1#更新AdGuardHome
 ```
 2. 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
