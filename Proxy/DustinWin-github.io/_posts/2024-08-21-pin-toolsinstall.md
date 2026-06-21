@@ -137,7 +137,7 @@ curl -sS -o /data/AdGuardHome/AdGuardHome -L https://ghfast.top/https://github.c
 ```
 
 ## 五、 扩展（以 ShellCrash 配置定时任务为例）
-可在 ShellCrash 里添加定时更新 mihomo 内核、sing-box 内核、[zashboard 面板](https://github.com/Zephyruso/zashboard)和 AdGuard Home 的任务
+可在 ShellCrash 里添加定时更新 mihomo 内核、sing-box 内核、[zashboard](https://github.com/Zephyruso/zashboard) 和 AdGuard Home 的任务
 1. 连接 SSH 后执行 `vi $CRASHDIR/configs/task/task.user`，按一下 Ins 键（Insert 键），粘贴如下内容：  
 注：
 - ① 留意链接后缀是否与 CPU 架构匹配
@@ -149,5 +149,5 @@ curl -sS -o /data/AdGuardHome/AdGuardHome -L https://ghfast.top/https://github.c
 204#curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard.tar.gz | tar -zx -C $CRASHDIR/ui/ >/dev/null 2>&1#更新zashboard
 205#curl -sS -o /data/AdGuardHome/AdGuardHome -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/AdGuardHome/AdGuardHome_beta_linux_arm64 >/dev/null 2>&1#更新AdGuardHome
 ```
-2. 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
-3. 执行 `sc`，进入 ShellCrash → 5 配置自动任务 → 1 添加自动任务，可以看到末尾就有添加的定时任务，输入对应的数字并回车后可设置执行条件
+1. 按一下 Esc 键（退出键），输入英文冒号 `:`，继续输入 `wq` 并回车
+2. 执行 `sc`，进入 ShellCrash → 5 配置自动任务 → 1 添加自动任务，可以看到末尾就有添加的定时任务，输入对应的数字并回车后可设置执行条件
