@@ -53,7 +53,6 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
         "tag": "hosts",
         "type": "hosts",
         "predefined": {
-          "miwifi.com": [ "192.168.31.1", "127.0.0.1" ],
           "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
           "doh.pub": [ "1.12.12.12", "120.53.53.53" ],
           "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
@@ -266,11 +265,7 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       "listen": "::",
       "listen_port": 9090,
       "secret": "",
-      "access_control_allow_private_network": true,
-      "dashboard": {
-        "enabled": true,
-        "download_url": "https://github.com/Zephyruso/zashboard/archive/gh-pages-cdn-fonts-singbox-native.zip"
-      }
+      "access_control_allow_private_network": true
     }
   ],
   "experimental": {
@@ -279,7 +274,7 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
       "store_fakeip": true
     },
     "clash_api": {
-      "external_controller": "127.0.0.1:9999",
+      "external_controller": "0.0.0.0:9999",
       "secret": "",
       "access_control_allow_private_network": true
     },
@@ -305,7 +300,6 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
         "tag": "hosts",
         "type": "hosts",
         "predefined": {
-          "miwifi.com": [ "192.168.31.1", "127.0.0.1" ],
           "dns.alidns.com": [ "223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1" ],
           "doh.pub": [ "1.12.12.12", "120.53.53.53" ],
           "dns.google": [ "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844" ],
@@ -347,8 +341,8 @@ tags: [sing-box, sing-boxr, Windows, ruleset, rule_set, 分享]
 {: .prompt-tip }
 
 注：
-- ① 本 `outbounds` 配置中，将不同的节点类型（如：`Shadowsocks` 和 `Trojan`）分别配置 `"type": "urltest"` 进行延迟测试（可进入 [zashboard 面板](https://github.com/Zephyruso/zashboard) → 代理 → 设置 → 管理隐藏代理组，设置隐藏以简化 Dashboard 面板中的显示）。再将延迟测试最低的策略组配置 `"type": "loadbalance"` 进行负载均衡供用户选择使用
-- ② 将不同的优选节点分别配置 `"fallback": { "enabled": true }` 进行故障转移（可进入 zashboard 面板 → 代理 → 设置 → 管理隐藏代理组，设置隐藏以简化 Dashboard 面板中的显示）。再将故障转移后的策略组配置 `"type": "urltest"` 进行延迟测试供用户选择使用
+- ① 本 `outbounds` 配置中，将不同的节点类型（如：`Shadowsocks` 和 `Trojan`）分别配置 `"type": "urltest"` 进行延迟测试（可进入 [zashboard](https://github.com/Zephyruso/zashboard) → 代理 → 设置 → 管理隐藏代理组，设置隐藏以简化 Dashboard 面板中的显示）。再将延迟测试最低的策略组配置 `"type": "loadbalance"` 进行负载均衡供用户选择使用
+- ② 将不同的优选节点分别配置 `"fallback": { "enabled": true }` 进行故障转移（可进入 zashboard → 代理 → 设置 → 管理隐藏代理组，设置隐藏以简化 Dashboard 面板中的显示）。再将故障转移后的策略组配置 `"type": "urltest"` 进行延迟测试供用户选择使用
 
 ```json
 {
@@ -408,7 +402,7 @@ Windows Registry Editor Version 5.00
     echo "      安装、更新 sing-boxr 内核和配置文件      "
     echo "==============================================="
     echo
-    echo "1. 安装（更新）sing-boxr 内核和面板"
+    echo "1. 安装（更新）sing-boxr 内核"
     echo "2. 导入（更新）配置文件"
     echo "3. 启动 sing-boxr 服务"
     echo "4. 停止 sing-boxr 服务"
@@ -417,7 +411,7 @@ Windows Registry Editor Version 5.00
     read -p "请选择操作（0-4）：" choice
     case $choice in
       1)
-        echo "安装（更新）sing-boxr 内核和面板"
+        echo "安装（更新）sing-boxr 内核"
         cd "$PROGRAMFILES"
         if [ -f "./sing-box/sing-box.exe" ]; then
           echo "检测到当前系统已安装 sing-boxr 内核，是否更新？（Y/n）"
@@ -480,11 +474,10 @@ Windows Registry Editor Version 5.00
             case $choice in
               [Yy])
                 echo
-                echo "正在安装 sing-boxr 内核和面板..."
-                mkdir -p ./sing-box/ui
+                echo "正在安装 sing-boxr 内核..."
+                mkdir -p ./sing-box
                 curl -sS -o ./sing-box/sing-box.exe -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/sing-box/sing-box-ref1nd-testing-windows-amd64-v3.exe
-                curl -sS -L https://ghfast.top/https://github.com/DustinWin/proxy-tools/releases/download/Dashboard/zashboard.tar.gz | tar -zx -C ./sing-box/ui
-                echo "安装 sing-boxr 内核和面板成功"
+                echo "安装 sing-boxr 内核成功"
 
                 echo "正在赋予 sing-box 权限..."
                 cmd //c "takeown /f sing-box /a /r /d y"
@@ -640,10 +633,11 @@ Windows Registry Editor Version 5.00
   - ➌ 若想开机启动 sing-boxr，可搜索“Windows 添加任务计划”教程自行添加
 
 ## 四、 访问 Dashboard 面板
-.json 文件已配置 zashboard [sing-box](https://github.com/SagerNet/sing-box) 版  
-打开 <http://miwifi.com:9090/dashboard/> 后，“端口”输入`9999`，点击“提交”会弹出“启用 sing-box 原生 API”页面，直接点击“保存”，即可访问 Dashboard 面板
+1. 打开 zashboard 在线面板地址 <http://board.zash.run.place>，在“[Clash API](https://sing-boxr.dustinwin.us.kg/zh/configuration/experimental/clash-api/)”标签的“端口”内输入 `9999`，点击“提交”即可访问 Dashboard
+2. 进入设置 → 后端设置，点击“+”图标，切换到“[sing-box API](https://sing-boxr.dustinwin.us.kg/zh/configuration/service/api/)”标签，直接点击“提交”
+3. 通过切换后端配置可以分别使用 Clash API（支持“代理提供商”和“规则提供商”的更新）和 sing-box API Dashboard 面板
 
 > 推荐设置
 {: .prompt-tip }
-1. 进入 zashboard 面板 → 代理 → 代理设置 → 管理隐藏代理组，隐藏不必要显示的代理组
-2. 进入 zashboard 面板 → 设置 → 代理设置 → 外观 → 自定义图标，设置“组名”和“URL”，“URL”可参考 [icon 文件](https://github.com/DustinWin/ruleset_geodata/releases/tag/icons)
+1. 进入 zashboard → 代理 → 代理设置 → 管理隐藏代理组，隐藏不必要显示的代理组
+2. 进入 zashboard → 设置 → 代理设置 → 外观 → 自定义图标，设置“组名”和“URL”，“URL”可参考 [icon 文件](https://github.com/DustinWin/ruleset_geodata/releases/tag/icons)
