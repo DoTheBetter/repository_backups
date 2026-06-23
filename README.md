@@ -11,7 +11,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/leitbogioro/Tools | master | 2026.01.04 | DD重装Linux系统 |
-| https://github.com/217heidai/NestingDNS | main | 2026.06.23 | DNS三合一Docker镜像 |
+| https://github.com/217heidai/NestingDNS | main | 2026.06.24 | DNS三合一Docker镜像 |
 
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
@@ -31,7 +31,7 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2026.06.22 | mihomo和sing-box教程合集 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2026.06.24 | mihomo和sing-box教程合集 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.06.08 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.05.11 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2026.06.21 | Sing-box代理工具 |
