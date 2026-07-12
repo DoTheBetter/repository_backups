@@ -22,7 +22,7 @@
 
 ### 3️⃣ [OpenClash 零碎教程](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/OpenClash-%E9%9B%B6%E7%A2%8E%E6%95%99%E7%A8%8B)
 
-> 技多不压身。收集了一些进阶玩法和特殊场景的配置技巧。
+> Smart 内核相关历史说明；当前设置入口请以 OpenClash 设置方案中的 Smart 设置章节为准。
 
 ### 4️⃣ [~~无插件广告拦截功能设置方案~~](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%97%A0%E6%8F%92%E4%BB%B6%E5%B9%BF%E5%91%8A%E6%8B%A6%E6%88%AA%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)
 
@@ -48,3 +48,7 @@
 ### 8️⃣ [其他推荐项目](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E6%8E%A8%E8%8D%90%E9%A1%B9%E7%9B%AE)
 
 > 社区里其他不错的 OpenClash 相关项目推荐。
+
+### 9️⃣ [其他说明](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B6%E4%BB%96%E8%AF%B4%E6%98%8E)
+
+> 包含 OpenClash Dev 版本升级、个性化配置与小众域名收录说明。
