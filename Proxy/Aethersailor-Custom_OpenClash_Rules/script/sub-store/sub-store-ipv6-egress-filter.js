@@ -1,24 +1,32 @@
 /**
- * Sub-Store IPv6 出站过滤器（Node.js + HTTP-META）
+ * Sub-Store IPv6 出站节点过滤器（Node.js + HTTP-META）
  *
- * 只保留能够通过节点访问 IPv6-only 目标的节点。
- * IPv6 失败后才进行一次 IPv4 对照测试，不重试。
- * supported 缓存 12 小时，unsupported 缓存 1 小时，unknown 不缓存。
+ * 用途：实际通过每个代理节点访问 IPv6-only 目标，判断节点是否具备 IPv6 出站能力，
+ * 并根据参数选择过滤节点，或在节点名称前添加出站能力标记。
+ * 本脚本判断的是代理节点的出口网络能力，与节点服务器入口使用 IPv4、IPv6 或域名无关。
+ *
+ * 检测流程：先测试 IPv6 出站；仅在 IPv6 出站测试失败时进行一次 IPv4 出站对照测试，
+ * 不重试。supported 缓存 12 小时，unsupported 缓存 1 小时，unknown 不缓存。
  *
  * 默认参数：
  * - http_meta_host: 127.0.0.1
  * - http_meta_port: 9876
- * - timeout: 单节点探测超时，默认 3000ms
+ * - timeout: 单节点单次出站探测超时，默认 3000ms
  * - concurrency: 并发数，默认 10
  * - max_duration: 脚本总预算，默认 45000ms（为 Sub-Store 的 50000ms 限制留余量）
  * - http_meta_start_delay: Mihomo 启动等待，默认 1500ms
  * - cache: 是否使用缓存，默认 true
- * - positive_cache_ttl: 成功缓存，默认 12 小时
- * - negative_cache_ttl: 失败缓存，默认 1 小时
- * - test_url: 默认 https://ipv6.google.com/generate_204
- * - expected_status: 默认 204
- * - control_url: 默认 https://api4.ipify.org?format=json（仅提供 IPv4）
- * - control_expected_status: 默认 200
+ * - positive_cache_ttl: 支持 IPv6 出站的结果缓存，默认 12 小时
+ * - negative_cache_ttl: 确认不支持 IPv6 出站的结果缓存，默认 1 小时
+ * - filter: 是否只保留确认支持 IPv6 出站的节点，默认 true
+ * - mark: 是否给节点名添加出站能力标记，默认 false
+ * - mark_ipv6: 支持 IPv6 出站的节点名前缀，默认 [IPv6] （兼容旧参数 mark_text）
+ * - mark_ipv4: IPv4 出站可用但 IPv6 出站不可用的节点名前缀，默认 [IPv4]
+ * - mark_unknown: 无法确认 IPv6 出站能力的节点名前缀，默认 [Unknown]
+ * - test_url: IPv6-only 出站测试地址，默认 https://ipv6.google.com/generate_204
+ * - expected_status: IPv6 出站测试预期状态码，默认 204
+ * - control_url: IPv4-only 出站对照地址，默认 https://api4.ipify.org?format=json
+ * - control_expected_status: IPv4 出站对照测试预期状态码，默认 200
  */
 
 async function operator(proxies = [], targetPlatform, context) {
@@ -55,6 +63,11 @@ async function operator(proxies = [], targetPlatform, context) {
     60 * 1000,
     7 * 24 * 60 * 60 * 1000,
   )
+  const filterEnabled = booleanArg(args.filter, true)
+  const markEnabled = booleanArg(args.mark, false)
+  const markIPv6 = decodeArg(args.mark_ipv6 ?? args.mark_text, '[IPv6] ')
+  const markIPv4 = decodeArg(args.mark_ipv4, '[IPv4] ')
+  const markUnknown = decodeArg(args.mark_unknown, '[Unknown] ')
   const includeUnsupportedProxy = booleanArg(
     args.include_unsupported_proxy,
     false,
@@ -81,7 +94,7 @@ async function operator(proxies = [], targetPlatform, context) {
   }
 
   const candidates = []
-  const supportedIndexes = new Set()
+  const states = Array(proxies.length).fill(STATE.UNKNOWN)
   let incompatible = 0
   let positiveCacheHits = 0
   let unsupportedCacheHits = 0
@@ -103,11 +116,12 @@ async function operator(proxies = [], targetPlatform, context) {
       const cacheKey = createCacheKey(node)
       const cached = getCachedResult(cacheKey)
       if (cached?.state === STATE.SUPPORTED) {
-        supportedIndexes.add(index)
+        states[index] = STATE.SUPPORTED
         positiveCacheHits++
         continue
       }
       if (cached?.state === STATE.UNSUPPORTED) {
+        states[index] = STATE.UNSUPPORTED
         unsupportedCacheHits++
         continue
       }
@@ -122,7 +136,7 @@ async function operator(proxies = [], targetPlatform, context) {
   }
 
   if (candidates.length === 0) {
-    const output = proxies.filter((_, index) => supportedIndexes.has(index))
+    const output = buildOutput()
     $.info(
       `[IPv6] 无需测试：输入=${proxies.length}，支持缓存=${positiveCacheHits}，` +
         `不支持缓存=${unsupportedCacheHits}，不兼容=${incompatible}，输出=${output.length}`,
@@ -136,7 +150,6 @@ async function operator(proxies = [], targetPlatform, context) {
   let httpMetaPID
   let tested = 0
   let controlTested = 0
-  let unknown = 0
   let deadlineSkipped = 0
 
   try {
@@ -186,12 +199,8 @@ async function operator(proxies = [], targetPlatform, context) {
 
         tested++
         const state = await classifyNode(ports[position], requestBudget)
-        if (state === STATE.SUPPORTED) {
-          supportedIndexes.add(candidates[position].index)
-        }
-        if (state === STATE.UNKNOWN) {
-          unknown++
-        } else {
+        states[candidates[position].index] = state
+        if (state !== STATE.UNKNOWN) {
           setCachedResult(
             candidates[position].cacheKey,
             state,
@@ -219,15 +228,71 @@ async function operator(proxies = [], targetPlatform, context) {
     }
   }
 
-  const output = proxies.filter((_, index) => supportedIndexes.has(index))
+  const output = buildOutput()
+  const supportedCount = states.filter(state => state === STATE.SUPPORTED).length
+  const unsupportedCount = states.filter(
+    state => state === STATE.UNSUPPORTED,
+  ).length
+  const unknownCount = states.length - supportedCount - unsupportedCount
   $.info(
     `[IPv6] 完成：输入=${proxies.length}，可测试=${candidates.length}，` +
-      `IPv6测试=${tested}，IPv4对照=${controlTested}，支持=${output.length}，` +
-      `unknown=${unknown}，时间预算跳过=${deadlineSkipped}，` +
+      `IPv6测试=${tested}，IPv4对照=${controlTested}，支持=${supportedCount}，` +
+      `不支持=${unsupportedCount}，unknown=${unknownCount}，输出=${output.length}，` +
+      `时间预算跳过=${deadlineSkipped}，` +
       `支持缓存命中=${positiveCacheHits}，不支持缓存命中=${unsupportedCacheHits}，` +
       `不兼容=${incompatible}，耗时=${Date.now() - startedAt}ms`,
   )
   return output
+
+  function buildOutput() {
+    const markers = [
+      ...new Set([
+        markIPv6,
+        markIPv4,
+        markUnknown,
+        '[IPv6] ',
+        '[IPv4] ',
+        '[Unknown] ',
+      ]),
+    ]
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length)
+
+    return proxies.reduce((output, proxy, index) => {
+      const state = states[index]
+      if (filterEnabled && state !== STATE.SUPPORTED) return output
+      if (!markEnabled) {
+        output.push(proxy)
+        return output
+      }
+
+      const marker =
+        state === STATE.SUPPORTED
+          ? markIPv6
+          : state === STATE.UNSUPPORTED
+            ? markIPv4
+            : markUnknown
+      const name = stripKnownMarkers(String(proxy.name ?? ''), markers)
+      output.push({ ...proxy, name: `${marker}${name}` })
+      return output
+    }, [])
+  }
+
+  function stripKnownMarkers(name, markers) {
+    let result = name
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const marker of markers) {
+        if (result.startsWith(marker)) {
+          result = result.slice(marker.length)
+          changed = true
+          break
+        }
+      }
+    }
+    return result
+  }
 
   async function classifyNode(port, requestBudget) {
     if (await requestExpectedStatus(port, testURL, expectedStatus, requestBudget)) {
