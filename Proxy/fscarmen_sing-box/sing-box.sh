@@ -522,7 +522,7 @@ statistics_of_run_times() {
     { wget --no-check-certificate -qO- --timeout=3 "https://stat.cloudflare.now.cc/updateStats?script=${SCRIPT}" > $TEMP_DIR/statistics 2>/dev/null || true; }&
   elif grep -q 'get' <<< "$UPDATE_OR_GET"; then
     [ -s $TEMP_DIR/statistics ] && [[ $(cat $TEMP_DIR/statistics) =~ \"todayCount\":([0-9]+),\"totalCount\":([0-9]+) ]] && local TODAY="${BASH_REMATCH[1]}" && local TOTAL="${BASH_REMATCH[2]}" && rm -f $TEMP_DIR/statistics
-    hint "\n*******************************************\n\n $(text 55) \n"
+    hint "\n *******************************************\n\n $(text 55) \n"
   fi
 }
 
@@ -5176,7 +5176,7 @@ $(info "$(echo "{ \"outbounds\":[ ${OUTBOUND_REPLACE%,} ] }" | ${WORK_DIR}/jq)
 
 ${PROMPT}
 
-  $(text 72)")
+ $(text 72)")
 "
 
   [ "$IS_SUB" = 'is_sub' ] && EXPORT_LIST_FILE+="

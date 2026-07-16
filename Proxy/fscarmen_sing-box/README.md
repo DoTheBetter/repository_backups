@@ -419,7 +419,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 | --HY2_REALM | [true, false]，是否启用 Hysteria2 Realm，true 为启用。适用于没有公网入口、住宅 NAT、CGNAT 或需要回国打洞的机器，有公网入口时不建议使用，默认为 false |
 | --HY2_WARP | [true, false]，是否启用 Realm 的 WARP 辅助打洞，true 为启用。适用于 NAT 严格环境；设置为 true 时会自动启用 Realm，默认为 false |
 | --REALITY_PRIVATE | reality 密钥 |
-| --BIND_INTERFACE | 指定网络出口，绑定到特定网卡，如 eth0<br>值为 default 或不指定则不绑定<br>Specify the network egress, bind to a specific network interface, e.g. eth0<br>Set to "default" or leave empty to disable binding |
+| --BIND_INTERFACE | 指定网络出口，绑定到特定网卡，如 eth0<br>值为 default 或不指定则不绑定 |
 | --NODE_NAME_CONFIRM | 节点名 |
 
 
