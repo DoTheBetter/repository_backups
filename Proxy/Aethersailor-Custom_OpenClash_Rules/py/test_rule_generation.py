@@ -1,9 +1,10 @@
 import ipaddress
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
-from unittest import mock
 
+import generate_game_cdn
 import generate_rules
 import update_encrypted_dns
 
@@ -38,7 +39,7 @@ class GeoSiteConversionTests(unittest.TestCase):
     rules:
       - "domain:also-ignored.example"
 """
-        with mock.patch.object(update_encrypted_dns, "MIN_GEOSITE_RULES", 4):
+        with unittest.mock.patch.object(update_encrypted_dns, "MIN_GEOSITE_RULES", 4):
             rules = update_encrypted_dns.parse_geosite_plain(content)
         self.assertEqual(
             rules,
@@ -122,6 +123,34 @@ class DerivedRuleGenerationTests(unittest.TestCase):
             r"  - 'DOMAIN-REGEX,^dns[0-9]{1,3}\.example\.com$'",
             rendered,
         )
+
+
+class GameCdnGenerationTests(unittest.TestCase):
+    def test_converts_supported_upstream_rule_types_and_attributes(self) -> None:
+        cases = {
+            "example.com @cn": "DOMAIN-SUFFIX,example.com",
+            "full:www.example.com": "DOMAIN,www.example.com",
+            "keyword:download": "DOMAIN-KEYWORD,download",
+            r"regexp:^cdn[0-9]+\.example\.com$": (
+                r"DOMAIN-REGEX,^cdn[0-9]+\.example\.com$"
+            ),
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(generate_game_cdn.convert_line(source), expected)
+
+    def test_deduplicates_rules_without_leaking_duplicate_comments(self) -> None:
+        converted = generate_game_cdn.generate_rules(
+            "# kept\nexample.com\n# duplicate-only\nexample.com\nfull:www.example.com\n"
+        )
+        self.assertEqual(
+            converted,
+            ["# kept", "DOMAIN-SUFFIX,example.com", "DOMAIN,www.example.com"],
+        )
+
+    def test_rejects_unexpanded_include(self) -> None:
+        with self.assertRaisesRegex(ValueError, "include"):
+            generate_game_cdn.convert_line("include:another-list")
 
 
 if __name__ == "__main__":
