@@ -81,6 +81,9 @@ The overall approach is designed to rely primarily on OpenClash's own capabiliti
 
 The `cfg/` directory is the repository's other core component. It converts the configuration approach described in the Wiki into reusable resources. The directory contains subscription-conversion templates, YAML configuration examples, and supporting documentation for users who want to generate an OpenClash configuration quickly or adapt an existing configuration.
 
+> [!TIP]
+> The remote URL for this project's subscription conversion template is included in OpenClash's built-in template list, so you can select it directly without entering the URL manually.
+
 These resources focus on:
 
 - **Subscription conversion and configuration generation**: Organizes node subscriptions into structures suitable for OpenClash, reducing the need to write and maintain configurations manually.
@@ -185,6 +188,7 @@ This project uses or references the following projects and resources, listed in 
 - [217heidai/adblockfilters](https://github.com/217heidai/adblockfilters)
 - [privacy-protection-tools/anti-AD](https://github.com/privacy-protection-tools/anti-AD)
 - [TG-Twilight/AWAvenue-Ads-Rule](https://github.com/TG-Twilight/AWAvenue-Ads-Rule)
+- [hagezi/dns-blocklists](https://github.com/hagezi/dns-blocklists)
 - [Aethersailor/adblockfilters-modified](https://github.com/Aethersailor/adblockfilters-modified)
 - [521xueweihan/GitHub520](https://github.com/521xueweihan/GitHub520)
 - [Aethersailor/SubConverter-Extended](https://github.com/Aethersailor/SubConverter-Extended)

@@ -81,6 +81,9 @@
 
 `cfg/` 是本项目另一项核心内容，用于将 Wiki 中的配置思路转化为可直接参考和复用的配置资源。目录内提供订阅转换模板、YAML 配置示例及配套说明，适合希望快速生成 OpenClash 配置，或需要在现有配置基础上进行调整的用户。
 
+> [!TIP]
+> 本项目订阅转换模板的远程链接已收录于 OpenClash 内置的模板列表，可直接选择，无需手动填写。
+
 这些配置资源主要关注以下方面：
 
 - **订阅转换与配置生成**：通过订阅转换模板，将节点订阅整理为适用于 OpenClash 的配置结构，减少手工编写和维护配置的工作量。
@@ -185,6 +188,7 @@
 - [217heidai/adblockfilters](https://github.com/217heidai/adblockfilters)
 - [privacy-protection-tools/anti-AD](https://github.com/privacy-protection-tools/anti-AD)
 - [TG-Twilight/AWAvenue-Ads-Rule](https://github.com/TG-Twilight/AWAvenue-Ads-Rule)
+- [hagezi/dns-blocklists](https://github.com/hagezi/dns-blocklists)
 - [Aethersailor/adblockfilters-modified](https://github.com/Aethersailor/adblockfilters-modified)
 - [521xueweihan/GitHub520](https://github.com/521xueweihan/GitHub520)
 - [Aethersailor/SubConverter-Extended](https://github.com/Aethersailor/SubConverter-Extended)
