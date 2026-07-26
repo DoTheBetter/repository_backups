@@ -787,6 +787,8 @@ OpenClash 根据 LuCI 设置再次覆写
 
 以下步骤以当前 OpenClash 界面为准。不同固件、主题或 OpenClash 版本的按钮位置可能略有差异，但字段名称和流程基本一致。
 
+***
+
 **第一步：打开“添加配置文件”窗口**
 
 1. 进入 OpenClash 首页。
@@ -798,11 +800,15 @@ OpenClash 根据 LuCI 设置再次覆写
 > [!NOTE]
 > 部分旧版 OpenClash 仍可从 `配置订阅` 页面点击“添加”进入订阅编辑页。两种入口最终写入的是同类订阅配置，优先以你当前界面实际显示为准。
 
+***
+
 **第二步：填写节点订阅**
 
 在 `订阅 URL` 中填写节点订阅地址。单个订阅直接填写一行；多个订阅可每行一个，或按界面提示使用 `|` 分隔。仅在服务商明确要求时修改 User-Agent 或添加 HTTP Header，否则保持 OpenClash 默认值即可。
 
 <img width="721" height="987" alt="1" src="https://github.com/user-attachments/assets/b25bde7a-e277-40c5-9e80-05b302582cd9" />
+
+***
 
 **第三步：启用在线订阅转换**
 
@@ -816,6 +822,8 @@ OpenClash 根据 LuCI 设置再次覆写
 > `api.asailor.org` 是订阅转换后端地址，不是节点服务，也不提供任何节点。使用其他地址时，也应确认后端为 SubConverter-Extended，并支持本项目模板所需功能。
 
 <img width="555" height="828" alt="1" src="https://github.com/user-attachments/assets/800126b9-ed1a-442f-9159-e2e97e644c4b" />
+
+***
 
 **第四步：选择订阅转换模板**
 
@@ -834,6 +842,8 @@ OpenClash 根据 LuCI 设置再次覆写
 
 <img width="555" height="907" alt="1" src="https://github.com/user-attachments/assets/2af1144e-cd4c-49c7-adcf-ac98b7c73c57" />
 
+***
+
 **第五步：按需设置转换参数**
 
 本项目模板已经定义策略组和规则，用户通常只需要调整与节点处理有关的参数。`UDP` 可按节点和使用需求启用；`skip-cert-verify` 仅应在明确需要时开启。节点包含关键词可用于只保留指定地区、倍率或线路的节点，节点排除关键词可用于屏蔽过期、流量、官网、剩余、套餐等无效条目，多个关键词的写法以当前界面提示为准。`使用 Rule Provider` 和其他自定义参数没有明确需求时保持模板默认设置。
@@ -841,6 +851,8 @@ OpenClash 根据 LuCI 设置再次覆写
 这些参数并非只能在首次添加时设置。配置保存后，仍可在 `配置订阅` 页面打开原有订阅的编辑界面，随时切换模板、开关 UDP 或跳过证书验证、修改节点关键词和其他转换参数，然后保存并重新更新配置。一般不需要删除后重新添加订阅。
 
 <img width="553" height="907" alt="1" src="https://github.com/user-attachments/assets/72462785-8b76-4035-9424-f7384a6f7fc6" />
+
+***
 
 **第六步：保存并确认更新成功**
 
@@ -853,6 +865,8 @@ OpenClash 根据 LuCI 设置再次覆写
 6. 确认转换后配置更新成功；
 
 <img width="728" height="1033" alt="1" src="https://github.com/user-attachments/assets/d39c8855-e22c-4c73-ae32-e0507a864368" />
+
+***
 
 **第七步：设置自动更新时间并启用配置**
 
@@ -878,33 +892,55 @@ OpenClash 根据 LuCI 设置再次覆写
 
 执行过程如下：
 
-```text
-OpenClash 下载远程 .conf 覆写模块
+```{=html}
+<details>
+```
+```{=html}
+<summary>
+```
+查看覆写模块生成配置流程
+```{=html}
+</summary>
+```
+``` text
+远程覆写模块被下载并保存到
+/etc/openclash/overwrite/<模块名>
     ↓
-模块读取 EN_KEY 环境变量
+OpenClash 启动时读取已启用且匹配当前配置的覆写模块
     ↓
-DOWNLOAD_FILE 下载本项目对应 YAML
+读取模块参数，并将 EN_KEY 导出为环境变量
     ↓
-自动保存到 /etc/openclash/config/
+DOWNLOAD_FILE 下载对应 YAML 至
+/etc/openclash/config/<配置名>.yaml
     ↓
-CONFIG_FILE 将该 YAML 设为当前配置
+CONFIG_FILE 临时指定本次启动使用的配置路径
     ↓
-SUB_INFO_URL 写入订阅信息地址
+SUB_INFO_URL 关联订阅信息查询地址
     ↓
-ruby_map_edit 把订阅写入 proxy-providers.*.url
+OpenClash 复制原始 YAML 至临时目录
+/tmp/<配置名>.yaml
     ↓
-LuCI 设置继续覆写 YAML，生成实际交给 Mihomo 内核的运行配置
+yml_change.sh 根据 LuCI 设置修改配置
+    ↓
+yml_rules_change.sh 处理规则、策略组等内容
+    ↓
+执行覆写模块的 [Overwrite] / [YAML] 阶段
+    ↓
+ruby_map_edit 写入 proxy-providers.*.url
+    ↓
+规范化 provider 本地缓存路径
+    ↓
+生成最终运行配置
+/etc/openclash/<配置名>.yaml
+    ↓
+Mihomo 加载运行配置
+```
+
+```{=html}
+</details>
 ```
 
 与订阅转换方式相比，覆写模块不会把节点订阅提交给第三方后端。YAML 中的 `proxy-providers` 会由 Mihomo/OpenClash 直接拉取节点来源，但规则版本和节点处理方式主要由远程 YAML 决定，不能像订阅转换那样在既有订阅编辑界面中随时调整模板、UDP、跳过证书验证或节点关键词筛选。
-
-以标准版模块为例，它会：
-
-1. 下载 `cfg/yaml/Custom_Clash.yaml`；
-2. 保存为 `/etc/openclash/config/Custom_Clash.yaml`；
-3. 将 `EN_KEY1` 写入 `proxy-providers.provider1.url`；
-4. 将该 YAML 切换为当前配置；
-5. 重启 OpenClash。
 
 > [!WARNING]
 > 模块每次执行时会强制下载并覆盖 `/etc/openclash/config/` 下的同名 YAML。不要在该同名文件中长期保存手工修改，否则下次执行模块时会被覆盖。
@@ -912,22 +948,6 @@ LuCI 设置继续覆写 YAML，生成实际交给 Mihomo 内核的运行配置
 #### 4.4.2 `overwrite/yaml` 目录下 10 个模块的区别
 
 所有模块位于：
-
-```text
-https://github.com/Aethersailor/Custom_OpenClash_Rules/tree/main/overwrite/yaml
-```
-
-推荐使用的远程地址前缀：
-
-```text
-https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@refs/heads/main/overwrite/yaml/
-```
-
-将模块文件名接在前缀后即可，例如：
-
-```text
-https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@refs/heads/main/overwrite/yaml/Custom_Clash.conf
-```
 
 <details>
 <summary><strong>展开查看 10 个模块的完整 testingcf 地址</strong></summary>
@@ -1027,25 +1047,22 @@ EN_KEY2=https://example.com/selfhost-provider
 1. 打开 OpenClash 首页；
 2. 在“运行状态”卡片中点击 `覆写模块`；
 3. 进入覆写模块管理窗口。
+4. 点击模块卡片列表中的 `+`；
+5. 在“添加覆写模块”窗口中选择 `订阅链接`；
+6. `文件名` 可填写模块原始文件名，例如 `Custom_Clash.conf`；
+7. `配置文件` 作用范围建议保持为“用于所有配置文件”。在当前界面中，不选择具体配置时即表示用于所有配置；
+8. `类型` 选择 `http`；
+9. 在 `订阅 URL` 中填写对应 `.conf` 的 testingcf 远程地址；
+10. 按需设置模块更新时间。
 
-<!-- 截图建议：OpenClash 首页“运行状态”卡片中的“覆写模块”按钮。建议文件名：doc/openclash/pics/overwrite-entry.png -->
-
-**第二步：新增远程模块**
-
-1. 点击模块卡片列表中的 `+`；
-2. 在“添加覆写模块”窗口中选择 `订阅链接`；
-3. `文件名` 可填写模块原始文件名，例如 `Custom_Clash.conf`；
-4. `配置文件` 作用范围建议保持为“用于所有配置文件”。在当前界面中，不选择具体配置时即表示用于所有配置；
-5. `类型` 选择 `http`；
-6. 在 `订阅 URL` 中填写对应 `.conf` 的 testingcf 远程地址；
-7. 按需设置模块更新时间。
-
-<!-- 截图建议：“添加覆写模块”窗口及“上传文件 / 订阅链接”选项。建议文件名：doc/openclash/pics/overwrite-add-dialog.png -->
-
-<!-- 截图建议：文件名、配置文件、类型、订阅 URL、更新时间字段。建议文件名：doc/openclash/pics/overwrite-subscribe-fields.png -->
+<img width="871" height="960" alt="1" src="https://github.com/user-attachments/assets/c9a5b34d-e8f1-48e9-8934-1726669b08d8" />
 
 > [!NOTE]
+> 希望自动跟随本项目更新时，可设置每日或每周在不用网时更新；希望长期固定当前逻辑时，应关闭自动更新，或自行托管固定版本的模块和 YAML。远程 YAML 更新不会合并本地修改，而是直接覆盖同名文件。
+> 
 > 选择“用于所有配置文件”适合本章这类会自行下载并切换 `CONFIG_FILE` 的完整配置模块。只有在你明确理解模块作用范围，并希望它仅对某些已有配置生效时，才选择具体配置文件。
+
+***
 
 **第三步：填写环境变量**
 
@@ -1071,7 +1088,7 @@ EN_KEY2=https://example.com/selfhost-provider
 | `EN_KEY1` | 机场订阅链接 |
 | `EN_KEY2` | 自建节点 HTTP Provider/订阅链接 |
 
-<!-- 截图建议：环境变量区域，展示两行 Key/Value 参数。截图时必须遮挡真实订阅。建议文件名：doc/openclash/pics/overwrite-env-params.png -->
+<img width="871" height="960" alt="1" src="https://github.com/user-attachments/assets/4bd848a9-5f3d-4c59-bc5c-c383827df4bd" />
 
 旧版 OpenClash 如果只提供单行参数输入框，则使用分号连接：
 
@@ -1082,26 +1099,19 @@ EN_KEY1=https://example.com/subscription;EN_KEY2=Custom_Clash_Fallback
 > [!WARNING]
 > 截图、导出配置、提交 Issue 或分享日志前，必须遮挡 `EN_KEY1`、`EN_KEY2` 中的真实订阅地址和认证信息。
 
+***
+
 **第四步：添加、启用并首次刷新**
 
-1. 点击窗口下方的 `添加`；
-2. 在模块卡片上启用该模块；
-3. 点击模块卡片上的刷新按钮，立即拉取一次远程模块；
-4. 等待模块下载 YAML、写入订阅并触发 OpenClash 重启；
-5. 打开运行日志检查执行结果。
+1. 在模块卡片上启用该模块；
+2. 点击模块卡片上的刷新按钮，立即拉取一次远程模块；
+3. 关闭覆写模块窗口，点击首页 `运行状态` 中的开关启动 OpenClash；
+4. 打开运行日志检查执行结果。
+5. 确认模块下载 YAML、写入订阅并触发 OpenClash 重启；
 
-<!-- 截图建议：模块卡片上的启用开关、刷新、设置和删除按钮。建议文件名：doc/openclash/pics/overwrite-module-card.png -->
+<img width="929" height="959" alt="1" src="https://github.com/user-attachments/assets/0488cae2-670e-448d-ab5a-71d7142a5546" />
 
 首次执行后，应确认 `.conf` 下载成功、目标 YAML 已写入 `/etc/openclash/config/`、环境变量进入正确的 Provider、当前配置已切换到目标 YAML，并且 Provider 更新、配置检查和 OpenClash 启动均无错误。
-
-**第五步：设置自动更新策略**
-
-远程模块的自动更新有两层含义：
-
-1. OpenClash 定时更新 `.conf` 模块；
-2. 模块执行后重新下载仓库中的当前 YAML。
-
-希望自动跟随本项目更新时，可设置每日或每周在不用网时更新；希望长期固定当前逻辑时，应关闭自动更新，或自行托管固定版本的模块和 YAML。远程 YAML 更新不会合并本地修改，而是直接覆盖同名文件。
 
 **8 合 1 模块**的切换方法
 
@@ -1116,12 +1126,12 @@ EN_KEY1=https://example.com/subscription;EN_KEY2=Custom_Clash_Fallback
 
 不要通过修改已下载 YAML 的文件名来切换版本，8 合 1 模块以 `EN_KEY2` 为唯一选择依据。
 
-**不要同时启用多个完整配置模块**
+**不要同时启用多个完整配置覆写模块**
 
-本目录模块会设置 `CONFIG_FILE` 并触发重启。同时启用多个完整配置模块时，后执行的模块可能覆盖前一个模块，当前配置也可能在不同 YAML 之间反复切换，自动更新时间重叠后尤其难以排查。
+本目录模块会设置 `CONFIG_FILE` 并触发重启。同时启用多个完整配置覆写模块时，后执行的覆写模块可能覆盖前一个覆写模块，当前配置也可能在不同 YAML 之间反复切换，自动更新时间重叠后尤其难以排查。
 
 > [!IMPORTANT]
-> 在本章“三选一”的原则下，通常只启用一个本目录模块。需要切换版本时，停用旧模块后再启用新模块，或使用 8 合 1 模块。
+> 在本章“三选一”的原则下，通常只启用一个本目录覆写模块。需要切换版本时，停用旧模块后再启用新模块，或使用 8 合 1 覆写模块。
 
 ---
 
@@ -1134,11 +1144,9 @@ EN_KEY1=https://example.com/subscription;EN_KEY2=Custom_Clash_Fallback
 ```text
 从 GitHub 下载本项目 YAML
     ↓
-在本地编辑 proxy-providers 或 proxies
-    ↓
-保存为 UTF-8 YAML 文件
-    ↓
 上传到 OpenClash 配置管理
+    ↓
+编辑 proxy-providers 或 proxies 并保存
     ↓
 OpenClash 根据 LuCI 设置覆写
     ↓
@@ -1185,20 +1193,26 @@ Mihomo 直接拉取 Provider 并运行
 3. 点击 GitHub 文件页面右上角的下载原始文件按钮，或进入 `Raw` 页面后保存；
 4. 保持原始 `.yaml` 扩展名。
 
-<!-- 截图建议：GitHub cfg/yaml 文件列表。建议文件名：doc/openclash/pics/yaml-github-list.png -->
-
-<!-- 截图建议：GitHub YAML 文件页面的 Raw/下载原始文件按钮。建议文件名：doc/openclash/pics/yaml-github-download.png -->
+<img width="844" height="279" alt="image" src="https://github.com/user-attachments/assets/22fc8396-40fa-4857-ba4c-e60411acfd4e" />
 
 > [!WARNING]
 > 不要把 GitHub 网页本身另存为 `.yaml`。必须下载原始文件，否则保存的可能是 HTML 页面，OpenClash 无法解析。
 
-**第二步：使用纯文本编辑器打开**
+**第二步：上传到 OpenClash**
 
-使用 Visual Studio Code、Notepad++ 或其他支持 UTF-8 和 YAML 的纯文本编辑器，不要使用 Word、WPS 文字等富文本软件。YAML 对缩进敏感，应使用空格而不是 Tab，不要随意改变层级，也不要删除必要的引号、冒号或连字符；节点、Provider 和策略组名称必须保持唯一。
+1. 返回 OpenClash 首页；
+2. 在“配置管理”卡片中点击添加配置文件的 `选择文件`；
+3. 选择刚才下载好的 YAML 文件，点击`上传`。
+4. 页面行会出现刚上传的配置文件，点击 `编辑`；
+5. 替换 url 为你的订阅链接，保存并返回；
+5. 返回首页，点击开关启动
+6. 观察运行日志确认启动正常
 
-**第三步：填写普通 YAML 的订阅链接**
+<img width="1250" height="959" alt="1" src="https://github.com/user-attachments/assets/26a91dab-97a6-45ad-bb5d-8dfa58aa8355" />
 
-在 8 个常规 YAML 中找到：
+**填写普通 YAML 的订阅链接**
+
+在 YAML 中找到：
 
 ```yaml
 proxy-providers:
@@ -1213,7 +1227,7 @@ proxy-providers:
 url: "url"
 ```
 
-替换为：
+替换为你的第三方服务订阅链接：
 
 ```yaml
 url: "https://example.com/your-subscription"
@@ -1224,7 +1238,7 @@ url: "https://example.com/your-subscription"
 > [!CAUTION]
 > 只替换 `provider1` 下的占位订阅地址，不要使用全文替换把规则下载地址、健康检查地址等其他 URL 一并改掉。
 
-**第四步：多机场订阅的处理方法**
+**多机场订阅的处理方法**
 
 需要多个 Provider 时，可以复制 `provider1`，依次命名为 `provider2`、`provider3`：
 
@@ -1261,7 +1275,7 @@ use:
 
 只复制 Provider 而不加入策略组 `use`，新 Provider 的节点不会出现在相关策略组中。
 
-**第五步：填写自建节点配置**
+**填写自建节点配置**
 
 **Manual 版：**
 
@@ -1297,47 +1311,6 @@ proxy-providers:
 ```
 
 `selfhost.url` 不能直接填写单条节点 URI，必须是可通过 HTTP/HTTPS 获取的订阅或 Provider 文件。
-
-**第六步：保存并进行基本检查**
-
-1. 文件编码保存为 UTF-8；
-2. 扩展名保持 `.yaml` 或 `.yml`；
-3. 检查是否出现 Tab 缩进；
-4. 检查引号是否成对；
-5. 检查 Provider 名称和 `path` 是否重复；
-6. 检查真实订阅没有被误填到注释或其他字段；
-7. 保存一份未填写敏感信息的原始文件用于回退。
-
-> [!WARNING]
-> 填写后的 YAML 包含订阅地址、UUID、密钥或其他认证信息。不要上传到公开 GitHub 仓库、Issue、网盘或聊天记录。
-
-**第七步：上传到 OpenClash**
-
-1. 返回 OpenClash 首页；
-2. 在“配置文件”卡片中点击添加配置文件的 `+`；
-3. 选择 `上传文件`；
-4. 点击上传区域选择 YAML，或拖放文件；
-5. OpenClash 当前界面支持 `.yaml`、`.yml`，文件大小上限为 10 MB；
-6. 没有明确需求时，不需要启用高级上传选项；
-7. 点击 `添加` 或 `上传`。
-
-<!-- 截图建议：OpenClash“添加配置文件”窗口中的“上传文件”页面。建议文件名：doc/openclash/pics/yaml-upload-dialog.png -->
-
-**第八步：切换配置并验证**
-
-上传完成后：
-
-1. 在 OpenClash 首页的配置文件卡片中选择刚上传的 YAML；
-2. 执行配置检查；
-3. 启用或重启 OpenClash；
-4. 打开运行日志；
-5. 确认 `provider1` 和其他 Provider 更新成功；
-6. 确认 Rule Provider 下载成功；
-7. 确认策略组中存在预期节点；
-8. 确认 OpenClash 启动成功；
-9. 继续按照第 5 章和第 6 章检查控制面板、DNS、IPv6 与实际分流。
-
-<!-- 截图建议：首页配置文件卡片中选择刚上传 YAML，以及配置检查/切换按钮。建议文件名：doc/openclash/pics/yaml-select-config.png -->
 
 > [!IMPORTANT]
 > 手工 YAML 路径的最大优点是配置由你完全控制，最大代价也是配置由你自行维护。本项目更新 YAML 后，你的本地文件不会自动获得新规则、策略组或修复，需要自行对比迁移。
