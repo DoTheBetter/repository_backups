@@ -17,7 +17,7 @@
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2026.05.20 | OpenWrt在线构建工具 |
-| https://github.com/217heidai/OpenWrt-Builder | main | 2026.06.04 | OpenWrt在线构建工具 |
+| https://github.com/217heidai/OpenWrt-Builder | main | 2026.07.29 | OpenWrt在线构建工具 |
 | https://github.com/P3TERX/Actions-OpenWrt | main | 2025.01.09 | OpenWrt在线构建工具 |
 
 ## Docker
@@ -31,10 +31,10 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2026.07.28 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.07.28 | OpenClash自定义 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2026.07.29 | mihomo和sing-box教程合集 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.07.29 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.07.27 | OpenClash自定义Wiki |
-| https://github.com/fscarmen/sing-box | main | 2026.07.26 | Sing-box代理工具 |
+| https://github.com/fscarmen/sing-box | main | 2026.07.29 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2026.05.15 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.10.07 | PAC代理工具 |
 
