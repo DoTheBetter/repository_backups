@@ -40,8 +40,8 @@ mkdir -p "$TEMP_DIR"
 
 E[0]="Language:\n 1. English (default) \n 2. 简体中文"
 C[0]="${E[0]}"
-E[1]="1. sb -d supports setting an independent (non-consecutive) port for each protocol, only available after installation via sb -d so the install flow stays unchanged; 2. Server address accepts an IP or a domain (for NAT VPS whose public IP changes daily, use a DDNS domain), available both during install and afterwards via sb -d"
-C[1]="1. sb -d 支持为各协议设置独立（非连续）端口，仅在安装后通过 sb -d 修改，不影响常规安装流程; 2. 服务器地址支持填写 IP 或域名（NAT VPS 公网 IP 每日变化时可用 DDNS 域名），新安装和安装后修改均可"
+E[1]="1. [sb -d] supports setting an independent (non-consecutive) port for each protocol, only available after installation via [sb -d] so the install flow stays unchanged; 2. Server address accepts an IP or a domain (for NAT VPS whose public IP changes daily, use a DDNS domain), available both during install and afterwards via sb -d"
+C[1]="1. [sb -d] 支持为各协议设置独立（非连续）端口，仅在安装后通过 [sb -d] 修改，不影响常规安装流程; 2. 服务器地址支持填写 IP 或域名（NAT VPS 公网 IP 每日变化时可用 DDNS 域名），新安装和安装后修改均可"
 E[2]="Downloading Sing-box. Please wait a seconds ..."
 C[2]="下载 Sing-box 中，请稍等 ..."
 E[3]="Input errors up to 5 times.The script is aborted."
@@ -489,7 +489,7 @@ check_cdn() {
 
 # 检测是否解锁 chatGPT，以决定是否使用 warp 链式代理或者是 direct out，此处判断改编自 https://github.com/lmc999/RegionRestrictionCheck
 check_chatgpt() {
-  local CHECK_STACK=-$1
+  local CHECK_STACK=$1
   local UA_BROWSER="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
   local UA_SEC_CH_UA='"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"'
   wget --help | grep -q '\-\-ciphers' && local IS_CIPHERS=is_ciphers
@@ -2853,9 +2853,16 @@ sing-box_variables() {
       ;;
   esac
 
-  # 检测是否解锁 chatGPT
-  CHATGPT_OUT=warp-ep;
-  [ "$(check_chatgpt $(grep -oE '[46]' <<< "$STRATEGY"))" = 'unlock' ] && CHATGPT_OUT=direct
+  # 检测是否解锁 chatGPT：按服务器地址类型决定检测栈；域名（NAT 动态地址）交由 wget 按系统默认解析，避免域名被误判为 IPv6 栈
+  CHATGPT_OUT=warp-ep
+  if [[ "$SERVER_IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    local CHATGPT_STACK='-4'
+  elif [[ "$SERVER_IP" =~ ^[0-9a-fA-F:]+$ && "$SERVER_IP" =~ : ]]; then
+    local CHATGPT_STACK='-6'
+  else
+    local CHATGPT_STACK=''
+  fi
+  [ "$(check_chatgpt $CHATGPT_STACK)" = 'unlock' ] && CHATGPT_OUT=direct
 
   # 如果选择有 b j k 这些 reality 协议，自定义 reality 公私钥，如果没有则自动生成
   if [ "$NONINTERACTIVE_INSTALL" != 'noninteractive_install' ] && [[ "${INSTALL_PROTOCOLS[@]}" =~ 'b'|'j'|'k' ]]; then
