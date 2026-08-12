@@ -85,17 +85,46 @@ fi
 
 
 # 启动应用
-# 启动 smartdns
+# 启动 smartdns（后台）
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start smartdns: '`/nestingdns/bin/smartdns -v` | sed 's/smartdns /v/'
-nohup /nestingdns/bin/smartdns -f -x -c /nestingdns/etc/conf/smartdns.conf > /dev/null 2>&1 &
+/nestingdns/bin/smartdns -f -x -c /nestingdns/etc/conf/smartdns.conf > /dev/null 2>&1 &
+PID_SMARTDNS=$!
 
-# 启动 mosdns
+# 启动 mosdns（后台）
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start mosdns: '`/nestingdns/bin/mosdns version`
-nohup /nestingdns/bin/mosdns start -c /nestingdns/etc/conf/mosdns.yaml -d /nestingdns/work/mosdns > /dev/null 2>&1 &
+/nestingdns/bin/mosdns start -c /nestingdns/etc/conf/mosdns.yaml -d /nestingdns/work/mosdns > /dev/null 2>&1 &
+PID_MOSDNS=$!
+
+# 启动 adguardhome（后台）
+echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start adguardhome: '`/nestingdns/bin/adguardhome --version` | sed 's/AdGuard Home, version //'
+/nestingdns/bin/adguardhome --no-check-update -c /nestingdns/etc/conf/adguardhome.yaml -w /nestingdns/work/adguardhome > /dev/null 2>&1 &
+PID_ADGUARD=$!
 
 # 启动定时任务 crond，定时任务包含重启mosdns，放在 mosdns 后启动
 crond
 
-# 启动 adguardhome
-echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start adguardhome: '`/nestingdns/bin/adguardhome --version` | sed 's/AdGuard Home, version //'
-/nestingdns/bin/adguardhome --no-check-update -c /nestingdns/etc/conf/adguardhome.yaml -w /nestingdns/work/adguardhome
+# 监控三个关键进程，任意一个退出则整个容器退出（非0）
+while true; do
+    sleep 5
+
+    # 检查 smartdns
+    if ! kill -0 $PID_SMARTDNS 2>/dev/null; then
+        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] smartdns (PID $PID_SMARTDNS) is dead, exiting container..."
+        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
+        exit 1
+    fi
+
+    # 检查 mosdns
+    if ! kill -0 $PID_MOSDNS 2>/dev/null; then
+        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] mosdns (PID $PID_MOSDNS) is dead, exiting container..."
+        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
+        exit 1
+    fi
+
+    # 检查 adguardhome
+    if ! kill -0 $PID_ADGUARD 2>/dev/null; then
+        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] adguardhome (PID $PID_ADGUARD) is dead, exiting container..."
+        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
+        exit 1
+    fi
+done
