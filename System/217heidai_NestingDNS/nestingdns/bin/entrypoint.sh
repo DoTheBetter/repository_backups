@@ -88,17 +88,14 @@ fi
 # 启动 smartdns（后台）
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start smartdns: '`/nestingdns/bin/smartdns -v` | sed 's/smartdns /v/'
 /nestingdns/bin/smartdns -f -x -c /nestingdns/etc/conf/smartdns.conf > /dev/null 2>&1 &
-PID_SMARTDNS=$!
 
 # 启动 mosdns（后台）
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start mosdns: '`/nestingdns/bin/mosdns version`
 /nestingdns/bin/mosdns start -c /nestingdns/etc/conf/mosdns.yaml -d /nestingdns/work/mosdns > /dev/null 2>&1 &
-PID_MOSDNS=$!
 
 # 启动 adguardhome（后台）
 echo `date "+%Y/%m/%d %H:%M:%S"`' [info] start adguardhome: '`/nestingdns/bin/adguardhome --version` | sed 's/AdGuard Home, version //'
 /nestingdns/bin/adguardhome --no-check-update -c /nestingdns/etc/conf/adguardhome.yaml -w /nestingdns/work/adguardhome > /dev/null 2>&1 &
-PID_ADGUARD=$!
 
 # 启动定时任务 crond，定时任务包含重启mosdns，放在 mosdns 后启动
 crond
@@ -107,24 +104,26 @@ crond
 while true; do
     sleep 5
 
-    # 检查 smartdns
-    if ! kill -0 $PID_SMARTDNS 2>/dev/null; then
-        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] smartdns (PID $PID_SMARTDNS) is dead, exiting container..."
-        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
+    # 检查 smartdns（如果崩溃，立即退出）
+    if ! pgrep -f "/nestingdns/lib/smartdns/smartdns" > /dev/null 2>&1; then
+        echo "$(date "+%Y/%m/%d %H:%M:%S") [error] smartdns is dead, exiting container..."
         exit 1
     fi
 
-    # 检查 mosdns
-    if ! kill -0 $PID_MOSDNS 2>/dev/null; then
-        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] mosdns (PID $PID_MOSDNS) is dead, exiting container..."
-        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
+    # 检查 adguardhome（如果崩溃，立即退出）
+    if ! pgrep -f "/nestingdns/bin/adguardhome" > /dev/null 2>&1; then
+        echo "$(date "+%Y/%m/%d %H:%M:%S") [error] adguardhome is dead, exiting container..."
         exit 1
     fi
 
-    # 检查 adguardhome
-    if ! kill -0 $PID_ADGUARD 2>/dev/null; then
-        echo "$(date "+%Y/%m/%d %H:%M:%S") [ERROR] adguardhome (PID $PID_ADGUARD) is dead, exiting container..."
-        kill $PID_SMARTDNS $PID_MOSDNS $PID_ADGUARD 2>/dev/null
-        exit 1
+    # 检查 mosdns（容忍 5 秒短暂消失，适应定时任务重启）
+    if ! pgrep -f "/nestingdns/bin/mosdns" > /dev/null 2>&1; then
+        sleep 5
+        if ! pgrep -f "/nestingdns/bin/mosdns" > /dev/null 2>&1; then
+            echo "$(date "+%Y/%m/%d %H:%M:%S") [error] mosdns is dead, exiting container..."
+            exit 1
+        else
+            echo "$(date "+%Y/%m/%d %H:%M:%S") [info] mosdns restarted successfully"
+        fi
     fi
 done
