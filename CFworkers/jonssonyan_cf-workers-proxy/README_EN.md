@@ -112,7 +112,7 @@ Thanks to everyone who contributed to this project.
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=jonssonyan/cf-workers-proxy&type=Date)](https://star-history.com/#jonssonyan/cf-workers-proxy&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=jonssonyan/cf-workers-proxy&type=Date)](https://star-history.com/#jonssonyan/cf-workers-proxy&Date)
 
 ## License
 
