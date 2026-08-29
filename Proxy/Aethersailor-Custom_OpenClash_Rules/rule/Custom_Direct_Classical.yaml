@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 790
+# TOTAL: 801
 
 payload:
   - DOMAIN-KEYWORD,m-team
@@ -51,6 +51,7 @@ payload:
   - DOMAIN-SUFFIX,7sef.com
   - DOMAIN-SUFFIX,85sc.com
   - DOMAIN-SUFFIX,86656.net
+  - DOMAIN-SUFFIX,888lm02.com
   - DOMAIN-SUFFIX,88996api.cloud
   - DOMAIN-SUFFIX,8kc.top
   - DOMAIN-SUFFIX,8x14khzwmi.com
@@ -67,6 +68,8 @@ payload:
   - DOMAIN-SUFFIX,acgdraw.com
   - DOMAIN-SUFFIX,acggit.com
   - DOMAIN-SUFFIX,adhuanxiao.com
+  - DOMAIN-SUFFIX,admpv.com
+  - DOMAIN-SUFFIX,admpv.net
   - DOMAIN-SUFFIX,adobe.com
   - DOMAIN-SUFFIX,adosmo.com
   - DOMAIN-SUFFIX,afeica.com
@@ -184,6 +187,7 @@ payload:
   - DOMAIN-SUFFIX,dcshfu.com
   - DOMAIN-SUFFIX,ddsrem.com
   - DOMAIN-SUFFIX,ddzn.tech
+  - DOMAIN-SUFFIX,deepzero.com
   - DOMAIN-SUFFIX,dell.com
   - DOMAIN-SUFFIX,dfhog.com
   - DOMAIN-SUFFIX,dhub.kubesre.xyz
@@ -357,6 +361,7 @@ payload:
   - DOMAIN-SUFFIX,ibwm5lynb6.com
   - DOMAIN-SUFFIX,icvcs.com
   - DOMAIN-SUFFIX,idazhe.net
+  - DOMAIN-SUFFIX,idphotoplus.com
   - DOMAIN-SUFFIX,idsduf.com
   - DOMAIN-SUFFIX,ifconfig.co
   - DOMAIN-SUFFIX,ifengmap.com
@@ -390,6 +395,7 @@ payload:
   - DOMAIN-SUFFIX,jieyoutsg.com
   - DOMAIN-SUFFIX,jiliuwang.net
   - DOMAIN-SUFFIX,jingheiot.com
+  - DOMAIN-SUFFIX,jinsan168.com
   - DOMAIN-SUFFIX,jinzanzan.com
   - DOMAIN-SUFFIX,jiqw.com
   - DOMAIN-SUFFIX,jjzyy.org
@@ -460,6 +466,7 @@ payload:
   - DOMAIN-SUFFIX,miaotixing.com
   - DOMAIN-SUFFIX,micu.hk
   - DOMAIN-SUFFIX,micun.com
+  - DOMAIN-SUFFIX,midoci.com
   - DOMAIN-SUFFIX,mifeng.plus
   - DOMAIN-SUFFIX,mifon.com
   - DOMAIN-SUFFIX,minor-api-os.hoyoverse.com
@@ -529,6 +536,7 @@ payload:
   - DOMAIN-SUFFIX,plusus2.younoyes.com
   - DOMAIN-SUFFIX,plusus3.younoyes.com
   - DOMAIN-SUFFIX,ponyemu.com
+  - DOMAIN-SUFFIX,pookcdn.net
   - DOMAIN-SUFFIX,pool.ntp.org
   - DOMAIN-SUFFIX,powershellgallery.com
   - DOMAIN-SUFFIX,ppt28.com
@@ -641,6 +649,7 @@ payload:
   - DOMAIN-SUFFIX,tool56.com
   - DOMAIN-SUFFIX,topwd.top
   - DOMAIN-SUFFIX,touchgal.ink
+  - DOMAIN-SUFFIX,touchgaloss.com
   - DOMAIN-SUFFIX,tozi-cn.top
   - DOMAIN-SUFFIX,trjho.com
   - DOMAIN-SUFFIX,ts3.ink
@@ -693,6 +702,7 @@ payload:
   - DOMAIN-SUFFIX,xdqtech.com
   - DOMAIN-SUFFIX,xdtool.com
   - DOMAIN-SUFFIX,xesabc.com
+  - DOMAIN-SUFFIX,xesim.net
   - DOMAIN-SUFFIX,xfltd.org
   - DOMAIN-SUFFIX,xgzb.top
   - DOMAIN-SUFFIX,xianghuiin.com
@@ -743,6 +753,7 @@ payload:
   - DOMAIN-SUFFIX,ynsj001.com
   - DOMAIN-SUFFIX,yongyu.xyz
   - DOMAIN-SUFFIX,yooc.me
+  - DOMAIN-SUFFIX,youqian.pro
   - DOMAIN-SUFFIX,youzhiyouxing.com
   - DOMAIN-SUFFIX,yunqin.online
   - DOMAIN-SUFFIX,yunzuoye.net
