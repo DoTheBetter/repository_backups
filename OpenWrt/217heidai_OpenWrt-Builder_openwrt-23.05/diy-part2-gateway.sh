@@ -151,31 +151,30 @@ config_package_add nano
 # upnp
 config_package_add luci-app-upnp
 # autoreboot
-config_package_add luci-app-autoreboot
+#config_package_add luci-app-autoreboot
 # python3
 #config_package_add python3
 #config_package_add python3-base
 #config_package_add python3-pip
 
 # 第三方软件包
-mkdir -p package/custom
-git clone -b openwrt-23.05 --single-branch --depth 1  https://github.com/217heidai/OpenWrt-Packages.git package/custom
-clean_packages package/custom
-## golang
-rm -rf feeds/packages/lang/golang
-mv package/custom/golang feeds/packages/lang/
 ## argon 主题
 config_package_add luci-theme-argon
 ## passwall
 config_package_add luci-app-passwall
-config_package_add luci-app-passwall_Nftables_Transparent_Proxy
-config_package_del luci-app-passwall_Iptables_Transparent_Proxy
-config_package_del luci-app-passwall_INCLUDE_Shadowsocks_Libev_Client
-config_package_del luci-app-passwall_INCLUDE_Shadowsocks_Libev_Server
+config_package_add luci-app-passwall_INCLUDE_V2ray_Geoview
+config_package_del luci-app-passwall_INCLUDE_Haproxy
+config_package_del luci-app-passwall_INCLUDE_Hysteria
+config_package_del luci-app-passwall_INCLUDE_NaiveProxy
 config_package_del luci-app-passwall_INCLUDE_Shadowsocks_Rust_Client
 config_package_del luci-app-passwall_INCLUDE_Shadowsocks_Rust_Server
-config_package_del luci-app-passwall_INCLUDE_ShadowsocksR_Libev_Client
-config_package_del luci-app-passwall_INCLUDE_ShadowsocksR_Libev_Server
+config_package_del luci-app-passwall_INCLUDE_Shadow_TLS
+config_package_del luci-app-passwall_INCLUDE_Simple_Obfs
+config_package_add luci-app-passwall_INCLUDE_SingBox
+config_package_add luci-app-passwall_INCLUDE_V2ray_Geodata
+config_package_del luci-app-passwall_INCLUDE_V2ray_Plugin
+config_package_add luci-app-passwall_INCLUDE_Xray
+config_package_del luci-app-passwall_INCLUDE_Xray_Plugin
 ## luci-app-easytier
 config_package_add luci-app-easytier
 config_package_add easytier
@@ -187,7 +186,8 @@ echo "CONFIG_TARGET_KERNEL_PARTSIZE=32" >> .config
 sed -i "/CONFIG_TARGET_ROOTFS_PARTSIZE/d" .config
 echo "CONFIG_TARGET_ROOTFS_PARTSIZE=1024" >> .config
 # 调整 GRUB_TIMEOUT
-sed -i "s/CONFIG_GRUB_TIMEOUT=\"3\"/CONFIG_GRUB_TIMEOUT=\"1\"/" .config
+sed -i "/CONFIG_GRUB_TIMEOUT/d" .config
+echo 'CONFIG_GRUB_TIMEOUT="1"' >> .config
 ## 不生成 EXT4 硬盘格式镜像
 config_del TARGET_ROOTFS_EXT4FS
 ## 不生成非 EFI 镜像
