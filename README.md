@@ -16,7 +16,7 @@
 ## OpenWrt
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2026.10.13 | OpenWrt在线构建工具 |
+| https://github.com/217heidai/OpenWrt-Builder | openwrt-23.05 | 2026.10.22 | OpenWrt在线构建工具 |
 | https://github.com/217heidai/OpenWrt-Builder | main | 2026.10.13 | OpenWrt在线构建工具 |
 | https://github.com/P3TERX/Actions-OpenWrt | main | 2025.01.09 | OpenWrt在线构建工具 |
 
@@ -25,14 +25,14 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/abcfy2/docker-musl-cross-toolchain-ubuntu | main | 2026.05.08 | toolchain based on Ubuntu docker image |
 | https://github.com/abcfy2/aria2-static-build | main | 2026.10.08 | aria2-static-build |
-| https://github.com/gshang2017/docker | master | 2026.10.21 | Docker集合 |
+| https://github.com/gshang2017/docker | master | 2026.10.22 | Docker集合 |
 | https://github.com/cmj2002/warp-docker | main | 2026.08.02 | Warp Docker镜像 |
 
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2026.09.26 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.10.21 | OpenClash自定义 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.10.22 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.10.16 | OpenClash自定义Wiki |
 | https://github.com/fscarmen/sing-box | main | 2026.10.20 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2026.05.15 | Sing-box代理工具 |
