@@ -67,7 +67,11 @@
 
 ### [一些零碎的教程](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B)
 
-包括本地传统 subconverter、固件扩容和 Tailscale 子网互通等独立教程。执行命令前，先核对每节的适用环境和风险说明。
+包括 [固件扩容](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#firmware-expansion)、[Tailscale 子网互通](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#tailscale-subnets) 和 AdGuard Home 等独立教程。执行命令前，先核对每节的适用环境和风险说明。
+
+#### [AdGuard Home 设置方案](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/AdGuard-Home-%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)
+
+从 LuCI 安装开始，完成 AGH 向导、缓存与日志设置、中文地区过滤列表，以及 LAN TCP/UDP DNS 劫持。方案可独立使用，也可作为 OpenClash 的可选过滤前端；同时说明乐观缓存与 Fake-IP 持久化的配套要求和取舍。
 
 ### [关于「旁路由」的一些吐槽](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E5%85%B3%E4%BA%8E%E2%80%9C%E6%97%81%E8%B7%AF%E7%94%B1%E2%80%9D%E7%9A%84%E4%B8%80%E4%BA%9B%E5%90%90%E6%A7%BD)
 
