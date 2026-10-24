@@ -1,4 +1,4 @@
-FROM alpine:3.23 AS mympd
+FROM alpine:3.24 AS mympd
 
 ARG MYMPD_VER=26.1.1
 
@@ -13,7 +13,7 @@ FROM ghcr.io/gshang2017/mpd-bin:latest AS mpd
 
 FROM ghcr.io/gshang2017/mpd-test-bin:latest AS mpd-test
 
-FROM jlesage/baseimage-gui:alpine-3.23-v4.11.3
+FROM jlesage/baseimage-gui:alpine-3.24-v4.14.0
 
 ENV APP_NAME=MPD
 ENV TZ=Asia/Shanghai
