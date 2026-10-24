@@ -67,7 +67,7 @@
 
 ### [一些零碎的教程](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B)
 
-包括 [固件扩容](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#firmware-expansion)、[Tailscale 子网互通](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#tailscale-subnets) 和 AdGuard Home 等独立教程。执行命令前，先核对每节的适用环境和风险说明。
+包括 [固件扩容](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#firmware-expansion)、[Tailscale 子网互通](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E4%B8%80%E4%BA%9B%E9%9B%B6%E7%A2%8E%E7%9A%84%E6%95%99%E7%A8%8B#tailscale-subnets) 和 AdGuard Home 等独立教程。执行命令前，先核对每节的适用环境和操作步骤。
 
 #### [AdGuard Home 设置方案](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/AdGuard-Home-%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)
 
