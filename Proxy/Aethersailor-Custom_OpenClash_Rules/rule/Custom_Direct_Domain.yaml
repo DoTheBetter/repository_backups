@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 1019
+# TOTAL: 1029
 
 payload:
   - '+.00333118.com'
@@ -53,6 +53,7 @@ payload:
   - '+.6v520.net'
   - '+.71.am'
   - '+.737698.xyz'
+  - '+.757abc.com'
   - '+.77shuku.info'
   - '+.77shuku.org'
   - '+.7sef.com'
@@ -186,6 +187,7 @@ payload:
   - '+.cg3da.com'
   - '+.cgicop.com'
   - '+.changjirb.com'
+  - '+.changzhi.top'
   - '+.chaxunjiao.com'
   - '+.chaz.fun'
   - '+.checkip.dyndns.org'
@@ -285,6 +287,7 @@ payload:
   - '+.excelbbx.net'
   - '+.exiliumgf.com'
   - '+.eye4cloud.com'
+  - '+.eyosc.com'
   - '+.faka163.com'
   - '+.fastify.cc'
   - '+.fb71ef91e1014.beer'
@@ -447,6 +450,7 @@ payload:
   - '+.hub.xdark.top'
   - '+.hueihuei.top'
   - '+.huikao8.com'
+  - '+.human-horizons.com'
   - '+.hutaoyun.top'
   - '+.hwbim.com'
   - '+.hwjianmo.com'
@@ -531,6 +535,7 @@ payload:
   - '+.kaspersky-labs.com'
   - '+.kaspersky.com'
   - '+.kasperskydaily.com'
+  - '+.kbser.com'
   - '+.kcbd.top'
   - '+.kcttpa.com'
   - '+.kejiweixun.com'
@@ -550,6 +555,7 @@ payload:
   - '+.laogongju.com'
   - '+.latexlive.com'
   - '+.laupqc.com'
+  - '+.ldboost.com'
   - '+.leadweigh.com'
   - '+.leelen.com'
   - '+.letaoedu.com'
@@ -564,6 +570,7 @@ payload:
   - '+.liveperson.net'
   - '+.liyunol.com'
   - '+.ljj233.top'
+  - '+.lodop.net'
   - '+.longmenshuju.com'
   - '+.loveutips.com'
   - '+.lsbj365.com'
@@ -721,6 +728,7 @@ payload:
   - '+.quxuanshu.com'
   - '+.qweapi.com'
   - '+.qweatherapi.com'
+  - '+.qzy.xyz'
   - '+.qzyun.net'
   - '+.ranwen.tw'
   - '+.rayws.top'
@@ -785,6 +793,7 @@ payload:
   - '+.staticmeow.com'
   - '+.stkfanli.com'
   - '+.sufe.me'
+  - '+.sun-panel.top'
   - '+.sunrisecontent.akamaized.net'
   - '+.suntl.com'
   - '+.susudesu.com'
@@ -927,6 +936,7 @@ payload:
   - '+.xiaolikj.online'
   - '+.xiaomaicn.com'
   - '+.xiaoxia.vip'
+  - '+.xiaoyao.co'
   - '+.xiaoyuan888.com'
   - '+.xiberia.net'
   - '+.ximogo.com'
