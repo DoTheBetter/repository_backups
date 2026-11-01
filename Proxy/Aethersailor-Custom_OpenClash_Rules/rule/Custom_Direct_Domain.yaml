@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 1066
+# TOTAL: 1069
 
 payload:
   - '+.00333118.com'
@@ -108,6 +108,7 @@ payload:
   - '+.akamaihd.net'
   - '+.akamaized.net'
   - '+.allptt.com'
+  - '+.allsaints.top'
   - '+.alonginwind.eu.org'
   - '+.alonginwind.to'
   - '+.alonginwind.top'
@@ -309,6 +310,7 @@ payload:
   - '+.fenno.ai'
   - '+.fffff.games'
   - '+.ffhome.com'
+  - '+.fgaiservice.com'
   - '+.fileh.xyz'
   - '+.filej.xyz'
   - '+.fjdejing.com'
@@ -743,6 +745,7 @@ payload:
   - '+.qjmotorlink.com'
   - '+.qmeng.top'
   - '+.qmpx.net'
+  - '+.qpe27.top'
   - '+.quanxinfu.com'
   - '+.quanzhua.com'
   - '+.quxuanshu.com'
