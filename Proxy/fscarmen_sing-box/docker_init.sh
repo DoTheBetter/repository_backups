@@ -1140,55 +1140,9 @@ v2rayn://tuic/$(echo -n "{\"ConfigType\":8,\"CoreType\":24,\"ConfigVersion\":4,\
 
   [ "${SHADOWTLS}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
-# $(echo -e "ShadowTLS 配置文件内容，需要更新 sing_box 内核")
-
-{
-  \"log\":{
-      \"level\":\"warn\"
-  },
-  \"inbounds\":[
-      {
-          \"listen\":\"127.0.0.1\",
-          \"listen_port\":${PORT_SHADOWTLS},
-          \"sniff\":true,
-          \"sniff_override_destination\":false,
-          \"tag\": \"ShadowTLS\",
-          \"type\":\"mixed\"
-      }
-  ],
-  \"outbounds\":[
-      {
-          \"detour\":\"shadowtls-out\",
-          \"method\":\"${SIP022_METHOD}\",
-          \"password\":\"${SIP022_PASSWORD}\",
-          \"type\":\"shadowsocks\",
-          \"udp_over_tcp\": false,
-          \"multiplex\": {
-            \"enabled\": true,
-            \"protocol\": \"h2mux\",
-            \"max_connections\": 8,
-            \"min_streams\": 16,
-            \"padding\": true
-          }
-      },
-      {
-          \"password\":\"${UUID}\",
-          \"server\":\"${SERVER_IP}\",
-          \"server_port\":${PORT_SHADOWTLS},
-          \"tag\": \"shadowtls-out\",
-          \"tls\":{
-              \"enabled\":true,
-              \"server_name\":\"addons.mozilla.org\",
-              \"utls\": {
-                \"enabled\": true,
-                \"fingerprint\": \"firefox\"
-              }
-          },
-          \"type\":\"shadowtls\",
-          \"version\":3
-      }
-  ]
-}"
+v2rayn://shadowtls/$(echo -n "{\"IndexId\":\"shadowtls-${UUID}-1-tls\",\"ConfigType\":13,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} 1-tls-not-use\",\"CustomOutboundObj\":{\"type\":\"shadowtls\",\"tag\":\"${NODE_NAME} 1-tls-not-use\",\"server\":\"${SERVER_IP}\",\"server_port\":${PORT_SHADOWTLS},\"version\":3,\"password\":\"${UUID}\",\"tls\":{\"enabled\":true,\"server_name\":\"addons.mozilla.org\",\"utls\":{\"enabled\":true,\"fingerprint\":\"firefox\"}}}}" | base64 -w0 | tr '+/' '-_' | tr -d '=')
+v2rayn://shadowsocks/$(echo -n "{\"IndexId\":\"shadowtls-${UUID}-2-ss\",\"ConfigType\":13,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} 2-ss-not-use\",\"CustomOutboundObj\":{\"type\":\"shadowsocks\",\"tag\":\"${NODE_NAME} 2-ss-not-use\",\"method\":\"${SIP022_METHOD}\",\"password\":\"${SIP022_PASSWORD}\",\"udp_over_tcp\":false,\"multiplex\":{\"enabled\":true,\"protocol\":\"h2mux\",\"max_connections\":8,\"min_streams\":16,\"padding\":true}}}" | base64 -w0 | tr '+/' '-_' | tr -d '=')
+v2rayn://proxychain/$(echo -n "{\"IndexId\":\"shadowtls-${UUID}-chain\",\"ConfigType\":102,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} ShadowTLS\",\"ProtoExtraObj\":{\"ChildItems\":\"shadowtls-${UUID}-1-tls,shadowtls-${UUID}-2-ss\"}}" | base64 -w0 | tr '+/' '-_' | tr -d '=')"
   [ "${SHADOWSOCKS}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
 ----------------------------
 ss://$(echo -n "${SIP022_METHOD}:${SIP022_PASSWORD}@${SERVER_IP_1}:$PORT_SHADOWSOCKS" | base64 -w0)#${NODE_NAME// /%20}%20shadowsocks"
@@ -1217,6 +1171,10 @@ vless://${UUID}@${SERVER_IP_1}:${PORT_GRPC_REALITY}?encryption=none&security=rea
 ----------------------------
 v2rayn://anytls/$(echo -n "{\"ConfigType\":11,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} anytls\",\"Address\":\"${SERVER_IP}\",\"Port\":${PORT_ANYTLS},\"Password\":\"${UUID}\",\"StreamSecurity\":\"tls\",\"AllowInsecure\":\"false\",\"Sni\":\"addons.mozilla.org\",\"Fingerprint\":\"firefox\",\"Cert\":\"${CERT_URL_2}\"}" | base64 -w0 | tr '+/' '-_' | tr -d '=')"
 
+  [ "${SNELL}" = 'true' ] && local V2RAYN_SUBSCRIBE+="
+----------------------------
+v2rayn://snell/$(echo -n "{\"ConfigType\":13,\"CoreType\":24,\"ConfigVersion\":4,\"Remarks\":\"${NODE_NAME} snell-v6\",\"CustomOutboundObj\":{\"type\":\"snell\",\"tag\":\"${NODE_NAME} snell-v6\",\"server\":\"${SERVER_IP}\",\"server_port\":${PORT_SNELL},\"version\":6,\"psk\":\"${UUID}\",\"mode\":\"default\",\"reuse\":true}}" | base64 -w0 | tr '+/' '-_' | tr -d '=')"
+
   echo -n "$V2RAYN_SUBSCRIBE" | sed -E '/^[ ]*#|^[ ]+|^--|^\{|^\}/d' | sed '/^$/d' | base64 -w0 > ${WORK_DIR}/subscribe/v2rayn
 
   # 生成 Throne 订阅文件
@@ -1236,7 +1194,7 @@ tuic://${UUID}:${UUID}@${SERVER_IP_1}:${PORT_TUIC}?congestion_control=bbr&alpn=h
 ----------------------------
 shadowtls://:${UUID}@${SERVER_IP_1}:${PORT_SHADOWTLS}?version=3&security=tls&sni=addons.mozilla.org&fp=chrome#1-tls-not-use
 
-ss://${SIP022_METHOD}:${SIP022_PASSWORD}@127.0.0.1:0#2-ss-not-use"
+ss://${SIP022_METHOD}:${SIP022_PASSWORD//\//%2F}@127.0.0.1:0#2-ss-not-use"
 
   [ "${SHADOWSOCKS}" = 'true' ] && local THRONE_SUBSCRIBE+="
 ----------------------------

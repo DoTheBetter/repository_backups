@@ -25,7 +25,7 @@
 
 * * *
 ## 1.更新信息
-2026.11.07 v1.3.30 Add Snell v6 inbound with Throne, Clash Mihomo, Shadowrocket and sing-box client configuration output; 新增 Snell v6 入站，并输出 Throne、Clash Mihomo、Shadowrocket 和 sing-box 客户端配置
+2026.11.07 v1.3.30 Add Snell v6 inbound with V2rayN, Throne, Clash Verge, Shadowrocket and sing-box client configuration output; 新增 Snell v6 入站，并输出 V2rayN、Throne、Clash Verge、Shadowrocket 和 sing-box 客户端配置
 
 2026.10.31 v1.3.29 Hysteria2 流量不再通过 WARP 出站，存量 Hysteria2 专属 WARP 路由自动清理；Hysteria2 Realm 功能保持不变
 
@@ -183,7 +183,6 @@
 * 所有协议均不需要域名，可选 Cloudflare Argo Tunnel 内网穿透以支持传统方式为 websocket 的协议
 * Hysteria2 支持 Realm 模式，适用于回国、没有公网入口、住宅 NAT、CGNAT 等无法开放入站端口的机器；有公网入口时不建议使用
 * 节点信息输出到 V2rayN / Clash Verge / 小火箭 / Throne / Sing-box (SFI, SFA, SFM)，订阅自动适配客户端，一个订阅 url 走天下
-* Snell v6 客户端配置默认启用连接复用：Clash Verge 使用 `reuse: true`，Shadowrocket 与 Throne 链接使用 `reuse=1`，Sing-box 使用 `"reuse": true`
 * 自定义端口，适合有限开放端口的 nat 小鸡
 * 安装后通过 sb -d 可修改监听端口：修改开始端口（各协议按顺序占用）或为各协议设置独立（非连续）端口，端口变更自动同步 nginx 反代并热加载
 * 服务器地址支持填写 IP 或域名，NAT VPS 公网 IP 每日变化时可直接使用 DDNS 域名，新安装与 sb -d 修改均可
