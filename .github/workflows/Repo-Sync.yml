@@ -118,6 +118,9 @@ jobs:
         sync_wiki "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "Proxy/Aethersailor-Custom_OpenClash_Rules_wiki" "OpenClash自定义Wiki"
         sync_repo "Proxy" "https://github.com/Aethersailor/Custom_OpenClash_Rules" "main" "Proxy/Aethersailor-Custom_OpenClash_Rules" "OpenClash自定义"
         sync_repo "Proxy" "https://github.com/DustinWin/dustinwin.github.io" "main" "Proxy/DustinWin-github.io" "mihomo和sing-box教程合集"
+        sync_repo "Proxy" "https://github.com/crazypeace/my-dream-proxy-client" "main" "Proxy/crazypeace_my-dream-proxy-client" "极简翻墙客户端(壳) 后端基于go 前端基于HTML"
+        sync_repo "Proxy" "https://github.com/crazypeace/v2ray_wss" "main" "Proxy/crazypeace_v2ray_wss" "VLESS_WebSocket_TLS模式 / Vmess_WebSocket_TLS模式，极简一键脚本"
+        sync_repo "Proxy" "https://github.com/crazypeace/xray-vless-reality" "main" "Proxy/crazypeace_xray-vless-reality" "Xray, VLESS_Reality模式 极简一键脚本"
 
     - name: 同步CFworkers文件夹
       run: |
