@@ -1,0 +1,62 @@
+#! /bin/sh
+
+if [ "$TTRSS_UPDATE_AUTO" == "true" ]; then
+  # tt-rss
+  cd /usr/local/tt-rss/app
+  git checkout -- /usr/local/tt-rss/app/classes/UrlHelper.php
+  git checkout -- /usr/local/tt-rss/app/cache
+  git checkout -- /usr/local/tt-rss/app/lock
+  git checkout -- /usr/local/tt-rss/app/plugins.local
+  git checkout -- /usr/local/tt-rss/app/templates.local
+  git checkout -- /usr/local/tt-rss/app/themes.local
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  if [ -n "$TTRSS_ALLOW_PORTS" ] && [ "$TTRSS_ALLOW_PORTS" != "80,443" ]; then
+    sed -i "s/\[80, 443, ''\]/\[80, 443, $TTRSS_ALLOW_PORTS, ''\]/" /usr/local/tt-rss/app/classes/UrlHelper.php
+    if [ "$TTRSS_ALLOW_LOCAL_IP" == "true" ]; then
+        ttrss_allow_ports=$(echo "$TTRSS_ALLOW_PORTS" | tr ',' ' ')
+        for i in $ttrss_allow_ports; do
+          if [ $i != 80 ] || [ $i != 443 ]; then
+             sed -i "s/\$port === null/\$port === null || \$port === $i/" /usr/local/tt-rss/app/classes/UrlHelper.php
+          fi
+        done
+    fi
+  fi
+  rm -rf /usr/local/tt-rss/app/cache
+  rm -rf /usr/local/tt-rss/app/lock
+  rm -rf /usr/local/tt-rss/app/plugins.local
+  rm -rf /usr/local/tt-rss/app/templates.local
+  rm -rf /usr/local/tt-rss/app/themes.local
+  ln -s /config/cache /usr/local/tt-rss/app/
+  ln -s /config/lock /usr/local/tt-rss/app/
+  ln -s /config/plugins.local /usr/local/tt-rss/app/
+  ln -s /config/templates.local /usr/local/tt-rss/app/
+  ln -s /config/themes.local /usr/local/tt-rss/app/
+  # update plugin mercury_fulltext
+  cd /usr/local/tt-rss/app/plugins.local/mercury_fulltext
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  # update plugin feediron
+  cd /usr/local/tt-rss/app/plugins.local/feediron
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  # update plugin fever
+  cd /usr/local/tt-rss/app/plugins.local/fever
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  # update plugin af-readability
+  cd /usr/local/tt-rss/app/plugins.local/af_readability
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  # update plugin opencc
+  cd /usr/local/tt-rss/app/plugins.local/opencc
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  # update plugin freshapi
+  cd /usr/local/tt-rss/app/plugins.local/freshapi
+  git checkout -- /usr/local/tt-rss/app/plugins.local/freshapi/api/greader.php
+  git pull --shallow-since=$(echo "`git show --pretty=format:"%ct" | head -1`-86400" | date -d @`bc` "+%Y-%m-%d")
+  sed -i "s/dirname.*$/\"\/usr\/local\/tt-rss\/app\";/" /usr/local/tt-rss/app/plugins.local/freshapi/api/greader.php
+  chown -R ttrss:ttrss /config/
+  chown -R ttrss:ttrss /usr/local/tt-rss/
+  if [ "$1" != "skip" ]; then
+    while ! pg_isready -h $TTRSS_DB_HOST -U $TTRSS_DB_USER; do
+      sleep 3
+    done
+    su ttrss -s /bin/sh -m -c "php85 /usr/local/tt-rss/app/update.php --update-schema=force-yes"
+  fi
+fi
