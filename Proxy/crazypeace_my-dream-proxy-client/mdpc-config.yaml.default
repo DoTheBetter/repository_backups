@@ -1,0 +1,33 @@
+listen: 127.0.0.1
+port: 18080
+log: ""
+
+xray:
+    files-dir: "bin/xray/"
+    core-start: "bin/xray/xray run -confdir bin/xray/"
+    core-test: "bin/xray/xray run -confdir bin/xray/ -test"
+
+hy2:
+    files-dir: "bin/hy2/"
+    core-start: "bin/hy2/hysteria client -c bin/hy2/config.yaml"
+    core-test: ""
+
+sing-box:
+    files-dir: "bin/sing-box/"
+    core-start: "bin/sing-box/sing-box run -C bin/sing-box/"
+    core-test: "bin/sing-box/sing-box check -C bin/sing-box/"
+
+ss:
+    files-dir: "bin/ss/"
+    core-start: "bin/ss/sslocal -c bin/ss/local.json"
+    core-test: ""
+
+v2ray:
+    files-dir: "bin/v2ray/"
+    core-start: "bin/v2ray/v2ray run -d bin/v2ray/"
+    core-test: "bin/v2ray/v2ray test -d bin/v2ray/"
+
+mdpc:
+    files-dir: ""
+    core-start: ""
+    core-test: ""

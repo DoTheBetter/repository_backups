@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>log - MDPC</title>
+<link rel="stylesheet" href="./common.css">
+</head>
+<body>
+
+<div class="topbar">
+  <span class="app-name">MDPC</span>
+  <input class="api-url" id="apiUrl" value="http://127.0.0.1:18080">
+  <button onclick="saveApiUrl()" style="padding:5px 10px;font-size:12px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#fff;white-space:nowrap;">保存LocalStorage</button>
+</div>
+
+<div class="navbar">
+  <a href="01-log.html" class="active">log</a>
+  <a href="02-dns.html">dns</a>
+  <a href="03-route.html">route</a>
+  <a href="04-inbounds.html">inbounds</a>
+  <a href="05-outbounds.html">outbounds</a>
+</div>
+
+<div class="status-bar" id="statusBar"></div>
+
+<div class="content">
+  <h2>log</h2>
+
+  <div style="margin-top:20px;display:flex;gap:16px;justify-content:center;">
+    <a href="../xray/01-log.html" style="color:#1a73e8;text-decoration:none;font-size:14px;">→ xray log 页面</a>
+    <a href="../v2ray/01-log.html" style="color:#1a73e8;text-decoration:none;font-size:14px;">→ v2ray log 页面</a>
+    <a href="../sing-box/01-log.html" style="color:#1a73e8;text-decoration:none;font-size:14px;">→ sing-box log 页面</a>
+  </div>
+</div>
+
+<script src="./common.js"></script>
+</body>
+</html>

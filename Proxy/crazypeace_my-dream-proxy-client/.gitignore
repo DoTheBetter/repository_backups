@@ -1,0 +1,37 @@
+# Compiled binaries
+my-dream-proxy-client
+my-dream-proxy-client.exe
+/mdpc
+/mdpc.exe
+/mdpc-linux-arm64
+/mdpc-windows-amd64.exe
+
+# Everything in bin/xray/ except the placeholder
+bin/xray/*
+!bin/xray/put_xray_bin_config_here
+
+# Everything in bin/hy2/ except the placeholder
+bin/hy2/*
+!bin/hy2/put_hy2_bin_config_here
+
+# Everything in bin/sing-box/ except the placeholder
+bin/sing-box/*
+!bin/sing-box/put_sing-box_bin_config_here
+
+# Everything in bin/ss/ except the placeholder
+bin/ss/*
+!bin/ss/put_ss_bin_config_here
+
+# Everything in bin/v2ray/ except the placeholder
+bin/v2ray/*
+!bin/v2ray/put_v2ray_bin_config_here
+
+# User-specific config
+*.yaml
+
+# Backup files
+*.bak
+bin/core/
+
+# md
+*.md
