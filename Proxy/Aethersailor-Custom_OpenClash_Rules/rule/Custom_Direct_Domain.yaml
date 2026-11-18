@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 1256
+# TOTAL: 1260
 
 payload:
   - '+.00333118.com'
@@ -253,6 +253,7 @@ payload:
   - '+.cilizhai.net'
   - '+.cindy.app'
   - '+.ciyuancenter.cc'
+  - '+.claisly.com'
   - '+.clivia.fun'
   - '+.cloudllll.com'
   - '+.cloudseekr.com'
@@ -742,6 +743,7 @@ payload:
   - '+.mifeng.plus'
   - '+.mifon.com'
   - '+.mifosy.com'
+  - '+.mikus.ink'
   - '+.minekuai.com'
   - '+.minor-api-os.hoyoverse.com'
   - '+.miraiemby.com'
@@ -1116,6 +1118,7 @@ payload:
   - '+.wwwh.eu.org'
   - '+.wwwwqq.com'
   - '+.wxdw.top'
+  - '+.wyswgb.com'
   - '+.x-gpu.com'
   - '+.x86pi.com'
   - '+.xaippc.com'
@@ -1195,6 +1198,7 @@ payload:
   - '+.yixc.com'
   - '+.yixlab.com'
   - '+.yldw.net'
+  - '+.ymm56-cdn.com'
   - '+.ymwfy.com'
   - '+.ymzec.com'
   - '+.ynsj001.com'
