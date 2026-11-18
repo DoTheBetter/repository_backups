@@ -43,7 +43,7 @@ jobs:
             mkdir -p "$target_dir"
             if git clone --depth=1 --branch "$branch" "$repo_url" "$target_dir"; then
                 rm -rf "$target_dir/.git"
-                git add $target_dir
+                git add -f "$target_dir"
                 if git commit -m "$(date +"%Y.%m.%d")：$repo_url"; then
                     echo "$category|$repo_url|$branch|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
                 else
@@ -72,7 +72,7 @@ jobs:
             mkdir -p "$target_dir"
             if git clone --depth=1 "$repo_url".wiki.git "$target_dir"; then
                 rm -rf "$target_dir/.git"
-                git add $target_dir
+                git add -f "$target_dir"
                 if git commit -m "$(date +"%Y.%m.%d")：${repo_url} wiki"; then
                     echo "$category|$repo_url|wiki|$(date +"%Y.%m.%d")|$description" >> updated_repos.txt
                 else
