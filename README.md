@@ -33,7 +33,7 @@
 | -------- | ---- | -------- | -------- |
 | https://github.com/crazypeace/xray-vless-reality | main | 2026.11.17 | Xray, VLESS_Reality模式 极简一键脚本 |
 | https://github.com/crazypeace/v2ray_wss | main | 2026.11.17 | VLESS_WebSocket_TLS模式 / Vmess_WebSocket_TLS模式，极简一键脚本 |
-| https://github.com/crazypeace/my-dream-proxy-client | main | 2026.11.17 | 极简翻墙客户端(壳) 后端基于go 前端基于HTML |
+| https://github.com/crazypeace/my-dream-proxy-client | main | 2026.11.18 | 极简翻墙客户端(壳) 后端基于go 前端基于HTML |
 | https://github.com/DustinWin/dustinwin.github.io | main | 2026.10.30 | mihomo和sing-box教程合集 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.11.18 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.10.24 | OpenClash自定义Wiki |
