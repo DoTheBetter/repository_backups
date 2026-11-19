@@ -1,7 +1,7 @@
 # Generated from rule/Custom_Direct.list
 # REPO: https://github.com/Aethersailor/Custom_OpenClash_Rules
 # SOURCE: https://github.com/Aethersailor/Custom_OpenClash_Rules/blob/main/rule/Custom_Direct.list
-# TOTAL: 1260
+# TOTAL: 1267
 
 payload:
   - '+.00333118.com'
@@ -637,6 +637,7 @@ payload:
   - '+.kaipanhong.com'
   - '+.kamhing.net'
   - '+.kancaibao.com'
+  - '+.kanv7k.live'
   - '+.kanxiquan.com'
   - '+.kaspersky-labs.com'
   - '+.kaspersky.com'
@@ -1079,6 +1080,7 @@ payload:
   - '+.vip-cdn.com'
   - '+.vip666ai.com'
   - '+.vipjiapu.com'
+  - '+.visaselectrewardhk.com'
   - '+.visionariopro.com'
   - '+.vlan5.com'
   - '+.volcanomob.com'
@@ -1100,7 +1102,9 @@ payload:
   - '+.weshape3d.com'
   - '+.wetolink.com'
   - '+.wewillpro.com'
+  - '+.wget.la'
   - '+.wildfirechat.net'
+  - '+.wirefee.site'
   - '+.wisecleaner.net'
   - '+.wjx.top'
   - '+.wlcdn88.com'
@@ -1187,6 +1191,7 @@ payload:
   - '+.ycyct.com'
   - '+.ydayc.com'
   - '+.yeguodj.com'
+  - '+.ygdj17.com'
   - '+.yhxjkj.top'
   - '+.yi-ll.com'
   - '+.yibanbianji.com'
@@ -1244,9 +1249,11 @@ payload:
   - '+.zllinks.com'
   - '+.zmaticoo.com'
   - '+.zmis.me'
+  - '+.znigddzwz.cc'
   - '+.znnu.com'
   - '+.znztv.com'
   - '+.zqin758.xyz'
+  - '+.zsdc.eu.org'
   - '+.zsytit.com'
   - '+.ztytech.com'
   - '+.zudanje.com'
