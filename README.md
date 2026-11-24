@@ -31,13 +31,13 @@
 ## Proxy
 | 仓库地址 | 分支 | 同步时间 | 描述 |
 | -------- | ---- | -------- | -------- |
-| https://github.com/crazypeace/xray-vless-reality | main | 2026.11.17 | Xray, VLESS_Reality模式 极简一键脚本 |
+| https://github.com/crazypeace/xray-vless-reality | main | 2026.11.24 | Xray, VLESS_Reality模式 极简一键脚本 |
 | https://github.com/crazypeace/v2ray_wss | main | 2026.11.22 | VLESS_WebSocket_TLS模式 / Vmess_WebSocket_TLS模式，极简一键脚本 |
 | https://github.com/crazypeace/my-dream-proxy-client | main | 2026.11.18 | 极简翻墙客户端(壳) 后端基于go 前端基于HTML |
-| https://github.com/DustinWin/dustinwin.github.io | main | 2026.10.30 | mihomo和sing-box教程合集 |
-| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.11.23 | OpenClash自定义 |
+| https://github.com/DustinWin/dustinwin.github.io | main | 2026.11.24 | mihomo和sing-box教程合集 |
+| https://github.com/Aethersailor/Custom_OpenClash_Rules | main | 2026.11.24 | OpenClash自定义 |
 | https://github.com/Aethersailor/Custom_OpenClash_Rules | wiki | 2026.10.24 | OpenClash自定义Wiki |
-| https://github.com/fscarmen/sing-box | main | 2026.11.18 | Sing-box代理工具 |
+| https://github.com/fscarmen/sing-box | main | 2026.11.24 | Sing-box代理工具 |
 | https://github.com/smith-stack/sing-box | main | 2026.05.15 | Sing-box代理工具 |
 | https://github.com/hjm2007/pac | main | 2025.10.07 | PAC代理工具 |
 
