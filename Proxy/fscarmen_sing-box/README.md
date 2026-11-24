@@ -25,7 +25,7 @@
 
 * * *
 ## 1.更新信息
-2026.11.17 v1.3.31 Add dynamic subscription (render subscription by request Host): a post-install feature, available via `sb -d` only after a fresh install with subscription enabled. Direct node servers follow the access address (IPv4/IPv6/Domain/Tunnel), supporting multi-IP servers and IPv6 address pools; 新增动态订阅（按请求 Host 实时渲染）：安装后功能，需先完成新安装并开启订阅，再通过 `sb -d` 添加；直连节点 server 跟随访问地址（IPv4/IPv6/域名/固定隧道），适配多 IP 机器与 IPv6 地址池
+2026.11.17 v1.3.31 1. Add dynamic subscription (render subscription by request Host): a post-install feature, available via `sb -d` only after a fresh install with subscription enabled. Direct node servers follow the access address (IPv4/IPv6/Domain/Tunnel), supporting multi-IP servers and IPv6 address pools; 2. Add the `--SUBSCRIBE` installation argument (`true`=enable subscriptions (default), `false`=disable subscriptions, `dynamic`=enable subscriptions and enable dynamic subscription immediately after installation); the `SUBSCRIBE` setting in the `-f` configuration file works the same way; 3. Add TLS and SNI to VMess client configurations for Clash, V2rayN, Throne, ShadowRocket and sing-box clients; 新增动态订阅（按请求 Host 实时渲染）：安装后功能，需先完成新安装并开启订阅，再通过 `sb -d` 添加；直连节点 server 跟随访问地址（IPv4/IPv6/域名/固定隧道），适配多 IP 机器与 IPv6 地址池; 2. 新增 `--SUBSCRIBE` 安装传参（三值：`true`=开启订阅（默认）、`false`=关闭、`dynamic`=开启订阅并安装后立即开启动态订阅），`-f` 配置文件中 `SUBSCRIBE` 同效; 3. VMess 客户端配置增加 TLS 和 SNI，覆盖 Clash、V2rayN、Throne、ShadowRocket 与 sing-box 客户端
 
 2026.11.07 v1.3.30 Add Snell v6 inbound with V2rayN, Throne, Clash Verge, Shadowrocket and sing-box client configuration output; 新增 Snell v6 入站，并输出 V2rayN、Throne、Clash Verge、Shadowrocket 和 sing-box 客户端配置
 
@@ -259,6 +259,19 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 ### 方式3. KV 传参，举例
 
 <details>
+    <summary> 使用动态订阅（安装后立即开启）（点击即可展开或收起）</summary>
+<br>
+
+```
+bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-box.sh) \
+  --LANGUAGE c \
+  --CHOOSE_PROTOCOLS a \
+  --SUBSCRIBE dynamic
+```
+
+</details>
+
+<details>
     <summary> 使用 Origin Rule + 订阅（点击即可展开或收起）</summary>
 <br>
 
@@ -296,6 +309,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
   --VMESS_HOST_DOMAIN vmess.test.com \
   --VLESS_HOST_DOMAIN vless.test.com \
   --UUID_CONFIRM 20f7fca4-86e5-4ddf-9eed-24142073d197 \
+  --SUBSCRIBE=false \
   --HY2_PORT_HOPPING_RANGE 50000:51000 \
   --HY2_REALM=true \
   --REALITY_PRIVATE=UPO3FWlg6YDJbASYi7KIESibPec_K46edTvDPbqEYFk \
@@ -338,6 +352,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
   --SERVER_IP 123.123.123.123 \
   --CDN skk.moe \
   --UUID_CONFIRM 20f7fca4-86e5-4ddf-9eed-24142073d197 \
+  --SUBSCRIBE=false \
   --ARGO=true \
   --HY2_PORT_HOPPING_RANGE 50000:51000 \
   --HY2_REALM=true \
@@ -386,6 +401,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
   --ARGO=true \
   --ARGO_DOMAIN=sb.argo.com \
   --ARGO_AUTH='{"AccountTag":"9cc9e3e4d8f29d2a02e297f14f20513a","TunnelSecret":"6AYfKBOoNlPiTAuWg64ZwujsNuERpWLm6pPJ2qpN8PM=","TunnelID":"1ac55430-f4dc-47d5-a850-bdce824c4101"}' \
+  --SUBSCRIBE=false \
   --HY2_PORT_HOPPING_RANGE 50000:51000 \
   --HY2_REALM=true \
   --REALITY_PRIVATE=UPO3FWlg6YDJbASYi7KIESibPec_K46edTvDPbqEYFk \
@@ -433,6 +449,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
   --ARGO=true \
   --ARGO_DOMAIN=sb.argo.com \
   --ARGO_AUTH='gKyflo59sDb5bI_fNr2OWCDnpihMUBIbJ29YsrtS' \
+  --SUBSCRIBE=false \
   --HY2_PORT_HOPPING_RANGE 50000:51000 \
   --HY2_REALM=true \
   --REALITY_PRIVATE=UPO3FWlg6YDJbASYi7KIESibPec_K46edTvDPbqEYFk \
@@ -448,13 +465,14 @@ bash <(wget -qO- https://raw.githubusercontent.com/fscarmen/sing-box/main/sing-b
 | --LANGUAGE | c=中文;  e=英文 |
 | --CHOOSE_PROTOCOLS | 可多选，如 bcdfk<br> a=全部<br> b=XTLS + reality<br> c=hysteria2<br> d=tuic<br> e=ShadowTLS<br> f=shadowsocks<br> g=trojan<br> h=vmess + ws<br> i=vless + ws + tls<br> j=H2 + reality<br> k=gRPC + reality<br> l=AnyTLS<br> m=NaiveProxy<br> n=Snell v6 |
 | --START_PORT | 100 - 65520 |
-| --PORT_NGINX | n=不需要订阅，或者 100 - 65520 |
+| --PORT_NGINX | nginx 端口，100 - 65520；启用订阅或使用 Argo 回源时需要 |
 | --SERVER_IP | IPv4 或 IPv6 地址，不需要中括号 |
 | --CDN | 优选 IP 或者域名，如 --CHOOSE_PROTOCOLS 是 [a,h,i] 时需要 |
 | --VMESS_HOST_DOMAIN | vmess sni 域名，如 --CHOOSE_PROTOCOLS 是 [a,h] 时需要 |
 | --VLESS_HOST_DOMAIN | vless sni 域名，如 --CHOOSE_PROTOCOLS 是 [a,i] 时需要 |
 | --UUID_CONFIRM | 全局 UUID；作为协议 UUID/password/PSK |
 | --ARGO | 是否使用 Argo Tunnel，如果是填 true，如果使用 Origin rules，则可以忽略本 Key |
+| --SUBSCRIBE | [true/false/dynamic] 是否启用订阅功能：true=开启（默认）、false=关闭、dynamic=开启并安装后立即开启动态订阅。安装后可在 -d 菜单调整 |
 | --ARGO_DOMAIN | 固定 Argo 域名，即是 Json 或者 Token 隧道的域名 |
 | --ARGO_AUTH | Json, Token 隧道的内容，或者是 Cloudflare API 密钥 |
 | --HY2_PORT_HOPPING_RANGE | hysteria2 跳跃端口范围，如 50000:51000 |
