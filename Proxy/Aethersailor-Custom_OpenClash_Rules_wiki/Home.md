@@ -99,7 +99,3 @@ OpenClash 已提供当前 Smart 覆写设置；本页只保留历史说明。
 ### [无插件广告拦截方案（已归档）](https://github.com/Aethersailor/Custom_OpenClash_Rules/wiki/%E6%97%A0%E6%8F%92%E4%BB%B6%E5%B9%BF%E5%91%8A%E6%8B%A6%E6%88%AA%E5%8A%9F%E8%83%BD%E8%AE%BE%E7%BD%AE%E6%96%B9%E6%A1%88)
 
 旧方案已经停止维护，页面中的可执行部署内容已移除。需要广告过滤时，请选择仍在维护的方案，并以其当前文档为准。
-
----
-
-项目交流与更新通知：[Custom OpenClash Rules Telegram 讨论群组](https://t.me/custom_openclash_rules_group)。
